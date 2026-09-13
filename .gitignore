@@ -1,0 +1,7 @@
+.netlify/
+__pycache__/
+*.pyc
+*.apk
+*.idsig
+*.pre-*
+*.google-signin-backup-*
