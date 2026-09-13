@@ -19,3 +19,13 @@ The upgrade prioritizes a fast core loop, visible progression, immediate feedbac
 The JU Games Hub card was renamed and refreshed to feature **Blessing's Block Party** and the new action/reward loop.
 ## Verification target
 Run `python3 lil-steppers/test_lil_steppers.py`, deploy the hub, and verify the public Lil Steppers route plus hub route return HTTP 200 before marking this revision live.
+## Deep Graphics Completion — 2026-09-13
+- Added animated clouds and ambient sparkles.
+- Added layered road, sidewalk, lane markings, crosswalk and street-light scenery.
+- Added Blessing idle animation and richer neighborhood depth.
+- Expanded collectible and hazard variety.
+- Added confetti-level celebration effects.
+- Gameplay regression: PASS 10/10.
+- Deep graphics checks: PASS 7/7.
+- Public deployment verified on GitHub Pages with HTTP 200.
+- Completion commit: ddf882b.
