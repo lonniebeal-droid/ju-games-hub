@@ -1,37 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>JU Lil Steppers</title>
-    <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->
-    <style id="expo-reset">
-      /* These styles make the body full-height */
-      html,
-      body {
-        height: 100%;
-      }
-      /* These styles disable body scrolling if you are using <ScrollView> */
-      body {
-        overflow: hidden;
-      }
-      /* These styles make the root element full-height */
-      #root {
-        display: flex;
-        height: 100%;
-        flex: 1;
-      }
-    </style>
-  <link rel="icon" href="./favicon.ico"/></head>
-
-  <body>
-    <!-- Use static rendering with Expo Router to support running without JavaScript. -->
-    <noscript>
-      You need to enable JavaScript to run this app.
-    </noscript>
-    <!-- The root element for your Expo app. -->
-    <div id="root"></div>
-  <script src="./expo-assets/static/js/web/index-1c92835a22872d547e0f251d1e72dbc9.js" defer></script>
-</body>
-</html>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>JU Lil Steppers: Blessing's Block Party</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif;background:linear-gradient(#62d8ff,#fff2a8);color:#17213b;overflow:hidden}.game{height:100vh;display:flex;flex-direction:column;align-items:center;padding:10px}.top{width:min(900px,100%);display:flex;justify-content:space-between;gap:8px;font-weight:900}.pill{background:#fff;border:3px solid #17213b;border-radius:18px;padding:7px 12px;box-shadow:0 4px 0 #17213b}.stage{position:relative;width:min(900px,100%);flex:1;min-height:390px;margin-top:8px;border:4px solid #17213b;border-radius:26px;overflow:hidden;background:linear-gradient(#9be36f 0 58%,#8b6b55 58% 62%,#55b7ef 62%);box-shadow:0 7px 0 #17213b}.sky{position:absolute;inset:0;background:radial-gradient(circle at 12% 12%,#fff 0 18px,transparent 19px),radial-gradient(circle at 80% 17%,#fff 0 24px,transparent 25px)}.blessing{position:absolute;left:9%;bottom:12%;font-size:82px;filter:drop-shadow(0 5px 0 #5c3b2e);transition:.18s}.name{position:absolute;left:5%;bottom:4%;background:#fff;border:3px solid #17213b;border-radius:14px;padding:5px 10px;font-weight:1000}.target{position:absolute;font-size:52px;cursor:pointer;user-select:none;filter:drop-shadow(0 4px 0 #17213b);animation:bob .8s infinite alternate}.target:active{transform:scale(.8)}@keyframes bob{to{margin-top:-12px}}.mission{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:90%;text-align:center;font-size:clamp(18px,4vw,30px);font-weight:1000;text-shadow:0 2px #fff}.controls{width:min(900px,100%);display:flex;gap:8px;margin-top:9px}.btn{flex:1;border:3px solid #17213b;border-radius:18px;background:#ffdc42;padding:11px;font-size:18px;font-weight:1000;box-shadow:0 4px 0 #17213b}.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #17213b}.pop{position:absolute;font-size:30px;font-weight:1000;pointer-events:none;animation:pop .7s forwards}@keyframes pop{to{transform:translateY(-80px) scale(1.5);opacity:0}}.overlay{position:absolute;inset:0;background:#0009;display:flex;align-items:center;justify-content:center;z-index:5}.card{background:#fff;border:4px solid #17213b;border-radius:28px;padding:22px;text-align:center;width:min(420px,90%);box-shadow:0 8px 0 #17213b}.card h1{margin:0;font-size:34px}.hidden{display:none}.stars{font-size:32px}
+</style></head><body><div class="game"><div class="top"><div class="pill">⭐ <span id="stars">0</span></div><div class="pill">🔥 <span id="streak">0</span></div><div class="pill">🏆 LV <span id="level">1</span></div></div><div class="stage" id="stage"><div class="sky"></div><div class="mission" id="mission">Help Blessing collect 8 stars!</div><div class="blessing" id="blessing">🧒🏾</div><div class="name">BLESSING ✨</div><div class="overlay" id="start"><div class="card"><h1>✨ Blessing's Block Party ✨</h1><p>Run around the block, tap the goodies, dodge the silly stuff, and unlock new challenges!</p><div class="stars">⭐🎈🛴🎵</div><button class="btn" onclick="startGame()">LET'S STEP!</button></div></div></div><div class="controls"><button class="btn" onclick="boost()">⚡ DASH</button><button class="btn" onclick="dance()">🕺🏾 DANCE</button><button class="btn" onclick="newRound()">🎲 NEW MISSION</button></div></div>
+<script>
+let stars=+(localStorage.lsStars||0),streak=0,level=+(localStorage.lsLevel||1),hits=0,timer=null;const stage=document.getElementById('stage'),blessing=document.getElementById('blessing');const goodies=['⭐','🎈','🪁','⚽','🍉','🎵','🛴','🧩'];const silly=['🧦','🥦','💦'];
+function ui(){document.getElementById('stars').textContent=stars;document.getElementById('streak').textContent=streak;document.getElementById('level').textContent=level;localStorage.lsStars=stars;localStorage.lsLevel=level}
+function startGame(){document.getElementById('start').classList.add('hidden');newRound()}
+function spawn(){document.querySelectorAll('.target').forEach(x=>x.remove());let bad=Math.random()<.25,el=document.createElement('div');el.className='target';el.textContent=(bad?silly:goodies)[Math.floor(Math.random()*(bad?silly.length:goodies.length))];el.style.left=(25+Math.random()*65)+'%';el.style.top=(18+Math.random()*48)+'%';el.onclick=e=>hit(e,el,bad);stage.appendChild(el);timer=setTimeout(spawn,Math.max(650,1450-level*70))}
+function hit(e,el,bad){clearTimeout(timer);if(bad){streak=0;pop(e.clientX,e.clientY,'😜 OOPS!');blessing.style.transform='rotate(-12deg)'}else{stars++;hits++;streak++;pop(e.clientX,e.clientY,streak>2?'🔥 NICE!':'⭐ +1');blessing.style.transform='scale(1.15)';if(hits>=8){level++;hits=0;celebrate()}}ui();setTimeout(()=>blessing.style.transform='',180);el.remove();spawn()}
+function pop(x,y,t){let p=document.createElement('div');p.className='pop';p.textContent=t;p.style.left=(x-35)+'px';p.style.top=(y-25)+'px';document.body.appendChild(p);setTimeout(()=>p.remove(),700)}
+function celebrate(){document.getElementById('mission').textContent='🎉 BLESSING LEVELED UP! LEVEL '+level+'!';for(let i=0;i<12;i++)setTimeout(()=>pop(Math.random()*innerWidth,innerHeight*.55,'✨'),i*60);setTimeout(()=>document.getElementById('mission').textContent='Level '+level+': Grab 8 goodies. Dodge the silly stuff!',1200)}
+function newRound(){clearTimeout(timer);hits=0;document.getElementById('mission').textContent='Level '+level+': Help Blessing grab 8 goodies!';spawn()}
+function boost(){blessing.style.left='55%';setTimeout(()=>blessing.style.left='9%',500)}function dance(){blessing.animate([{transform:'rotate(-15deg)'},{transform:'rotate(15deg) scale(1.2)'},{transform:'rotate(-15deg)'},{transform:'rotate(0)'}],{duration:650});stars++;ui()}ui();
+</script></body></html>
