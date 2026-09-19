@@ -1,0 +1,14 @@
+name: Verify Hub
+
+on:
+  push:
+    branches: [main, fix/**]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run portable hub verification
+        run: python3 verify_hub.py
