@@ -19,6 +19,12 @@ REQUIRED = [
     ROOT / "spades/index.html",
     ROOT / "lil-steppers/index.html",
     ROOT / "hustlebound/index.html",
+    ROOT / "21-rush/index.html",
+    ROOT / "living-atlanta/index.html",
+    ROOT / "atlanta-arcade/index.html",
+    ROOT / "block-the-a/index.html",
+    ROOT / "a-town-runner/index.html",
+    ROOT / "a-town-life/index.html",
 ]
 
 # APK may live only on release assets, not in the git tree
@@ -97,7 +103,7 @@ try:
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     port = server.server_address[1]
-    routes = ["/", "/spades/", "/lil-steppers/", "/hustlebound/"]
+    routes = ["/", "/spades/", "/lil-steppers/", "/hustlebound/", "/21-rush/", "/living-atlanta/", "/atlanta-arcade/", "/block-the-a/", "/a-town-runner/", "/a-town-life/"]
     if (ROOT / "downloads/HUSTLEBOUND-JU-ATL-Pixel.apk").is_file():
         routes.append("/downloads/HUSTLEBOUND-JU-ATL-Pixel.apk")
     for route in routes:
