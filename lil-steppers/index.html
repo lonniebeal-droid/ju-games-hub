@@ -8,6 +8,8 @@
 html,body{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 button,[role="button"],a{touch-action:manipulation}
 button{min-height:44px;min-width:44px}
+</style><style>
+@media(max-width:700px){body{overscroll-behavior:none}button,[role="button"],a{font-size:max(16px,1em)}canvas{max-width:100%;height:auto}*{box-sizing:border-box}}
 </style></head><body><div class="game"><div class="top"><div class="pill">⭐ <span id="stars">0</span></div><div class="pill">🔥 <span id="streak">0</span></div><div class="pill">🏆 LV <span id="level">1</span></div></div><div class="stage" id="stage"><div class="sky"><span class="cloud c1"></span><span class="cloud c2"></span><i class="spark" style="left:58%;top:15%"></i><i class="spark" style="left:72%;top:29%"></i></div><div class="city"><span class="bldg b1"></span><span class="bldg b2"></span><span class="bldg b3"></span><span class="tree t1"></span><span class="tree t2"></span><span class="sun"></span><span class="sidewalk"></span><span class="road"></span></div><div class="mission" id="mission">Help Blessing collect 8 stars!</div><div class="blessing" id="blessing" aria-label="Blessing"><svg viewBox="0 0 130 180" role="img"><ellipse cx="65" cy="169" rx="42" ry="8" fill="#000" opacity=".18"/><path d="M38 88 Q65 72 92 88 L101 145 Q66 162 29 145Z" fill="#ff5f7f"/><path d="M48 143 L43 170 L58 170 L65 145 L72 170 L88 170 L81 143Z" fill="#254b87"/><circle cx="65" cy="59" r="33" fill="#8e542f"/><path d="M31 55 Q35 17 66 17 Q101 18 100 58 Q87 36 65 37 Q44 36 31 55Z" fill="#1c1716"/><circle cx="53" cy="60" r="4" fill="#161616"/><circle cx="77" cy="60" r="4" fill="#161616"/><path d="M55 75 Q65 82 76 75" fill="none" stroke="#451f18" stroke-width="4" stroke-linecap="round"/><path d="M35 100 Q17 112 21 130" fill="none" stroke="#8e542f" stroke-width="11" stroke-linecap="round"/><path d="M94 99 Q112 111 109 130" fill="none" stroke="#8e542f" stroke-width="11" stroke-linecap="round"/><path d="M42 171 h17" stroke="#fff" stroke-width="8" stroke-linecap="round"/><path d="M72 171 h18" stroke="#fff" stroke-width="8" stroke-linecap="round"/></svg></div><div class="name">BLESSING ✨</div><div class="overlay" id="start"><div class="card"><h1>✨ Blessing's Block Party ✨</h1><p>Run around the block, tap the goodies, dodge the silly stuff, and unlock new challenges!</p><div class="stars">⭐🎈🛴🎵</div><button class="btn" onclick="startGame()">LET'S STEP!</button></div></div></div><div class="controls"><button class="btn" onclick="boost()">⚡ DASH</button><button class="btn" onclick="dance()">🕺🏾 DANCE</button><button class="btn" onclick="newRound()">🎲 NEW MISSION</button></div></div>
 <script>
 let stars=+(localStorage.lsStars||0),streak=0,level=+(localStorage.lsLevel||1),hits=0,timer=null;const stage=document.getElementById('stage'),blessing=document.getElementById('blessing');const goodies=['⭐','🎈','🪁','⚽','🍉','🎵','🛴','🧩','🍦','🛹','🎨','🦋'];const silly=['🧦','🥦','💦','🫧','🐸'];
@@ -20,4 +22,12 @@ function confetti(){for(let i=0;i<22;i++){let q=document.createElement('div');q.
 function celebrate(){confetti();document.getElementById('mission').textContent='🎉 BLESSING LEVELED UP! LEVEL '+level+'!';for(let i=0;i<12;i++)setTimeout(()=>pop(Math.random()*innerWidth,innerHeight*.55,'✨'),i*60);setTimeout(()=>document.getElementById('mission').textContent='Level '+level+': Grab 8 goodies. Dodge the silly stuff!',1200)}
 function newRound(){clearTimeout(timer);hits=0;document.getElementById('mission').textContent='Level '+level+': Help Blessing grab 8 goodies!';spawn()}
 function boost(){blessing.style.left='55%';setTimeout(()=>blessing.style.left='9%',500)}function dance(){blessing.animate([{transform:'rotate(-15deg)'},{transform:'rotate(15deg) scale(1.2)'},{transform:'rotate(-15deg)'},{transform:'rotate(0)'}],{duration:650});stars++;ui()}ui();
+</script><script>
+(function(){
+ document.addEventListener('contextmenu',e=>{if(e.target.closest('button,[role="button"],canvas'))e.preventDefault()});
+ document.querySelectorAll('button,[role="button"]').forEach(el=>{
+   el.setAttribute('tabindex',el.getAttribute('tabindex')||'0');
+   el.addEventListener('touchend',()=>{}, {passive:true});
+ });
+})();
 </script></body></html>
