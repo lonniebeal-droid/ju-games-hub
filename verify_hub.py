@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parent
 
 REQUIRED = [
     ROOT / "index.html",
+    ROOT / "all-games/index.html",
     ROOT / "spades/index.html",
     ROOT / "lil-steppers/index.html",
     ROOT / "hustlebound/index.html",
@@ -103,7 +104,7 @@ try:
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     port = server.server_address[1]
-    routes = ["/", "/spades/", "/lil-steppers/", "/hustlebound/", "/21-rush/", "/living-atlanta/", "/atlanta-arcade/", "/block-the-a/", "/a-town-runner/", "/a-town-life/"]
+    routes = ["/", "/all-games/", "/spades/", "/lil-steppers/", "/hustlebound/", "/21-rush/", "/living-atlanta/", "/atlanta-arcade/", "/block-the-a/", "/a-town-runner/", "/a-town-life/"]
     if (ROOT / "downloads/HUSTLEBOUND-JU-ATL-Pixel.apk").is_file():
         routes.append("/downloads/HUSTLEBOUND-JU-ATL-Pixel.apk")
     for route in routes:
@@ -131,3 +132,18 @@ print("JU_GAMES_HUB_VERIFY=PASS")
 print("required_files=PASS local_links=PASS spades_marker=PASS")
 print("lil_steppers_current_markers=PASS http_routes=PASS")
 print(f"root={ROOT}")
+
+# Mobile readiness assertions for every public browser game.
+MOBILE_ROUTES = ["spades","lil-steppers","hustlebound","21-rush","living-atlanta","atlanta-arcade","block-the-a","a-town-runner","a-town-life"]
+mobile_errors=[]
+for route in MOBILE_ROUTES:
+    text=(ROOT / route / "index.html").read_text(errors="ignore").lower()
+    if 'name="viewport"' not in text and "name='viewport'" not in text:
+        mobile_errors.append(f"{route}: viewport missing")
+    if not any(marker in text for marker in ["touch-action","touchstart","touchend","pointerdown","pointerup"]):
+        mobile_errors.append(f"{route}: explicit touch/pointer handling missing")
+if mobile_errors:
+    print("JU_MOBILE_VERIFY=FAIL")
+    for err in mobile_errors: print("-",err)
+    sys.exit(1)
+print("JU_MOBILE_VERIFY=PASS routes="+str(len(MOBILE_ROUTES)))
