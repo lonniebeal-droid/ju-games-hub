@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#05070f">
+<title>21 RUSH: THE A — JU Games</title>
+<style>
+  :root {
+    --gold:#f5b301; --gold2:#ffd24a; --red:#e63950; --red-deep:#a3122a;
+    --ink:#05070f; --navy:#0b1030; --felt:#0a0e24;
+    --txt:#f2f4ff; --dim:#9aa1c7; --glass:rgba(255,255,255,.07);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { height:100%; }
+  body {
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--ink); color:var(--txt);
+    touch-action:manipulation; overscroll-behavior:none;
+    display:flex; justify-content:center; min-height:100dvh;
+    overflow-x:hidden;
+  }
+  /* animated Atlanta-nights felt */
+  body::before {
+    content:""; position:fixed; inset:-20%;
+    background:
+      radial-gradient(38% 30% at 18% 8%, rgba(230,57,80,.16), transparent 70%),
+      radial-gradient(46% 34% at 84% 14%, rgba(245,179,1,.13), transparent 70%),
+      radial-gradient(60% 46% at 50% 100%, rgba(30,42,110,.55), transparent 72%),
+      radial-gradient(80% 60% at 50% 30%, #101736 0%, #070b1c 62%, #04060f 100%);
+    animation:bgDrift 16s ease-in-out infinite alternate;
+    z-index:-2;
+  }
+  @keyframes bgDrift {
+    0% { transform:translate3d(-2%,-1%,0) scale(1); }
+    100% { transform:translate3d(2%,2%,0) scale(1.06); }
+  }
+  body::after {
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:60;
+    background:radial-gradient(120% 100% at 50% 42%, transparent 55%, rgba(0,0,0,.55) 100%);
+  }
+
+  #app { width:100%; max-width:480px; min-height:100dvh; display:flex; flex-direction:column;
+        padding:calc(env(safe-area-inset-top, 0px) + 10px) 12px calc(env(safe-area-inset-bottom, 0px) + 10px);
+        position:relative; }
+  #app.shake { animation:shake .45s; }
+  @keyframes shake {
+    0%,100%{transform:translateX(0)} 20%{transform:translateX(-12px)}
+    40%{transform:translateX(10px)} 60%{transform:translateX(-7px)} 80%{transform:translateX(5px)}
+  }
+
+  /* ---------- glass top bar ---------- */
+  #topbar { display:flex; gap:8px; margin-bottom:8px; }
+  .stat { flex:1; background:var(--glass); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+          border:1px solid rgba(245,179,1,.18); border-radius:14px; padding:7px 4px; text-align:center;
+          box-shadow:0 6px 18px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08); }
+  .stat .label { font-size:9px; letter-spacing:2px; color:var(--dim); text-transform:uppercase; }
+  .stat .value { font-size:20px; font-weight:800; font-variant-numeric:tabular-nums; }
+  #streakVal.fire { color:var(--gold2); text-shadow:0 0 12px rgba(245,179,1,.8); }
+
+  /* ---------- level strip ---------- */
+  #levelStrip { margin-bottom:8px; background:var(--glass); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+                border:1px solid rgba(255,255,255,.10); border-radius:14px; padding:8px 12px 10px; }
+  #levelRow { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px; }
+  #levelName { font-weight:900; font-size:13px; letter-spacing:1.5px; color:var(--gold2); text-transform:uppercase; }
+  #levelNum { font-size:11px; color:var(--dim); letter-spacing:1px; }
+  #levelTrack { height:6px; border-radius:99px; background:rgba(255,255,255,.10); overflow:hidden; }
+  #levelFill { height:100%; width:0%; border-radius:99px;
+               background:linear-gradient(90deg,var(--gold),#ff7a18); box-shadow:0 0 10px rgba(245,179,1,.7);
+               transition:width .4s ease; }
+
+  /* ---------- combo meter ---------- */
+  #comboBar { height:36px; display:flex; justify-content:center; align-items:center; margin-bottom:6px; }
+  #comboPill { font-weight:900; font-size:15px; letter-spacing:1.5px; padding:6px 20px; border-radius:999px;
+               background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14); color:var(--dim);
+               transition:all .2s; }
+  #comboPill.hot { background:linear-gradient(135deg,var(--red),#ff9f1c); color:#fff; border:none;
+                   box-shadow:0 0 20px rgba(230,57,80,.6); transform:scale(1.08); }
+  #comboPill.legend { background:linear-gradient(135deg,var(--gold),#ff7a18,var(--gold)); color:#1a1000; border:none;
+                   box-shadow:0 0 26px rgba(245,179,1,.85); transform:scale(1.14);
+                   animation:legendPulse .8s ease-in-out infinite alternate; }
+  @keyframes legendPulse { from{box-shadow:0 0 14px rgba(245,179,1,.6)} to{box-shadow:0 0 34px rgba(245,179,1,1)} }
+
+  /* ---------- missions ---------- */
+  #missions { display:flex; gap:6px; margin-bottom:8px; overflow-x:hidden; }
+  .mission { flex:1; font-size:10.5px; font-weight:700; line-height:1.35; text-align:center;
+             background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12);
+             border-radius:10px; padding:6px 6px; color:var(--dim); }
+  .mission .prog { display:block; font-size:10px; color:var(--txt); font-weight:800; margin-top:2px; font-variant-numeric:tabular-nums; }
+  .mission.done { background:linear-gradient(135deg,rgba(245,179,1,.25),rgba(255,122,24,.18));
+                  border-color:var(--gold); color:var(--gold2); box-shadow:0 0 12px rgba(245,179,1,.35); }
+
+  /* ---------- current card : 3D flip ---------- */
+  #deckArea { display:flex; flex-direction:column; align-items:center; margin:2px 0 10px; }
+  #deckArea .hint { font-size:10px; color:var(--dim); letter-spacing:3px; text-transform:uppercase; margin-bottom:8px; }
+  #currentCard { width:124px; height:172px; perspective:800px; cursor:pointer; user-select:none; }
+  #currentCard.pop { animation:cardPop .3s cubic-bezier(.2,.9,.3,1.5); }
+  @keyframes cardPop { 0%{transform:scale(.86)} 100%{transform:scale(1)} }
+  .flipinner { position:relative; width:100%; height:100%; transform-style:preserve-3d;
+               transform:rotateY(180deg); transition:transform .38s cubic-bezier(.25,.8,.3,1.15); }
+  .flipinner.face { transform:rotateY(0deg); }
+  .cardface { position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden;
+              border-radius:14px; overflow:hidden;
+              box-shadow:0 12px 32px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.12); }
+  .cardback { transform:rotateY(180deg); background:var(--navy); }
+  .cardback svg { width:100%; height:100%; display:block; }
+  .cardfront { background:linear-gradient(150deg,#ffffff 0%,#e9edfb 55%,#d7ddf2 100%);
+               color:#141824; display:flex; flex-direction:column; justify-content:space-between; padding:10px; }
+  .cardfront.red { color:#c21430; }
+  .cardfront .corner { font-size:27px; font-weight:900; line-height:1; font-family:Georgia,"Times New Roman",serif; }
+  .cardfront .corner small { display:block; font-size:21px; }
+  .cardfront .pip { font-size:56px; text-align:center; line-height:1; text-shadow:0 2px 6px rgba(0,0,0,.12); }
+  .cardfront .corner:last-child { transform:rotate(180deg); }
+
+  /* ---------- columns ---------- */
+  #columns { display:flex; gap:8px; margin-bottom:10px; }
+  .column { flex:1; min-height:216px; background:rgba(255,255,255,.045);
+            border:2px dashed rgba(255,255,255,.16); border-radius:14px;
+            display:flex; flex-direction:column; align-items:center; padding:8px 4px 6px;
+            cursor:pointer; user-select:none;
+            transition:border-color .15s, background .15s, transform .18s, box-shadow .18s; }
+  .column:active { transform:scale(.96); }
+  .column .total { font-size:23px; font-weight:900; margin-bottom:6px; min-height:29px; font-variant-numeric:tabular-nums; }
+  .column .total.safe { color:#9be15d; }
+  .column .total.heat { color:var(--gold2); }
+  .column.heat { border:2px solid rgba(245,179,1,.75); background:rgba(245,179,1,.07);
+                 box-shadow:0 0 18px rgba(245,179,1,.35); transform:translateY(-4px); }
+  .column.hot { border:2px solid var(--red); background:rgba(230,57,80,.08);
+                box-shadow:0 0 22px rgba(230,57,80,.55); transform:translateY(-6px);
+                animation:hotPulse .6s ease-in-out infinite alternate; }
+  @keyframes hotPulse { from{box-shadow:0 0 12px rgba(230,57,80,.4)} to{box-shadow:0 0 28px rgba(230,57,80,.8)} }
+  .column .stack { flex:1; display:flex; flex-direction:column; align-items:center; width:100%; }
+  .minicard { width:46px; height:31px; border-radius:6px; background:linear-gradient(145deg,#ffffff,#dfe4f5);
+              color:#141824; font-size:14px; font-weight:800; display:flex; align-items:center; justify-content:center;
+              box-shadow:0 2px 6px rgba(0,0,0,.4); margin-top:-23px; border:1px solid rgba(0,0,0,.08);
+              animation:miniIn .25s cubic-bezier(.2,.9,.3,1.6); font-family:Georgia,serif; }
+  .minicard:first-child { margin-top:0; }
+  .minicard.red { color:#c21430; }
+  .minicard.ace { background:linear-gradient(145deg,#fff3b0,#ffe066); box-shadow:0 0 10px rgba(245,179,1,.5); }
+  @keyframes miniIn { 0%{transform:translateY(-16px) scale(.5); opacity:0} 100%{transform:none; opacity:1} }
+  .column .count { font-size:10px; color:var(--dim); margin-top:4px; }
+
+  /* ---------- buttons ---------- */
+  #controls { display:flex; gap:8px; margin-bottom:8px; }
+  button.big { flex:1; padding:15px; font-size:16px; font-weight:800; border:none; border-radius:14px;
+               cursor:pointer; letter-spacing:.5px; }
+  #newGameBtn { background:linear-gradient(135deg,var(--gold),#ff7a18); color:#1a1000;
+                box-shadow:0 6px 20px rgba(245,179,1,.35); }
+  #newGameBtn:active { transform:scale(.97); }
+  #howBtn { background:var(--glass); backdrop-filter:blur(10px); color:var(--txt);
+            border:1px solid rgba(255,255,255,.18); flex:0 0 64px; }
+  #howBtn:active { transform:scale(.97); }
+
+  #footer { text-align:center; font-size:10px; letter-spacing:5px; color:#5b6285; margin-top:auto; padding-top:10px; }
+  #footer b { color:var(--gold); }
+
+  /* ---------- overlays ---------- */
+  .overlay { position:absolute; inset:0; background:rgba(4,6,15,.94); backdrop-filter:blur(6px);
+             display:flex; align-items:center; justify-content:center; z-index:70; padding:24px; }
+  .overlay.hidden { display:none; }
+  .panel { background:linear-gradient(165deg,#141b3d,#0b1030); border:1px solid rgba(245,179,1,.28);
+           border-radius:22px; padding:26px 22px; max-width:390px; width:100%; text-align:center;
+           box-shadow:0 24px 70px rgba(0,0,0,.65), 0 0 40px rgba(245,179,1,.08); max-height:92%; overflow-y:auto; }
+  .panel h1 { font-size:32px; margin-bottom:4px; letter-spacing:1px; }
+  .panel h1 .accent { color:var(--gold); }
+  .panel .tagline { font-size:12px; letter-spacing:3px; color:var(--dim); text-transform:uppercase; margin-bottom:8px; }
+  .panel p { color:#aab; font-size:14px; line-height:1.55; margin:10px 0; }
+  .panel .rules { text-align:left; font-size:13.5px; line-height:1.75; color:#cfd5f2; margin:14px 0; }
+  .panel .rules b { color:var(--gold2); }
+  .panel .bigscore { font-size:56px; font-weight:900; color:var(--gold);
+                     text-shadow:0 0 30px rgba(245,179,1,.5); margin:4px 0; font-variant-numeric:tabular-nums; }
+  .panel .sub { font-size:13px; color:var(--dim); }
+  .gostats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin:14px 0 4px; }
+  .gostats > div { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.10);
+                   border-radius:12px; padding:8px 4px; }
+  .gostats span { display:block; font-size:17px; font-weight:900; color:var(--gold2); font-variant-numeric:tabular-nums; }
+  .gostats label { font-size:8.5px; letter-spacing:1.5px; color:var(--dim); }
+  .panel button { width:100%; margin-top:16px; padding:16px; font-size:17px; font-weight:900; border:none;
+                  border-radius:14px; background:linear-gradient(135deg,var(--gold),#ff7a18); color:#1a1000;
+                  cursor:pointer; letter-spacing:1px; box-shadow:0 8px 24px rgba(245,179,1,.4); }
+  .panel button:active { transform:scale(.97); }
+  .panel button.ghost { background:rgba(255,255,255,.08); color:var(--txt); border:1px solid rgba(255,255,255,.16);
+                        box-shadow:none; margin-top:8px; }
+
+  /* ---------- popup / toast / confetti / flashes ---------- */
+  #popups { position:absolute; inset:0; pointer-events:none; z-index:65; overflow:hidden; }
+  .popup { position:absolute; font-weight:900; font-size:28px; color:var(--gold2); white-space:nowrap;
+           text-shadow:0 2px 14px rgba(0,0,0,.8), 0 0 24px rgba(245,179,1,.5);
+           animation:popUp 1.15s ease-out forwards; }
+  .popup.shout { font-size:20px; color:#fff; text-shadow:0 2px 12px rgba(0,0,0,.8), 0 0 20px rgba(230,57,80,.7); }
+  .popup.small { font-size:17px; color:#9be15d; }
+  @keyframes popUp { 0%{transform:translate(-50%,-50%) scale(.5); opacity:0}
+                     20%{transform:translate(-50%,-60%) scale(1.25); opacity:1}
+                     100%{transform:translate(-50%,-230%) scale(1); opacity:0} }
+  #toast { position:absolute; top:36%; left:50%; transform:translate(-50%,-50%); z-index:66;
+           background:rgba(13,18,48,.96); border:1px solid var(--gold); color:var(--gold2); font-weight:900;
+           font-size:15px; letter-spacing:1.5px; padding:12px 24px; border-radius:999px; text-align:center;
+           max-width:92%; opacity:0; pointer-events:none; transition:opacity .25s;
+           box-shadow:0 0 30px rgba(245,179,1,.35); }
+  #toast.show { opacity:1; }
+  #confetti { position:absolute; inset:0; pointer-events:none; z-index:64; overflow:hidden; }
+  .confetto { position:absolute; width:9px; height:14px; top:-20px; animation:fall linear forwards; }
+  @keyframes fall { to { transform:translateY(112vh) rotate(720deg); } }
+  #bustFlash { position:absolute; inset:0; pointer-events:none; z-index:63; opacity:0;
+               background:radial-gradient(100% 100% at 50% 50%, rgba(230,57,80,.28), rgba(163,18,42,.5)); }
+  #bustFlash.go { animation:bustFlash .55s ease-out; }
+  @keyframes bustFlash { 0%{opacity:0} 25%{opacity:1} 100%{opacity:0} }
+  .flash21 { animation:flash21 .5s; }
+  @keyframes flash21 { 0%{box-shadow:0 0 0 0 rgba(245,179,1,.9)} 100%{box-shadow:0 0 0 30px rgba(245,179,1,0)} }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="topbar">
+    <div class="stat"><div class="label">Score</div><div class="value" id="score">0</div></div>
+    <div class="stat"><div class="label">Best</div><div class="value" id="best">0</div></div>
+    <div class="stat" id="hearts"><div class="label">Hearts</div><div class="value" id="heartsVal">❤❤❤</div></div>
+    <div class="stat"><div class="label">Streak</div><div class="value" id="streakVal">🔥–</div></div>
+  </div>
+
+  <div id="levelStrip">
+    <div id="levelRow"><span id="levelName">OLD FOURTH WARD</span><span id="levelNum">LVL <span id="levelVal">1</span></span></div>
+    <div id="levelTrack"><div id="levelFill"></div></div>
+  </div>
+
+  <div id="comboBar"><div id="comboPill">COMBO ×1</div></div>
+
+  <div id="missions"></div>
+
+  <div id="deckArea">
+    <div class="hint">Tap a column to place</div>
+    <div id="currentCard">
+      <div class="flipinner" id="flipInner">
+        <div class="cardface cardfront" id="cardFront"></div>
+        <div class="cardface cardback">
+          <svg viewBox="0 0 120 168" aria-hidden="true">
+            <rect x="2" y="2" width="116" height="164" rx="13" fill="#0b1030"/>
+            <rect x="8" y="8" width="104" height="152" rx="9" fill="none" stroke="#f5b301" stroke-width="1.6" opacity="0.85"/>
+            <path d="M12 150 V108 h8 V94 h10 V108 h8 V76 h12 V108 h8 V88 h10 V108 h8 V98 h10 V76 h8 V108 h8 V150 Z" fill="#f5b301" opacity="0.30"/>
+            <circle cx="60" cy="56" r="24" fill="#f5b301"/>
+            <circle cx="60" cy="56" r="24" fill="none" stroke="#0b1030" stroke-width="2" opacity="0.35"/>
+            <text x="60" y="67" text-anchor="middle" font-size="32" font-weight="900" fill="#0b1030" font-family="Georgia,serif">A</text>
+            <text x="60" y="136" text-anchor="middle" font-size="11" font-weight="800" letter-spacing="3" fill="#f5b301">THE A</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="columns">
+    <div class="column" data-col="0"><div class="total"></div><div class="stack"></div><div class="count"></div></div>
+    <div class="column" data-col="1"><div class="total"></div><div class="stack"></div><div class="count"></div></div>
+    <div class="column" data-col="2"><div class="total"></div><div class="stack"></div><div class="count"></div></div>
+    <div class="column" data-col="3"><div class="total"></div><div class="stack"></div><div class="count"></div></div>
+  </div>
+
+  <div id="controls">
+    <button class="big" id="newGameBtn">↻ New Game</button>
+    <button class="big" id="howBtn">?</button>
+  </div>
+
+  <div id="footer"><b>JU GAMES</b> — MADE IN THE A</div>
+
+  <div id="popups"></div>
+  <div id="confetti"></div>
+  <div id="bustFlash"></div>
+  <div id="toast"></div>
+
+  <div class="overlay hidden" id="gameOverOverlay">
+    <div class="panel">
+      <h1>RUN <span class="accent">OVER</span></h1>
+      <div class="tagline" id="goLevelName">OLD FOURTH WARD</div>
+      <div class="sub">FINAL SCORE</div>
+      <div class="bigscore" id="finalScore">0</div>
+      <div class="gostats">
+        <div><span id="goCombo">–</span><label>BEST COMBO</label></div>
+        <div><span id="go21s">–</span><label>21s CLEARED</label></div>
+        <div><span id="goRound">–</span><label>ROUND</label></div>
+        <div><span id="goStreak">–</span><label>STREAK</label></div>
+        <div><span id="goTotal21s">–</span><label>ALL-TIME 21s</label></div>
+        <div><span id="goGames">–</span><label>GAMES</label></div>
+      </div>
+      <div class="sub" id="finalStats">Best 0</div>
+      <button id="playAgainBtn">▶ RUN IT BACK</button>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="howOverlay">
+    <div class="panel">
+      <h1>21 RUSH <span class="accent">: THE A</span></h1>
+      <div class="tagline">Atlanta Nights Edition</div>
+      <div class="rules">
+        🎴 Tap a column to place the dealt card there.<br>
+        🎯 Stack to <b>exactly 21</b> to clear the column, A-Town style.<br>
+        🔥 Clears chain your <b>combo</b> — each 21 pays <b>100 × combo</b>.<br>
+        💥 Over 21 <b>busts</b>: column clears, combo resets, lose a heart. <b>3 busts = run over.</b><br>
+        🎯 <b>Missions</b> every run — finish one for <b>+150</b>.<br>
+        🔥 Play daily: streaks pay <b>+25 × streak</b> at tip-off.<br>
+        🃏 New deck = <b>+50</b>, round up. Aces flex 11 or 1, faces = 10.<br>
+        🏙️ Climb the city: Old Fourth Ward → <b>The Whole A</b>.
+      </div>
+      <button id="howCloseBtn">LET'S GO</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+/* =====================================================================
+   21 RUSH: THE A — pure game logic. No DOM, no audio, no storage here.
+   This section (between the markers) is extracted and unit-tested
+   under node. UI code lives below the END marker.
+   ===================================================================== */
+// <PURE-LOGIC-START>
+const R21_SUITS = ['\u2660', '\u2665', '\u2666', '\u2663']; // spade heart diamond club
+const R21_RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+
+function r21BuildDeck() {
+  const d = [];
+  for (const s of R21_SUITS) for (const r of R21_RANKS) d.push({ rank: r, suit: s });
+  return d;
+}
+
+function r21Shuffle(deck, rng) {
+  const rand = rng || Math.random;
+  const a = deck.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    const t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+function r21CardValue(rank) {
+  if (rank === 'A') return 11;
+  if (rank === 'K' || rank === 'Q' || rank === 'J') return 10;
+  return parseInt(rank, 10);
+}
+
+// Soft-ace valuation: aces count 11, downgraded to 1 while total > 21.
+function r21ColumnValue(cards) {
+  let total = 0, aces = 0;
+  for (const c of cards) {
+    total += r21CardValue(c.rank);
+    if (c.rank === 'A') aces++;
+  }
+  while (total > 21 && aces > 0) { total -= 10; aces--; }
+  return total;
+}
+
+function r21CreateGame(best) {
+  return {
+    deck: r21Shuffle(r21BuildDeck()),
+    columns: [[], [], [], []],
+    score: 0,
+    best: best || 0,
+    hearts: 3,
+    combo: 1,
+    maxCombo: 1,
+    round: 1,
+    roundBusts: 0,
+    current: null,
+    over: false,
+    clears: 0,
+    busts: 0,
+    missions: [],
+    streak: 0
+  };
+}
+
+// Deals the next card. Reshuffles a fresh deck (+round, +50) when empty.
+function r21EnsureCard(game) {
+  let reshuffled = false, cleanRound = false;
+  if (game.deck.length === 0) {
+    cleanRound = game.roundBusts === 0;
+    game.deck = r21Shuffle(r21BuildDeck());
+    game.round += 1;
+    game.roundBusts = 0;
+    game.score += 50;
+    reshuffled = true;
+  }
+  game.current = game.deck.pop();
+  return { reshuffled: reshuffled, cleanRound: cleanRound, round: game.round, score: game.score };
+}
+
+// Places the current card into column `col` (0-3).
+// Returns an event describing the outcome.
+function r21PlaceCard(game, col) {
+  if (game.over) return { type: 'noop' };
+  if (col < 0 || col > 3) return { type: 'noop' };
+  const card = game.current;
+  if (!card) return { type: 'noop' };
+  game.columns[col].push(card);
+  game.current = null;
+  const total = r21ColumnValue(game.columns[col]);
+
+  if (total === 21) {
+    const points = 100 * game.combo;
+    const usedCombo = game.combo;
+    game.score += points;
+    game.combo += 1;
+    if (game.combo > game.maxCombo) game.maxCombo = game.combo;
+    game.clears += 1;
+    game.columns[col] = [];
+    return { type: 'clear', points: points, combo: usedCombo, score: game.score, newCombo: game.combo };
+  }
+  if (total > 21) {
+    game.columns[col] = [];
+    game.combo = 1;
+    game.hearts -= 1;
+    game.busts += 1;
+    game.roundBusts += 1;
+    const over = game.hearts <= 0;
+    if (over) game.over = true;
+    return { type: 'bust', hearts: game.hearts, over: over, score: game.score };
+  }
+  return { type: 'place', total: total, score: game.score };
+}
+
+function r21Level(score) { return Math.floor(score / 750) + 1; }
+
+/* ---------- Atlanta level names ---------- */
+const R21_LEVEL_NAMES = [
+  'Old Fourth Ward', 'East Atlanta', 'Buckhead', 'Downtown',
+  'Midtown', 'West End', 'Virginia-Highland', 'The Whole A'
+];
+function r21LevelName(level) {
+  if (level >= 9) return 'ATL Legend';
+  return R21_LEVEL_NAMES[Math.max(1, level) - 1];
+}
+
+/* ---------- Combo shouts ---------- */
+const R21_SHOUTS = [
+  'Zone 6!', 'A-Town Stand Up!', 'East Atlanta Energy!', 'Downtown Certified!',
+  'Bankhead Certified!', 'Swats Stand Up!', 'Cascade Certified!', 'Peachtree Heat!',
+  'Southside Stand Up!', 'Decatur Certified!'
+];
+function r21ComboShout(combo, rng) {
+  const rand = rng || Math.random;
+  const s = R21_SHOUTS[Math.floor(rand() * R21_SHOUTS.length)];
+  return s + ' \u00D7' + combo;
+}
+
+/* ---------- Daily streak (YYYY-MM-DD local, timezone-naive) ---------- */
+function r21DateStr(d) {
+  const y = d.getFullYear();
+  const m = ('0' + (d.getMonth() + 1)).slice(-2);
+  const dd = ('0' + d.getDate()).slice(-2);
+  return y + '-' + m + '-' + dd;
+}
+function r21AddDays(dateStr, n) {
+  const p = dateStr.split('-');
+  const d = new Date(+p[0], +p[1] - 1, +p[2]);
+  d.setDate(d.getDate() + n);
+  return r21DateStr(d);
+}
+// Returns { streak, countedToday }. currentStreak is the stored streak.
+function r21NextStreak(lastDate, todayStr, currentStreak) {
+  if (!lastDate) return { streak: 1, countedToday: false };
+  if (lastDate === todayStr || lastDate > todayStr) return { streak: currentStreak || 0, countedToday: true };
+  if (lastDate === r21AddDays(todayStr, -1)) return { streak: (currentStreak || 0) + 1, countedToday: false };
+  return { streak: 1, countedToday: false };
+}
+
+/* ---------- Session missions ---------- */
+const R21_MISSIONS = [
+  { id: 'clears3',   text: 'Hit 3 twenty-ones',     target: 3,    kind: 'stat',  stat: 'clears' },
+  { id: 'combo4',    text: 'Reach combo \u00D74',    target: 4,    kind: 'stat',  stat: 'maxCombo' },
+  { id: 'score1500', text: 'Score 1,500 in a run',  target: 1500, kind: 'stat',  stat: 'score' },
+  { id: 'round3',    text: 'Reach Round 3',         target: 3,    kind: 'stat',  stat: 'round' },
+  { id: 'clean',     text: 'Clear a deck, 0 busts', target: 1,    kind: 'event', flag: 'cleanRound' }
+];
+const R21_MISSION_POINTS = 150;
+
+function r21AssignMissions(game, rng) {
+  const pool = r21Shuffle(R21_MISSIONS.map(function (m) {
+    return { id: m.id, text: m.text, target: m.target, kind: m.kind, stat: m.stat, flag: m.flag };
+  }), rng);
+  game.missions = pool.slice(0, 3).map(function (m) {
+    m.done = false; m.progress = 0; return m;
+  });
+}
+
+// events: e.g. { cleanRound: true }. Completes missions, awards +150 each.
+// Returns array of completed { id, text, points }.
+function r21CheckMissions(game, events) {
+  events = events || {};
+  const completed = [];
+  for (const m of game.missions) {
+    if (m.done) continue;
+    let val = 0;
+    if (m.kind === 'stat') val = game[m.stat] || 0;
+    else if (m.kind === 'event') val = events[m.flag] ? 1 : 0;
+    m.progress = Math.min(val, m.target);
+    if (val >= m.target) {
+      m.done = true;
+      m.progress = m.target;
+      game.score += R21_MISSION_POINTS;
+      completed.push({ id: m.id, text: m.text, points: R21_MISSION_POINTS });
+    }
+  }
+  return completed;
+}
+// <PURE-LOGIC-END>
+
+/* =====================================================================
+   UI LAYER — DOM, audio, persistence, juice. Not covered by node tests.
+   ===================================================================== */
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const app = $('app'), scoreEl = $('score'), bestEl = $('best'),
+        heartsEl = $('heartsVal'), streakEl = $('streakVal'),
+        levelEl = $('levelVal'), levelNameEl = $('levelName'), levelFillEl = $('levelFill'),
+        comboPill = $('comboPill'), missionsEl = $('missions'),
+        flipInner = $('flipInner'), cardFront = $('cardFront'), currentCardEl = $('currentCard'),
+        toastEl = $('toast'), popupsEl = $('popups'), confettiEl = $('confetti'), bustFlashEl = $('bustFlash');
+
+  const LS_BEST = 'ju21rush_best', LS_GAMES = 'ju21rush_games', LS_SEEN = 'ju21rush_seen_v2',
+        LS_STREAK = 'ju21rush_streak', LS_STREAK_DATE = 'ju21rush_streak_date',
+        LS_BESTCOMBO = 'ju21rush_bestcombo', LS_TOTAL21S = 'ju21rush_total21s';
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  };
+
+  /* ---------- audio (WebAudio, zero files) ---------- */
+  let actx = null;
+  function audio() {
+    if (!actx) { try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return null; } }
+    if (actx.state === 'suspended') actx.resume();
+    return actx;
+  }
+  function tone(freq, dur, type, when, vol) {
+    const ac = audio(); if (!ac) return;
+    const t = ac.currentTime + (when || 0);
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = type || 'sine'; o.frequency.setValueAtTime(freq, t);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol || 0.18, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(ac.destination);
+    o.start(t); o.stop(t + dur + 0.05);
+  }
+  const sfx = {
+    deal()  { tone(660, 0.07, 'square', 0, 0.06); tone(880, 0.06, 'square', 0.04, 0.05); },
+    place() { tone(440, 0.06, 'triangle', 0, 0.10); },
+    clear(combo) { // rising chime arpeggio, pitch climbs with combo
+      const base = 523 * Math.pow(2, Math.min(combo, 8) / 12);
+      [1, 1.25, 1.5, 2].forEach((m, i) => tone(base * m, 0.16, 'sine', i * 0.07, 0.20));
+    },
+    bust()  { tone(120, 0.32, 'sawtooth', 0, 0.22); tone(90, 0.36, 'sawtooth', 0.06, 0.18); tone(60, 0.42, 'square', 0.10, 0.10); },
+    round() { tone(392, 0.10, 'sine', 0, 0.16); tone(523, 0.10, 'sine', 0.09, 0.16); tone(659, 0.16, 'sine', 0.18, 0.18); },
+    fanfare() { // mission complete
+      [523, 659, 784, 1047].forEach((f, i) => { tone(f, 0.14, 'triangle', i * 0.09, 0.20); tone(f / 2, 0.14, 'sine', i * 0.09, 0.10); });
+    },
+    over()  { tone(330, 0.16, 'triangle', 0, 0.18); tone(262, 0.16, 'triangle', 0.16, 0.18); tone(196, 0.34, 'triangle', 0.32, 0.20); }
+  };
+  function buzz(pattern) { if (navigator.vibrate) { try { navigator.vibrate(pattern); } catch (e) {} } }
+
+  /* ---------- game state ---------- */
+  let game = null;
+  function newGame() {
+    const best = store.get(LS_BEST, 0);
+    game = r21CreateGame(best);
+    r21AssignMissions(game, Math.random);
+
+    // daily streak
+    const today = r21DateStr(new Date());
+    const last = store.get(LS_STREAK_DATE, null);
+    const cur = store.get(LS_STREAK, 0);
+    const res = r21NextStreak(last, today, cur);
+    game.streak = res.streak;
+    if (!res.countedToday) {
+      const bonus = 25 * res.streak;
+      game.score += bonus;
+      store.set(LS_STREAK, res.streak);
+      store.set(LS_STREAK_DATE, today);
+      setTimeout(() => {
+        toast('\uD83D\uDD25 DAY ' + res.streak + ' STREAK \u00B7 +' + bonus);
+        if (res.streak >= 2) sfx.fanfare();
+      }, 900);
+    }
+
+    $('gameOverOverlay').classList.add('hidden');
+    const r = r21EnsureCard(game);
+    r21CheckMissions(game, { cleanRound: r.cleanRound });
+    sfx.deal();
+    render();
+    dealVisual();
+  }
+
+  /* ---------- rendering ---------- */
+  const RED_SUITS = ['\u2665', '\u2666'];
+  function cardFrontHTML(c) {
+    return '<div class="corner">' + c.rank + '<small>' + c.suit + '</small></div>' +
+           '<div class="pip">' + c.suit + '</div>' +
+           '<div class="corner">' + c.rank + '<small>' + c.suit + '</small></div>';
+  }
+  function miniHTML(c) {
+    const red = RED_SUITS.indexOf(c.suit) >= 0;
+    return '<div class="minicard' + (red ? ' red' : '') + (c.rank === 'A' ? ' ace' : '') + '">' + c.rank + c.suit + '</div>';
+  }
+
+  function dealVisual() {
+    flipInner.classList.remove('face');
+    void flipInner.offsetWidth;
+    if (game.current) {
+      cardFront.innerHTML = cardFrontHTML(game.current);
+      cardFront.classList.toggle('red', RED_SUITS.indexOf(game.current.suit) >= 0);
+    }
+    currentCardEl.classList.remove('pop'); void currentCardEl.offsetWidth; currentCardEl.classList.add('pop');
+    requestAnimationFrame(() => requestAnimationFrame(() => flipInner.classList.add('face')));
+  }
+
+  function renderMissions() {
+    missionsEl.innerHTML = game.missions.map((m) =>
+      '<div class="mission' + (m.done ? ' done' : '') + '">' +
+      (m.done ? '\u2705 ' : '') + m.text +
+      '<span class="prog">' + (m.done ? '+' + R21_MISSION_POINTS : m.progress + '/' + m.target) + '</span></div>'
+    ).join('');
+  }
+
+  function render() {
+    const lvl = r21Level(game.score);
+    scoreEl.textContent = game.score;
+    bestEl.textContent = Math.max(game.best, game.score);
+    heartsEl.textContent = '\u2764'.repeat(Math.max(game.hearts, 0)) + '\u2009';
+    streakEl.textContent = game.streak > 0 ? '\uD83D\uDD25' + game.streak : '\uD83D\uDD25\u2013';
+    streakEl.classList.toggle('fire', game.streak >= 2);
+    levelEl.textContent = lvl;
+    levelNameEl.textContent = r21LevelName(lvl).toUpperCase();
+    levelFillEl.style.width = ((game.score % 750) / 750 * 100) + '%';
+
+    comboPill.textContent = 'COMBO \u00D7' + game.combo;
+    comboPill.className = game.combo >= 4 ? 'legend' : (game.combo > 1 ? 'hot' : '');
+    comboPill.id = 'comboPill';
+
+    renderMissions();
+
+    const cols = document.querySelectorAll('.column');
+    cols.forEach((colEl, i) => {
+      const cards = game.columns[i];
+      const total = r21ColumnValue(cards);
+      const totalEl = colEl.querySelector('.total');
+      const stackEl = colEl.querySelector('.stack');
+      const countEl = colEl.querySelector('.count');
+      totalEl.textContent = cards.length ? total : '';
+      let cls = 'total', colCls = 'column';
+      if (cards.length) {
+        if (total >= 20) { cls += ' heat'; colCls += ' hot'; }
+        else if (total >= 18) { cls += ' heat'; colCls += ' heat'; }
+        else cls += ' safe';
+      }
+      totalEl.className = cls;
+      colEl.className = colCls;
+      const shown = cards.slice(-6);
+      stackEl.innerHTML = shown.map(miniHTML).join('');
+      countEl.textContent = cards.length > 6 ? '+' + (cards.length - 6) + ' more' : (cards.length ? cards.length + ' card' + (cards.length > 1 ? 's' : '') : 'tap to place');
+    });
+  }
+
+  /* ---------- juice ---------- */
+  function popup(text, cls, xPct, yPct) {
+    const p = document.createElement('div');
+    p.className = 'popup' + (cls ? ' ' + cls : '');
+    p.textContent = text;
+    p.style.left = (xPct || 50) + '%';
+    p.style.top = (yPct || 45) + '%';
+    popupsEl.appendChild(p);
+    setTimeout(() => p.remove(), 1200);
+  }
+  function toast(text, ms) {
+    toastEl.textContent = text;
+    toastEl.classList.add('show');
+    setTimeout(() => toastEl.classList.remove('show'), ms || 1600);
+  }
+  const CONF_COLORS = ['#f5b301', '#e63950', '#9be15d', '#4dc3ff', '#c77dff', '#ffffff'];
+  function confetti(n) {
+    for (let i = 0; i < n; i++) {
+      const c = document.createElement('div');
+      c.className = 'confetto';
+      c.style.left = (Math.random() * 100) + '%';
+      c.style.background = CONF_COLORS[(Math.random() * CONF_COLORS.length) | 0];
+      c.style.animationDuration = (1.4 + Math.random() * 1.4) + 's';
+      c.style.transform = 'rotate(' + (Math.random() * 360) + 'deg)';
+      confettiEl.appendChild(c);
+      setTimeout(() => c.remove(), 3000);
+    }
+  }
+  function bustJuice() {
+    app.classList.remove('shake'); void app.offsetWidth; app.classList.add('shake');
+    bustFlashEl.classList.remove('go'); void bustFlashEl.offsetWidth; bustFlashEl.classList.add('go');
+    buzz(200);
+  }
+
+  function missionJuice(done) {
+    done.forEach((m) => {
+      sfx.fanfare();
+      confetti(24);
+      toast('\u2705 MISSION: ' + m.text + ' \u00B7 +' + m.points);
+    });
+  }
+
+  /* ---------- placement ---------- */
+  function place(col) {
+    if (!game || game.over || !game.current) return;
+    audio(); // unlock on gesture
+    const ev = r21PlaceCard(game, col);
+    const colEl = document.querySelectorAll('.column')[col];
+
+    if (ev.type === 'clear') {
+      sfx.clear(ev.combo);
+      buzz([50, 40, 50]);
+      confetti(46);
+      colEl.classList.remove('flash21'); void colEl.offsetWidth; colEl.classList.add('flash21');
+      popup('+' + ev.points, '', 50, 40);
+      if (ev.combo >= 2) popup(r21ComboShout(ev.combo), 'shout', 50, 56);
+      if (ev.score > game.best) { game.best = ev.score; store.set(LS_BEST, game.best); }
+    } else if (ev.type === 'bust') {
+      sfx.bust();
+      bustJuice();
+      popup('BUST!', 'shout', 50, 42);
+      if (ev.over) return gameOver();
+    } else {
+      sfx.place();
+    }
+
+    const r = r21EnsureCard(game);
+    const done = r21CheckMissions(game, { cleanRound: r.cleanRound });
+    if (done.length) missionJuice(done);
+    if (r.reshuffled) { sfx.round(); toast('NEW DECK \u2014 ROUND ' + r.round + ' \u00B7 +50'); }
+    else sfx.deal();
+    render();
+    dealVisual();
+  }
+
+  function gameOver() {
+    game.over = true;
+    sfx.over();
+    buzz([120, 60, 120]);
+    if (game.score > game.best) { game.best = game.score; store.set(LS_BEST, game.best); }
+    const games = store.get(LS_GAMES, 0) + 1;
+    store.set(LS_GAMES, games);
+    const bestCombo = Math.max(store.get(LS_BESTCOMBO, 0), game.maxCombo);
+    store.set(LS_BESTCOMBO, bestCombo);
+    const total21s = store.get(LS_TOTAL21S, 0) + game.clears;
+    store.set(LS_TOTAL21S, total21s);
+
+    $('finalScore').textContent = game.score;
+    $('goLevelName').textContent = r21LevelName(r21Level(game.score)).toUpperCase();
+    $('goCombo').textContent = '\u00D7' + game.maxCombo;
+    $('go21s').textContent = game.clears;
+    $('goRound').textContent = game.round;
+    $('goStreak').textContent = '\uD83D\uDD25' + game.streak;
+    $('goTotal21s').textContent = total21s;
+    $('goGames').textContent = games;
+    $('finalStats').textContent = 'Best ' + game.best + ' \u00B7 All-time best combo \u00D7' + bestCombo;
+    render();
+    setTimeout(() => $('gameOverOverlay').classList.remove('hidden'), 600);
+  }
+
+  /* ---------- wiring ---------- */
+  document.querySelectorAll('.column').forEach((el) => {
+    el.addEventListener('pointerdown', (e) => { e.preventDefault(); place(parseInt(el.dataset.col, 10)); });
+  });
+  currentCardEl.addEventListener('pointerdown', (e) => { e.preventDefault(); audio(); sfx.deal(); });
+  $('newGameBtn').addEventListener('click', () => { audio(); newGame(); });
+  $('playAgainBtn').addEventListener('click', () => { audio(); newGame(); });
+  $('howBtn').addEventListener('click', () => $('howOverlay').classList.remove('hidden'));
+  $('howCloseBtn').addEventListener('click', () => {
+    $('howOverlay').classList.add('hidden');
+    store.set(LS_SEEN, true);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key >= '1' && e.key <= '4') place(parseInt(e.key, 10) - 1);
+    if (e.key === 'n' || e.key === 'N') newGame();
+  });
+  document.addEventListener('dblclick', (e) => e.preventDefault(), { passive: false });
+
+  /* ---------- boot ---------- */
+  bestEl.textContent = store.get(LS_BEST, 0);
+  newGame();
+  if (!store.get(LS_SEEN, false)) $('howOverlay').classList.remove('hidden');
+})();
+</script>
+</body>
+</html>
