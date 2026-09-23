@@ -62,7 +62,7 @@ if not errors:
     for href in parser.hrefs:
         if href.startswith(("http", "#", "mailto:", "tel:")):
             continue
-        target = ROOT / href.lstrip("./")
+        target = ROOT / href.lstrip("./")\n        if href.startswith("/ju-games-hub/"):\n            target = ROOT / href[len("/ju-games-hub/"):].split("?",1)[0].split("#",1)[0]
         if target.is_dir():
             target = target / "index.html"
         if not target.exists():
