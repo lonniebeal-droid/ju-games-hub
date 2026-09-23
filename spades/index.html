@@ -4,6 +4,8 @@
 html,body{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 button,[role="button"],a{touch-action:manipulation}
 button{min-height:44px;min-width:44px}
+</style><style>
+@media(max-width:700px){body{overscroll-behavior:none}button,[role="button"],a{font-size:max(16px,1em)}canvas{max-width:100%;height:auto}*{box-sizing:border-box}}
 </style></head><body><main class="app"><div class="top"><div><div class="brand">♠ SPADES: THE A</div><div class="meta">Atlanta Night Table • You + Nia vs Zone + Ace</div></div><div class="score"><span>YOU/NIA <b id="usScore">0</b></span><span>ZONE/ACE <b id="themScore">0</b></span><span class="badge" id="careerStats">0W • 0L</span></div></div><section class="table"><div class="seat north" id="north"></div><div class="middle"><div class="seat" id="west"></div><div><div class="trick"><div class="slot n" id="tn"></div><div class="slot w" id="tw"></div><div class="slot e" id="te"></div><div class="slot s" id="ts"></div></div><div class="status" id="status"></div></div><div class="seat" id="east"></div></div><div class="bidbox" id="bidbox"><b>🎯 CALL YOUR BOOKS</b><div class="bids" id="bids"></div></div><div class="seat" id="south"></div><div class="hand" id="hand"></div></section><div class="controls"><label class="badge">AI <select id="difficulty" aria-label="AI difficulty"><option value="easy">Easy</option><option value="street" selected>Street</option><option value="pro">Pro</option></select></label><button class="btn alt" id="newHand">🃏 New Hand</button><button class="btn alt" id="newGame">🏆 New Game</button></div></main><script>
 const SUITS=['♣','♦','♥','♠'],RANKS=['2','3','4','5','6','7','8','9','10','J','Q','K','A'],NAMES=['You','Zone','Nia','Ace'];
 let G={scores:[0,0],bags:[0,0],hands:[],bids:[0,0,0,0],tricks:[0,0,0,0],leader:0,turn:0,leadSuit:null,spadesBroken:false,trick:[],phase:'idle',handNo:0};
@@ -41,4 +43,12 @@ function scoreTeam(t){let ps=t===0?[0,2]:[1,3],bid=G.bids[ps[0]]+G.bids[ps[1]],g
 function scoreHand(){G.phase='score';let a=scoreTeam(0),b=scoreTeam(1);STATS.hands++;let winner=G.scores[0]>=500?'YOU + NIA WIN THE GAME!':G.scores[1]>=500?'ZONE + ACE WIN THE GAME.':'';if(winner&&!gameRecorded){STATS.games++;if(G.scores[0]>=500)STATS.wins++;else STATS.losses++;gameRecorded=true;saveStats()}render();msg('Hand complete. You/Nia '+a+'; Zone/Ace '+b+'. '+(winner||'Start the next hand.'));if(location.search.includes('selftest=1'))document.body.dataset.selftest=(G.tricks.reduce((x,y)=>x+y,0)===13?'PASS':'FAIL')}
 function selfTest(){setBid(3);let guard=0;let timer=setInterval(()=>{guard++;if(G.phase==='play'&&G.turn===0){let legal=legalCards(0),idx=G.hands[0].indexOf(legal[0]);playCard(0,idx)}if(G.phase==='score'||guard>500){clearInterval(timer);if(guard>500)document.body.dataset.selftest='FAIL'}},25)}
 $('newHand').onclick=()=>startHand();$('newGame').onclick=()=>{G.scores=[0,0];G.bags=[0,0];G.handNo=0;gameRecorded=false;startHand()};$('difficulty').value=DIFF;$('difficulty').onchange=e=>{DIFF=e.target.value;localStorage.setItem('ju_spades_diff',DIFF);msg('AI difficulty: '+DIFF+'.')};renderStats();startHand();if(location.search.includes('selftest=1'))setTimeout(selfTest,100);
+</script><script>
+(function(){
+ document.addEventListener('contextmenu',e=>{if(e.target.closest('button,[role="button"],canvas'))e.preventDefault()});
+ document.querySelectorAll('button,[role="button"]').forEach(el=>{
+   el.setAttribute('tabindex',el.getAttribute('tabindex')||'0');
+   el.addEventListener('touchend',()=>{}, {passive:true});
+ });
+})();
 </script></body></html>
