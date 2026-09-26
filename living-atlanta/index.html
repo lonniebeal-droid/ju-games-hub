@@ -76,6 +76,25 @@ canvas{display:block}
 .tutorialOverlay.show{display:flex}
 .tutBox{background:#111116;border:1px solid rgba(255,255,255,0.15);border-radius:20px;width:90%;max-width:360px;padding:24px;position:relative}
 </style>
+<style>
+/* JU graphics pass 2026-09-26: HUD/overlay polish (visual only — no script changes) */
+.badge{box-shadow:0 4px 14px rgba(0,0,0,.45)}
+.cashBadge{box-shadow:0 0 18px rgba(250,204,21,.35),0 4px 14px rgba(0,0,0,.45)}
+#miniMap{border-color:rgba(250,204,21,.5);box-shadow:0 0 22px rgba(250,204,21,.25)}
+.directionArrow{background:linear-gradient(180deg,#ffe45c,#facc15);box-shadow:0 4px 16px rgba(250,204,21,.45)}
+.btnAction{position:relative;overflow:hidden}
+.btnAction::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.25),transparent 55%);pointer-events:none}
+.btnJack{background:linear-gradient(180deg,#ffe45c,#facc15)}
+.btnHustle{background:linear-gradient(180deg,#34f79b,#00dd77)}
+.btnExit{background:linear-gradient(180deg,#ff6b62,#e11d2e)}
+.btnAuto{background:linear-gradient(180deg,#3b9bff,#0066d6)}
+.btnInteract{background:linear-gradient(180deg,#ffffff,#dfe5ee)}
+.titleATL .grad{background:linear-gradient(100deg,#fef08a 20%,#fffbe6 40%,#f59e0b 60%);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;animation:goldShimmer 3.5s linear infinite}
+@keyframes goldShimmer{to{background-position:-220% 0}}
+.playBtn{background:linear-gradient(135deg,#fef08a,#facc15 55%,#f59e0b);box-shadow:0 0 46px rgba(250,204,21,.45)}
+.toast{border-color:rgba(250,204,21,.6);box-shadow:0 0 24px rgba(250,204,21,.25)}
+#jobHUD{border-color:rgba(250,204,21,.35);box-shadow:0 8px 32px rgba(0,0,0,.6),0 0 20px rgba(250,204,21,.15)}
+</style>
 </head>
 <body>
 <div id="gameWrap">
