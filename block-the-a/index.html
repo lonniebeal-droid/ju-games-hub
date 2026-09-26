@@ -42,26 +42,41 @@ h1{font-size:2rem;letter-spacing:.12em;margin:.4em 0 .2em;
 #m.pop{animation:pop .5s ease}
 @keyframes pop{0%{transform:scale(.8);opacity:.4}60%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
 .howto{color:#8f83ad;font-size:.85rem;margin-top:14px}
+.c{-webkit-appearance:none;appearance:none;padding:0;cursor:pointer;font:inherit;color:inherit}
+.c:focus-visible{outline:2px solid #d4af37;outline-offset:1px}
+#over{position:fixed;inset:0;display:grid;place-items:center;background:#08080dcc;backdrop-filter:blur(4px);z-index:10}
+#over[hidden]{display:none}
+.ocard{background:#1b1530;border:1px solid #d4af3766;border-radius:20px;padding:30px 38px;box-shadow:0 12px 60px #000;text-align:center}
+.ocard h2{margin:0 0 8px;letter-spacing:.1em;color:#ffe9a8}
+.ocard p{color:#b9a8d9;margin:6px 0}
+.ocard .obest{color:#8f83ad;font-size:.9rem}
+.ocard button{color:#fff;background:linear-gradient(180deg,#3a2c5c,#241b3d);border:1px solid #d4af3755;padding:12px 26px;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer;margin-top:10px}
 </style><style>
 html,body{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 button,[role="button"],a{touch-action:manipulation}
 button{min-height:44px;min-width:44px}
 </style><style>
 @media(max-width:700px){body{overscroll-behavior:none}button,[role="button"],a{font-size:max(16px,1em)}canvas{max-width:100%;height:auto}*{box-sizing:border-box}}
-</style></head><body><div class=skyline></div><main><h1>BLOCK: THE A</h1><p class=sub>Zone 6 block puzzle. Pick a piece, then tap the board to place it. Clear rows and columns.</p><div class="hud"><b>Score <span id=s>0</span></b><button onclick=reset()>New Game</button></div><div id=g class=grid></div><div id=t class=tray></div><p id=m></p><p class=howto>Tip: full rows or columns clear for +25 per block. ATL CLEAR!</p></main><script>
-/* ===== GAME LOGIC — preserved exactly from the original (graphics upgrade changed only CSS + draw() markup) ===== */
-let B=Array(64).fill(0),score=0,sel=0;const shapes=[[[0,0]],[[0,0],[1,0]],[[0,0],[0,1]],[[0,0],[1,0],[0,1]],[[0,0],[1,0],[2,0]],[[0,0],[0,1],[0,2]],[[0,0],[1,0],[0,1],[1,1]]];let hand=[];
+</style></head><body><div class=skyline></div><main><h1>BLOCK: THE A</h1><p class=sub>Zone 6 block puzzle. Pick a piece, then tap the board to place it. Clear rows and columns.</p><div class="hud"><b>Score <span id=s>0</span></b><b>Best <span id=bs>0</span></b><button onclick=reset()>New Game</button></div><div id=g class=grid></div><div id=t class=tray></div><p id=m></p><div id=over hidden></div><p class=howto>Tip: +10 per block placed. Full rows or columns clear for +25 per block. ATL CLEAR!</p></main><script>
+/* ===== GAME LOGIC — fix pass 2026-09-26: extracted fitsAt(); added no-move game-over + best score. Core rules unchanged. ===== */
+let B=Array(64).fill(0),score=0,sel=0,best=0;try{best=+localStorage.blockABest||0}catch(e){}
+const shapes=[[[0,0]],[[0,0],[1,0]],[[0,0],[0,1]],[[0,0],[1,0],[0,1]],[[0,0],[1,0],[2,0]],[[0,0],[0,1],[0,2]],[[0,0],[1,0],[0,1],[1,1]]];let hand=[];
+bs.textContent=best;
 function newHand(){hand=Array.from({length:3},()=>shapes[Math.floor(Math.random()*shapes.length)]);sel=0;draw()}
 function piecePreview(p){let w=Math.max(...p.map(q=>q[0]))+1,h=Math.max(...p.map(q=>q[1]))+1,grid='';
  for(let y=0;y<h;y++)for(let x=0;x<w;x++){grid+='<span class="pc'+(p.some(q=>q[0]==x&&q[1]==y)?'':' off')+'"></span>'}
  return '<span style="display:grid;grid-template-columns:repeat('+w+',18px);gap:3px">'+grid+'</span>'}
-function draw(){g.innerHTML=B.map((v,i)=>'<div class="c '+(v?'on':'')+'" onclick="place('+i+')"></div>').join('');
+function draw(){g.innerHTML=B.map((v,i)=>'<button class="c '+(v?'on':'')+'" onclick="place('+i+')" aria-label="board cell '+(i+1)+' of 64"></button>').join('');
  t.innerHTML=hand.map((p,i)=>'<button class="piece '+(i==sel?'sel':'')+'" onclick="sel='+i+';draw()">'+piecePreview(p)+'</button>').join('');
  s.textContent=score}
 function flashMsg(t){m.textContent=t;m.classList.remove('pop');void m.offsetWidth;m.classList.add('pop')}
-function place(i){let x=i%8,y=Math.floor(i/8),p=hand[sel];if(!p||p.some(q=>x+q[0]>7||y+q[1]>7||B[(y+q[1])*8+x+q[0]])){flashMsg('That spot won’t fit.');return}p.forEach(q=>B[(y+q[1])*8+x+q[0]]=1);score+=p.length*10;hand.splice(sel,1);sel=0;clearLines();if(!hand.length)newHand();else draw()}
+function fitsAt(p,x,y){return !p.some(q=>x+q[0]>7||y+q[1]>7||B[(y+q[1])*8+x+q[0]])}
+function anyFit(){for(const p of hand)for(let y=0;y<8;y++)for(let x=0;x<8;x++)if(fitsAt(p,x,y))return true;return false}
+function place(i){let x=i%8,y=Math.floor(i/8),p=hand[sel];if(!p||!fitsAt(p,x,y)){flashMsg('That spot won\u2019t fit.');return}p.forEach(q=>B[(y+q[1])*8+x+q[0]]=1);score+=p.length*10;hand.splice(sel,1);sel=0;clearLines();if(!hand.length)newHand();else draw();if(!anyFit())gameOver()}
 function clearLines(){let kill=new Set;for(let y=0;y<8;y++)if(B.slice(y*8,y*8+8).every(Boolean))for(let x=0;x<8;x++)kill.add(y*8+x);for(let x=0;x<8;x++)if(Array.from({length:8},(_,y)=>B[y*8+x]).every(Boolean))for(let y=0;y<8;y++)kill.add(y*8+x);kill.forEach(i=>B[i]=0);if(kill.size){score+=kill.size*25;flashMsg('ATL CLEAR! +'+kill.size*25)}}
-function reset(){B.fill(0);score=0;m.textContent='';newHand()}reset()</script><script>
+function gameOver(){best=Math.max(best,score);try{localStorage.blockABest=best}catch(e){}bs.textContent=best;
+ over.innerHTML='<div class=ocard><h2>NO MOVES LEFT</h2><p>Final score <b>'+score+'</b></p><p class=obest>Best '+best+'</p><button onclick="over.hidden=true;reset()">Play Again</button></div>';over.hidden=false}
+function reset(){B.fill(0);score=0;m.textContent='';over.hidden=true;newHand()}reset()</script><script>
 (function(){
  document.addEventListener('contextmenu',e=>{if(e.target.closest('button,[role="button"],canvas'))e.preventDefault()});
  document.querySelectorAll('button,[role="button"]').forEach(el=>{
