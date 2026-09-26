@@ -1,12 +1,18 @@
-# JU MASTER — SESSION HANDOFF
+# JU MASTER — SESSION HANDOFF (FINAL FOR GROK ON JU GAMES)
 **Session ID:** JU-GAMES-GRAPHICS-2026-09-26  
 **Agent:** Grok  
-**Closed:** 2026-09-26 ~04:46 ET  
+**Closed:** 2026-09-26 ~05:00 ET  
 **Scope:** JU Games graphics recovery + upgrade only
 
 ---
 
-## DO NOT REOPEN / COMPLETE
+## MUSE IS NOW JU GAMES GRAPHICS OWNER
+
+Grok stops all JU Games graphics work after this handoff.
+
+---
+
+## COMPLETE / LOCKED
 
 ### SPADES: THE A
 | Field | Value |
@@ -14,81 +20,87 @@
 | Status | **COMPLETE** |
 | Graphics | **VERIFIED UPGRADED** |
 | Playability | **VERIFIED** |
-| Self-test | PASS (`dataset.selftest === "PASS"`, 13 tricks) |
+| Self-test | PASS |
 | Repo | lonniebeal-droid/ju-games-hub |
-| Branch | ju-games-graphics-2026-09-26 → **merged to main** |
-| PR | https://github.com/lonniebeal-droid/ju-games-hub/pull/6 |
 | Merge SHA | `d8259ae4d218d789ab5576ddbe9a32f038c53a9e` |
 | Live | https://lonniebeal-droid.github.io/ju-games-hub/spades/ |
-| Notes | Visual-only upgrade (felt, gold brand, cards, HUD). Gameplay JS preserved. |
+| Rule | **DO NOT MODIFY** |
 
-**Next worker: DO NOT modify SPADES. Muse owns future JU Games graphics.**
-
----
-
-## CURRENT OPEN WORK
-
-### JU PICKS (graphics acceptance blocked)
+### JU PICKS
 | Field | Value |
 |-------|--------|
-| Status | Graphics landed on branch; **not mergeable yet** |
-| Graphics | On branch (not VERIFIED — typecheck red) |
-| Playability | Offline suites green; full gate blocked |
+| Status | **COMPLETE for graphics lane** |
+| Graphics | **VERIFIED UPGRADED** |
+| Playability | **VERIFIED** (CI full gate green) |
 | Repo | lonniebeal-droid/ju-picks |
-| Branch | `ju-picks-graphics-2026-09-26` |
-| Graphics SHA | `7d456fe909e72a10103e2f9133c5d86051990aa9` |
-| Lint hygiene SHA | `40c1be582262c5048dff24c23e01a78606b9cc42` |
-| PR | https://github.com/lonniebeal-droid/ju-picks/pull/6 (open) |
+| Branch | `ju-picks-graphics-2026-09-26` → **merged to main** |
+| PR | https://github.com/lonniebeal-droid/ju-picks/pull/6 |
+| Merge SHA | `9d0bfcf86d266bdd016a0fc127f2ad49e923406b` |
+| Graphics commit | `7d456fe909e72a10103e2f9133c5d86051990aa9` |
+| TS maintenance | `d1c6cc89b8a2b5fe99008cfc7aaf74b6c4b61120`, `f941af69aa73a8764d887040cff89f131975feba` |
 
-**CI evidence (PR verify):**
-- Pure settlement: **19 passed**
-- Persistence static: **21 passed**
-- DB integration: **31 passed**
-- Lint: PASS (after unused-var hygiene)
-- Typecheck: **FAIL** — pre-existing TS errors in `server-fns.ts`, routes. **Not caused by CSS/tailwind graphics.**
+**CI acceptance gate (run 36231151016 verify SUCCESS):**
+- Pure settlement / persistence static / DB integration: PASS (31 DB integration)
+- Lint: PASS
+- Typecheck: PASS (pre-existing batch4 debt aligned to jp-rpc; no settlement logic change)
+- Unit tests + build: PASS
 
-**Next worker exact task:**
-1. Fix pre-existing typecheck on mainline OR on this branch (align `jp-rpc` exports / types / route deps) **without** changing settlement/auth/betslip logic.
-2. Re-run CI on PR #6 until green.
-3. Smoke: board, slip, wallet, mobile.
-4. Merge only when typecheck + tests green.
-5. Then mark: JU PICKS GRAPHICS = VERIFIED UPGRADED, PLAYABILITY = VERIFIED.
+TS fix summary (non-graphics maintenance):
+- Added `src/lib/types.ts` from existing schemas
+- Aligned `server-fns` to real `jp-rpc` signatures (auth.uid()-based)
+- Removed non-existent `jpGetMyEntries` / `jpGetMyEntry` RPC imports; used existing `browserSelect` pattern
+- Removed express / react-router-dom imports (not in package.json)
+- Fixed import path depth + `.ts` re-export extension
 
 ---
 
-## LOCKED — DO NOT TOUCH
+## EVERY KNOWN JU GAME (hub)
+
+| Game / path | Repo | Branch | Latest note | Graphics | Playability |
+|-------------|------|--------|-------------|----------|-------------|
+| SPADES: THE A (`spades/`) | ju-games-hub | main | Merge `d8259ae` | VERIFIED UPGRADED | VERIFIED |
+| HUSTLEBOUND (`hustlebound/`, `ju-atl/`) | ju-games-hub | main | LOCKED | LOCKED | LOCKED |
+| Lil Steppers (`lil-steppers/`) | ju-games-hub | main | Hub present | Open for Muse | Hub ship |
+| Atlanta Arcade / Living Atlanta / 21 Rush / Block the A / A-Town * | ju-games-hub | main | Hub catalog | Open for Muse | Hub ship |
+| JU PICKS | ju-picks | main | Merge `9d0bfcf` | VERIFIED UPGRADED | VERIFIED |
+
+Hub SHA at handoff: `152876db624337d2d3f6578b654ba9aac4826046` (plus this docs commit).
+
+---
+
+## REMAINING GRAPHICS WORK (MUSE)
+
+- Deeper commercial polish on JU PICKS view components (optional beyond tokens)
+- Any non-locked hub games visual upgrades
+- Screenshots / evidence collection for marketing
+- **Do not touch SPADES or HUSTLEBOUND**
+
+---
+
+## LOCKED PROJECTS — DO NOT TOUCH
 
 | Project | Reason |
 |---------|--------|
+| SPADES: THE A | VERIFIED COMPLETE |
 | HUSTLEBOUND / ATL: THE A / ju-atl-game | Core LOCKED |
-| JU Command Center | Out of scope this session |
-| JU Builder AI | Handed to next lane |
-| Google Takeout migration | Out of scope |
-| ScopeGuard | Out of scope |
-| Security Lab | Out of scope |
+| JU Command Center | Out of graphics scope |
+| Settlement / RPC / auth logic in ju-picks | Non-graphics; already CI-green |
 
 ---
 
-## PORTFOLIO SNAPSHOT
+## EVIDENCE LOCATIONS
 
-| Game | Status | Next |
-|------|--------|------|
-| SPADES: THE A | COMPLETE | None — Muse owns future graphics |
-| JU PICKS | Graphics PR open; typecheck blocker | Fix typecheck → green CI → merge |
-| HUSTLEBOUND | LOCKED | Do not touch |
+- ju-picks: `GRAPHICS_RECEIPT_2026-09-26.md`
+- ju-games-hub: `spades/GRAPHICS_RECEIPT_2026-09-26.md`
+- This handoff: `docs/handoffs/JU_MASTER_HANDOFF_JU_GAMES_GRAPHICS_2026-09-26.md`
+- Portfolio checkpoint: `docs/handoffs/JU_GAMES_PORTFOLIO_CHECKPOINT_2026-09-26.md`
 
 ---
 
-## CONTINUITY FLAGS
+## EXACT NEXT TASK (MUSE)
 
-- **JU GAMES CHECKPOINT = DURABLY PRESERVED** (this file on GitHub)
-- **JU MASTER SYNC = BLOCKED** (Drive quota / write denial)
+Own all remaining JU Games graphics. Prefer non-locked titles. No settlement/game-behavior changes. SPADES and HUSTLEBOUND stay locked.
 
-## HANDOFF LINE
+## GROK NEXT
 
-```
-SPADES = COMPLETE (do not touch; Muse owns future graphics)
-JU PICKS = open PR #6 ju-picks-graphics-2026-09-26 — unblock typecheck then merge
-HUSTLEBOUND = LOCKED
-JU MASTER SYNC = BLOCKED
-```
+JU Builder commercial acceptance (hosted Supabase + Stripe TEST). Mobile recovery branch is **local-only** — do not invent remote branch.
