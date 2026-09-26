@@ -552,17 +552,20 @@ function initWorld(){
 }
 function spawnHustleMarkers(){
   hustleMarkers=[];
-  for(let i=0;i<6;i++){
+  let guard=0;
+  while(hustleMarkers.length<6 && guard++<60){
     let ang=Math.random()*Math.PI*2, dist=400+Math.random()*600;
     let x=player.x+Math.cos(ang)*dist, y=player.y+Math.sin(ang)*dist;
     if(isInsideBuilding(x,y,20)) continue;
+    if(x<200||x>WORLD-200||y<200||y>WORLD-200) continue;
     let ht=HUSTLE_TYPES[Math.floor(Math.random()*HUSTLE_TYPES.length)];
-    hustleMarkers.push({id:i,x,y,type:ht.type,name:ht.name,icon:ht.icon,rewardMin:ht.rewardMin,rewardMax:ht.rewardMax});
+    hustleMarkers.push({id:hustleMarkers.length,x,y,type:ht.type,name:ht.name,icon:ht.icon,rewardMin:ht.rewardMin,rewardMax:ht.rewardMax});
   }
 }
 
 // ================= HUSTLE SYSTEM - 6 TYPES =================
 function startHustle(type, marker){
+  if(!type){ showToast('No hustle here'); return; }
   if(activeHustle){ showToast('Already on a job! Cancel first'); return; }
   let def=HUSTLE_TYPES.find(h=>h.type===type) || HUSTLE_TYPES[0];
   let reward=def.rewardMin+Math.floor(Math.random()*(def.rewardMax-def.rewardMin));
@@ -590,7 +593,7 @@ function startHustle(type, marker){
     activeHustle={id:hustleIdCounter++,type,status:'pickup',pickupX:px,pickupY:py,dropoffX:dx,dropoffY:dy,reward,timer:120,checkpoints:[],currentCheckpoint:0,passengerId};
     showToast(`${def.name} - Pick up customer`);
   }else if(type==='car_wash'){
-    activeHustle={id:hustleIdCounter++,type,status:'washing',pickupX:600,y:1820,dropoffX:600,dropoffY:1820,reward,timer:0,progress:0,checkpoints:[],currentCheckpoint:0};
+    activeHustle={id:hustleIdCounter++,type,status:'washing',pickupX:600,pickupY:1820,dropoffX:600,dropoffY:1820,reward,timer:0,progress:0,checkpoints:[],currentCheckpoint:0};
     showToast('Car Wash Hustle - Park at Cascade');
   }else if(type==='street_race'){
     let checkpoints=[];
@@ -666,11 +669,12 @@ function spawnRandomEvent(){
   lastEventSpawn=Date.now();
   showToast(`NEW EVENT: ${evDef.name} ${evDef.icon}`);
   if(evDef.type==='broken_down' && traffic.length<MAX_TRAFFIC_TOTAL){
-    traffic.push({id:trafficIdCounter++,x:x+(Math.random()-0.5)*20,y:y+(Math.random()-0.5)*20,angle:0,speed:0,maxSpeed:0,type:'sedan',color:'#ef4444',stuckFrames:0,slowTimer:0,isBus:false,lastX:x,lastY:y});
+    traffic.push({id:trafficIdCounter++,x:x+(Math.random()-0.5)*20,y:y+(Math.random()-0.5)*20,angle:0,speed:0,maxSpeed:0,type:'sedan',color:'#ef4444',stuckFrames:0,slowTimer:0,isBus:false,lastX:x,lastY:y,broken:true});
   }
 }
 function completeEvent(ev){
   addCash(ev.reward, ev.name);
+  if(ev.type==='broken_down'){ traffic=traffic.filter(t=> !(t.broken && Math.hypot(t.x-ev.x,t.y-ev.y)<150)); }
   randomEvents=randomEvents.filter(e=>e.id!==ev.id);
   showToast(`${ev.name} complete! +$${ev.reward}`);
   updateHustleBoard();
@@ -817,6 +821,7 @@ function updateHustleBoard(){
 
 function getMissionTarget(){
   if(activeHustle){
+    if(activeHustle.status==='washing') return {x:600,y:1820};
     if(activeHustle.status==='pickup') return {x:activeHustle.pickupX,y:activeHustle.pickupY};
     if(activeHustle.status==='dropoff' || activeHustle.status==='racing'){
       if(activeHustle.checkpoints && activeHustle.checkpoints.length>0){
@@ -850,6 +855,7 @@ function tryEnterExitCar(){
         return;
       }
     }
+    showToast('No car in range');
   }else{
     let car=cars[player.inCar];
     if(car){
@@ -912,6 +918,9 @@ let canvas=document.getElementById('gameCanvas');
 let ctx=canvas.getContext('2d');
 let miniCanvas=document.getElementById('miniMap');
 let miniCtx=miniCanvas.getContext('2d');
+if(typeof CanvasRenderingContext2D!=='undefined' && !CanvasRenderingContext2D.prototype.roundRect){
+  CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){ r=Math.min(r,w/2,h/2); this.moveTo(x+r,y); this.arcTo(x+w,y,x+w,y+h,r); this.arcTo(x+w,y+h,x,y+h,r); this.arcTo(x,y+h,x,y,r); this.arcTo(x,y,x+w,y,r); this.closePath(); return this; };
+}
 function resize(){
   canvas.width=window.innerWidth*window.devicePixelRatio;
   canvas.height=window.innerHeight*window.devicePixelRatio;
@@ -1215,29 +1224,22 @@ function gameLoop(){
         let dist=Math.hypot(dx,dy);
         document.getElementById('distanceText').textContent=`${Math.round(dist/10)}m`;
         if(dist<120){
-          autoDriving=false;
-          document.getElementById('autoDrivingBanner').style.display='none';
           showToast('Arrived!');
           if(activeHustle){
             if(activeHustle.status==='pickup'){
               if(activeHustle.passengerId){ npcs=npcs.filter(n=>n.id!==activeHustle.passengerId); }
               activeHustle.status='dropoff';
-              showToast('Picked up - Go to dropoff');
+              autoDriveTarget={x:activeHustle.dropoffX,y:activeHustle.dropoffY};
+              showToast('Picked up - auto-driving to dropoff');
               updateJobHUD();
-            }else if(activeHustle.status==='dropoff'){
-              completeHustle();
+            }else{
+              autoDriving=false;
+              document.getElementById('autoDrivingBanner').style.display='none';
+              if(activeHustle.status==='dropoff') completeHustle();
             }
-          }else if(missionIdx<MISSIONS.length){
-            let mt=getMissionTarget();
-            if(mt && Math.hypot(player.x-mt.x, player.y-mt.y)<190){
-              if(missionIdx===1 && missionSub===0){ missionSub=1; addCash(200,'MISSION'); }
-              else{
-                addCash(MISSIONS[missionIdx].reward,'MISSION '+MISSIONS[missionIdx].title);
-                if(missionIdx===2){ showToast('KING OF THE A - TRUE TO ATLANTA'); }
-                else{ missionIdx++; missionSub=0; localStorage.setItem('atl_mission_b',missionIdx.toString()); }
-              }
-              setWanted(0);
-            }
+          }else{
+            autoDriving=false;
+            document.getElementById('autoDrivingBanner').style.display='none';
           }
         }else{
           let angleToTarget=Math.atan2(dy,dx);
@@ -1268,6 +1270,20 @@ function gameLoop(){
       else{ car.x=nx; car.y=ny; }
       car.x=Math.max(80,Math.min(WORLD-80,car.x)); car.y=Math.max(80,Math.min(WORLD-80,car.y));
       player.x=car.x; player.y=car.y; player.angle=car.angle; player.speed=car.speed;
+      if(activeHustle && !autoDriving){
+        if(activeHustle.status==='pickup'){
+          let _d=Math.hypot(player.x-activeHustle.pickupX,player.y-activeHustle.pickupY);
+          if(_d<120){
+            if(activeHustle.passengerId) npcs=npcs.filter(n=>n.id!==activeHustle.passengerId);
+            activeHustle.status='dropoff';
+            showToast('Picked up - Go to dropoff');
+            updateJobHUD();
+          }
+        }else if(activeHustle.status==='dropoff'){
+          let _d=Math.hypot(player.x-activeHustle.dropoffX,player.y-activeHustle.dropoffY);
+          if(_d<120) completeHustle();
+        }
+      }
       for(let tr of traffic){
         let d=Math.hypot(car.x-tr.x,car.y-tr.y);
         if(d<42){ car.speed*=0.5; tr.speed*=0.5; tr.x+=Math.cos(Math.atan2(tr.y-car.y,tr.x-car.x))*18; tr.y+=Math.sin(Math.atan2(tr.y-car.y,tr.x-car.x))*18; }
@@ -1309,7 +1325,28 @@ function gameLoop(){
       if(d<90) completeHustle();
     }
   }
-  
+
+  // story mission + world event arrival: works on foot or driving (auto-drive funnels here on arrival)
+  if(!autoDriving){
+    if(!activeHustle && missionIdx<MISSIONS.length){
+      let mt=getMissionTarget();
+      if(mt && Math.hypot(player.x-mt.x,player.y-mt.y)<190){
+        if(missionIdx===1 && missionSub===0){ missionSub=1; addCash(200,'MISSION'); showToast('MISSION: part 1 done'); }
+        else{
+          addCash(MISSIONS[missionIdx].reward,'MISSION '+MISSIONS[missionIdx].title);
+          if(missionIdx===2){ showToast('KING OF THE A - TRUE TO ATLANTA'); missionIdx=3; localStorage.setItem('atl_mission_b','3'); }
+          else{ missionIdx++; missionSub=0; localStorage.setItem('atl_mission_b',missionIdx.toString()); }
+        }
+        setWanted(0);
+      }
+    }
+    if(!activeHustle && player.inCar===-1){
+      for(let ev of randomEvents){
+        if(Math.hypot(player.x-ev.x,player.y-ev.y)<110){ completeEvent(ev); break; }
+      }
+    }
+  }
+
   // NPC update
   bubbleCount=0;
   for(let i=npcs.length-1;i>=0;i--){
@@ -1367,7 +1404,7 @@ function gameLoop(){
     let moved=Math.hypot(tr.x-tr.lastX,tr.y-tr.lastY);
     if(moved<0.3) tr.stuckFrames++; else tr.stuckFrames=0;
     tr.lastX=tr.x; tr.lastY=tr.y;
-    if(tr.stuckFrames>60){ tr.angle+=Math.PI; tr.x+=Math.cos(tr.angle)*10; tr.y+=Math.sin(tr.angle)*10; tr.stuckFrames=0; }
+    if(tr.stuckFrames>60 && !tr.broken){ tr.angle+=Math.PI; tr.x+=Math.cos(tr.angle)*10; tr.y+=Math.sin(tr.angle)*10; tr.stuckFrames=0; }
   }
   if(traffic.length>MAX_TRAFFIC_TOTAL){
     traffic.sort((a,b)=> Math.hypot(b.x-player.x,b.y-player.y) - Math.hypot(a.x-player.x,a.y-player.y));
@@ -1388,7 +1425,7 @@ function gameLoop(){
   
   if(activeHustle){
     if(activeHustle.timer>0){ activeHustle.timer-=1/60; if(activeHustle.timer<=0){ showToast('Job failed - time expired'); cancelHustle(); } }
-    if(activeHustle.type==='car_wash' && activeHustle.status==='washing'){
+    if(activeHustle && activeHustle.type==='car_wash' && activeHustle.status==='washing'){
       if(player.inCar===-1){
         let d=Math.hypot(player.x-600,player.y-1820);
         if(d<100){
@@ -1404,7 +1441,7 @@ function gameLoop(){
         }
       }
     }
-    if(activeHustle.type==='street_race' || activeHustle.type==='marta_shift'){
+    if(activeHustle && (activeHustle.type==='street_race' || activeHustle.type==='marta_shift')){
       let cp=activeHustle.checkpoints[activeHustle.currentCheckpoint];
       if(cp){
         let d=Math.hypot(player.x-cp.x,player.y-cp.y);
@@ -1434,6 +1471,7 @@ function gameLoop(){
     let ang=Math.atan2(player.y-cop.y, player.x-cop.x);
     let diff=ang-cop.angle; while(diff>Math.PI) diff-=Math.PI*2; while(diff<-Math.PI) diff+=Math.PI*2;
     cop.angle+=diff*0.05; cop.x+=Math.cos(cop.angle)*cop.speed; cop.y+=Math.sin(cop.angle)*cop.speed;
+    if(wanted>0.5 && Math.hypot(cop.x-player.x,cop.y-player.y)<48){ busted(); break; }
   }
   cops=cops.filter(c=> Math.hypot(c.x-player.x,c.y-player.y)<2000);
   
@@ -1444,6 +1482,9 @@ function gameLoop(){
     document.getElementById('missionObjective').textContent=activeHustle?`${activeHustle.type.toUpperCase().replace('_',' ')} - ${activeHustle.status}`:(MISSIONS[missionIdx]?MISSIONS[missionIdx].title:'FREE ROAM');
     let ang=Math.atan2(target.y-player.y, target.x-player.x);
     document.getElementById('directionArrow').style.transform=`rotate(${ang*180/Math.PI}deg)`;
+  }else{
+    document.getElementById('distanceText').textContent='--';
+    document.getElementById('missionObjective').textContent='FREE ROAM';
   }
   document.getElementById('zoneDisplay').textContent=getZoneAt(player.x,player.y).toUpperCase();
   document.getElementById('entityCount').textContent=`NPC:${npcs.length} TRAFFIC:${traffic.length}/16 EV:${randomEvents.length}`;
@@ -1454,6 +1495,13 @@ function gameLoop(){
   requestAnimationFrame(gameLoop);
 }
 function setWanted(v){ wanted=Math.max(0,Math.min(5,v)); document.getElementById('wantedDisplay').textContent='★'.repeat(Math.floor(wanted))+'☆'.repeat(5-Math.floor(wanted)); }
+function busted(){
+  let fine=Math.min(cash,Math.max(50,Math.floor(cash*0.2)));
+  if(fine>0){ cash-=fine; localStorage.setItem('atl_cash_b',cash.toString()); showTransaction('-$'+fine+' BUSTED',false,'BUSTED'); updateHUD(); }
+  setWanted(0); cops=[]; lastCrimeTime=performance.now();
+  if(activeHustle) cancelHustle();
+  showToast('BUSTED! Paid $'+fine+' fine');
+}
 
 // joystick
 let joyBase=document.getElementById('joystickBase');
