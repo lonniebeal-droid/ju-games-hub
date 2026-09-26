@@ -82,8 +82,8 @@
   @keyframes legendPulse { from{box-shadow:0 0 14px rgba(245,179,1,.6)} to{box-shadow:0 0 34px rgba(245,179,1,1)} }
 
   /* ---------- missions ---------- */
-  #missions { display:flex; gap:6px; margin-bottom:8px; overflow-x:hidden; }
-  .mission { flex:1; font-size:10.5px; font-weight:700; line-height:1.35; text-align:center;
+  #missions { display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap; }
+  .mission { flex:1 1 0; min-width:0; overflow-wrap:anywhere; font-size:10.5px; font-weight:700; line-height:1.35; text-align:center;
              background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12);
              border-radius:10px; padding:6px 6px; color:var(--dim); }
   .mission .prog { display:block; font-size:10px; color:var(--txt); font-weight:800; margin-top:2px; font-variant-numeric:tabular-nums; }
@@ -718,12 +718,14 @@ function r21CheckMissions(game, events) {
     buzz(200);
   }
 
+  function bumpBest() { if (game.score > game.best) { game.best = game.score; store.set(LS_BEST, game.best); } }
   function missionJuice(done) {
     done.forEach((m) => {
       sfx.fanfare();
       confetti(24);
       toast('\u2705 MISSION: ' + m.text + ' \u00B7 +' + m.points);
     });
+    if (done.length) bumpBest();
   }
 
   /* ---------- placement ---------- */
@@ -753,7 +755,7 @@ function r21CheckMissions(game, events) {
     const r = r21EnsureCard(game);
     const done = r21CheckMissions(game, { cleanRound: r.cleanRound });
     if (done.length) missionJuice(done);
-    if (r.reshuffled) { sfx.round(); toast('NEW DECK \u2014 ROUND ' + r.round + ' \u00B7 +50'); }
+    if (r.reshuffled) { sfx.round(); toast('NEW DECK \u2014 ROUND ' + r.round + ' \u00B7 +50'); bumpBest(); }
     else sfx.deal();
     render();
     dealVisual();
@@ -786,7 +788,12 @@ function r21CheckMissions(game, events) {
 
   /* ---------- wiring ---------- */
   document.querySelectorAll('.column').forEach((el) => {
-    el.addEventListener('pointerdown', (e) => { e.preventDefault(); place(parseInt(el.dataset.col, 10)); });
+    const ci = parseInt(el.dataset.col, 10);
+    el.setAttribute('role', 'button');
+    el.setAttribute('tabindex', '0');
+    el.setAttribute('aria-label', 'Column ' + (ci + 1) + ', place card');
+    el.addEventListener('pointerdown', (e) => { e.preventDefault(); place(ci); });
+    el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); place(ci); } });
   });
   currentCardEl.addEventListener('pointerdown', (e) => { e.preventDefault(); audio(); sfx.deal(); });
   $('newGameBtn').addEventListener('click', () => { audio(); newGame(); });
@@ -796,9 +803,14 @@ function r21CheckMissions(game, events) {
     $('howOverlay').classList.add('hidden');
     store.set(LS_SEEN, true);
   });
+  let nArm = 0;
   document.addEventListener('keydown', (e) => {
     if (e.key >= '1' && e.key <= '4') place(parseInt(e.key, 10) - 1);
-    if (e.key === 'n' || e.key === 'N') newGame();
+    if (e.key === 'n' || e.key === 'N') {
+      const now = Date.now();
+      if (now - nArm < 3000) { nArm = 0; newGame(); }
+      else { nArm = now; toast('Press N again to restart'); }
+    }
   });
   document.addEventListener('dblclick', (e) => e.preventDefault(), { passive: false });
 
