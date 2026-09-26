@@ -1,12 +1,177 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>SPADES: THE A | Atlanta Card Game</title><style>
-*{box-sizing:border-box}body{margin:0;background:#080808;color:#fff;font-family:system-ui,-apple-system,sans-serif;min-height:100vh}button{font:inherit}.app{max-width:1050px;margin:auto;padding:12px}.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.brand{font-weight:900;font-size:clamp(22px,5vw,34px);color:#ffb800}.score{display:flex;gap:14px;font-weight:800}.table{margin-top:10px;background:radial-gradient(circle at 50% 44%,#22663c 0,#123f27 38%,#071d12 78%);border:4px solid #4b2d13;border-radius:28px;min-height:68vh;position:relative;padding:16px;box-shadow:inset 0 0 70px #000b,0 18px 55px #000a;overflow:hidden}.table:before{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 20%,#ffffff08 45%,transparent 62%),repeating-linear-gradient(90deg,#ffffff025 0 1px,transparent 1px 8px);mix-blend-mode:screen}.table:after{content:'ATLANTA • THE A';position:absolute;left:50%;top:47%;transform:translate(-50%,-50%) rotate(-8deg);font-size:clamp(28px,7vw,76px);font-weight:1000;letter-spacing:.08em;color:#ffffff08;white-space:nowrap;pointer-events:none}.seat{text-align:center;position:relative;z-index:2}.seat b{display:inline-block;background:linear-gradient(#222,#090909);border:1px solid #ffffff24;border-radius:999px;padding:6px 11px;box-shadow:0 5px 18px #0009}.seat b:before{content:'♠';display:inline-grid;place-items:center;width:24px;height:24px;margin-right:6px;border-radius:50%;background:#ffb800;color:#111;box-shadow:0 0 18px #ffb80055}.north{min-height:92px}.middle{display:grid;grid-template-columns:120px 1fr 120px;align-items:center;min-height:240px}.trick{display:grid;grid-template:90px 90px 90px/72px 72px 72px;justify-content:center;align-items:center;gap:5px}.slot{height:86px;width:64px;border:1px dashed #ffffff55;border-radius:8px;display:flex;align-items:center;justify-content:center}.slot.n{grid-column:2}.slot.w{grid-row:2;grid-column:1}.slot.e{grid-row:2;grid-column:3}.slot.s{grid-row:3;grid-column:2}.card{width:64px;height:90px;border-radius:9px;background:#f7f3e8;color:#111;border:2px solid #ddd;display:inline-flex;flex-direction:column;justify-content:space-between;padding:5px;font-weight:900;box-shadow:0 7px 18px #0009,inset 0 0 0 1px #fff8;user-select:none;transform-origin:50% 100%;background-image:linear-gradient(145deg,#fffdf5,#e9e2cf)}.red{color:#b00020}.hand{display:flex;justify-content:center;overflow-x:auto;padding:8px 0 18px;min-height:110px}.hand .card{margin-left:-24px;cursor:pointer;transition:.18s cubic-bezier(.2,.8,.2,1)}.hand .card:first-child{margin-left:0}.hand .card:hover,.hand .card:focus{transform:translateY(-16px) rotate(-1deg) scale(1.04);outline:3px solid #ffb800;z-index:3}.hand .disabled{opacity:.45;cursor:not-allowed}.status{text-align:center;min-height:48px;font-weight:900;padding:8px;position:relative;z-index:3;text-shadow:0 2px 8px #000;background:#0005;border-radius:999px;backdrop-filter:blur(5px)}.bidbox{display:none;text-align:center;background:#111d;border:1px solid #ffb80066;border-radius:16px;padding:12px;margin:8px auto;max-width:620px}.bidbox.show{display:block}.bids{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}.btn{background:linear-gradient(180deg,#ffd45c,#ffb800 55%,#d98c00);color:#111;border:0;border-radius:10px;padding:10px 15px;font-weight:900;cursor:pointer;box-shadow:0 5px 14px #0008,inset 0 1px #fff8;transition:.15s}.btn:active{transform:translateY(2px);box-shadow:0 2px 6px #0008}.btn.alt{background:#252525;color:#fff;border:1px solid #555}.meta{font-size:13px;color:#ccc}.badge{display:inline-block;background:#0009;border-radius:999px;padding:5px 9px;margin:2px}.controls{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px}@media(max-width:620px){.middle{grid-template-columns:72px 1fr 72px;min-height:215px}.card{width:54px;height:78px;font-size:14px}.slot{width:54px;height:78px}.hand .card{margin-left:-26px}.table{padding:8px;min-height:72vh}.seat{font-size:12px}}
-</style><style>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>SPADES: THE A | Atlanta Card Game</title>
+<style>
+:root{
+  --felt:#0d3b24;
+  --felt-deep:#062015;
+  --gold:#ffb800;
+  --gold-dim:#c98900;
+  --cream:#f7f1e1;
+  --ink:#0b0b0b;
+  --panel:#121212ee;
+  --line:#ffffff22;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:#050505;color:#fff;font-family:"Segoe UI",system-ui,-apple-system,sans-serif;min-height:100vh;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+button{font:inherit;min-height:44px;min-width:44px;touch-action:manipulation}
+.app{max-width:1080px;margin:auto;padding:14px 12px 28px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.brand-wrap{display:flex;flex-direction:column;gap:2px}
+.brand{font-weight:900;font-size:clamp(24px,5.2vw,36px);letter-spacing:.02em;background:linear-gradient(90deg,#ffe08a,#ffb800 40%,#ff8a00);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 30px #ffb80044}
+.sub{font-size:13px;color:#cfcfcf;font-weight:600}
+.score{display:flex;gap:10px;font-weight:800;align-items:center;flex-wrap:wrap}
+.score span{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:7px 12px;backdrop-filter:blur(8px)}
+.score b{color:var(--gold)}
+.table{
+  margin-top:8px;
+  background:
+    radial-gradient(ellipse at 50% 42%, #1f6b3f 0%, #0d3b24 42%, #062015 78%),
+    repeating-linear-gradient(90deg,#ffffff03 0 1px,transparent 1px 10px);
+  border:5px solid #5a3314;
+  border-radius:32px;
+  min-height:70vh;
+  position:relative;
+  padding:18px 14px;
+  box-shadow:
+    inset 0 0 80px #000c,
+    0 22px 60px #000a,
+    0 0 0 1px #000;
+  overflow:hidden;
+}
+.table:before{
+  content:"";
+  position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(circle at 30% 20%,#ffffff0a,transparent 40%),
+    linear-gradient(120deg,transparent 25%,#ffffff0a 48%,transparent 70%);
+  mix-blend-mode:screen;
+}
+.table:after{
+  content:"THE A • ATLANTA";
+  position:absolute;left:50%;top:48%;
+  transform:translate(-50%,-50%) rotate(-9deg);
+  font-size:clamp(30px,8vw,82px);font-weight:1000;letter-spacing:.12em;
+  color:#ffffff07;white-space:nowrap;pointer-events:none;
+}
+.seat{text-align:center;position:relative;z-index:2}
+.seat b{
+  display:inline-flex;align-items:center;gap:6px;
+  background:linear-gradient(180deg,#2a2a2a,#0d0d0d);
+  border:1px solid #ffffff2a;border-radius:999px;
+  padding:7px 12px;box-shadow:0 6px 20px #000a;font-size:14px
+}
+.seat b:before{
+  content:"♠";display:inline-grid;place-items:center;
+  width:22px;height:22px;border-radius:50%;
+  background:linear-gradient(180deg,#ffd45c,#ffb800);color:#111;
+  box-shadow:0 0 16px #ffb80066;font-size:13px
+}
+.north{min-height:96px}
+.middle{display:grid;grid-template-columns:128px 1fr 128px;align-items:center;min-height:250px}
+.trick{display:grid;grid-template:96px 96px 96px / 76px 76px 76px;justify-content:center;align-items:center;gap:6px}
+.slot{
+  height:92px;width:68px;border:1px dashed #ffffff40;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;background:#0002
+}
+.slot.n{grid-column:2}.slot.w{grid-row:2;grid-column:1}.slot.e{grid-row:2;grid-column:3}.slot.s{grid-row:3;grid-column:2}
+.card{
+  width:68px;height:96px;border-radius:10px;
+  background:linear-gradient(160deg,#fffef8,#efe6d2 55%,#e4d8bc);
+  color:#111;border:2px solid #d8cbb0;
+  display:inline-flex;flex-direction:column;justify-content:space-between;
+  padding:6px 5px;font-weight:900;
+  box-shadow:0 8px 20px #000a, inset 0 0 0 1px #fff9;
+  user-select:none;transform-origin:50% 100%;
+  position:relative;
+}
+.card .pip{font-size:30px;text-align:center;line-height:1;opacity:.95}
+.red{color:#b00020}
+.hand{display:flex;justify-content:center;overflow-x:auto;padding:10px 0 20px;min-height:118px}
+.hand .card{margin-left:-22px;cursor:pointer;transition:.18s cubic-bezier(.2,.8,.2,1)}
+.hand .card:first-child{margin-left:0}
+.hand .card:hover,.hand .card:focus{
+  transform:translateY(-18px) rotate(-1deg) scale(1.05);
+  outline:3px solid var(--gold);z-index:5;box-shadow:0 14px 28px #000c
+}
+.hand .disabled{opacity:.42;cursor:not-allowed;filter:grayscale(.15)}
+.status{
+  text-align:center;min-height:50px;font-weight:900;padding:10px 14px;
+  position:relative;z-index:3;text-shadow:0 2px 10px #000;
+  background:#0007;border-radius:999px;backdrop-filter:blur(8px);
+  border:1px solid #ffffff18;margin-top:4px
+}
+.bidbox{
+  display:none;text-align:center;background:#0e0e0eee;
+  border:1px solid #ffb80066;border-radius:18px;padding:14px;
+  margin:10px auto;max-width:640px;backdrop-filter:blur(10px)
+}
+.bidbox.show{display:block}
+.bids{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+.btn{
+  background:linear-gradient(180deg,#ffd45c,#ffb800 55%,#d98c00);
+  color:#111;border:0;border-radius:12px;padding:11px 16px;font-weight:900;
+  cursor:pointer;box-shadow:0 6px 16px #0008,inset 0 1px #fff8;transition:.15s
+}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 6px #0008}
+.btn.alt{background:#1f1f1f;color:#fff;border:1px solid #555}
+.meta{font-size:13px;color:#ccc}
+.badge{display:inline-block;background:#000a;border-radius:999px;padding:5px 10px;margin:2px;border:1px solid #ffffff14}
+.controls{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+select{background:#1a1a1a;color:#fff;border:1px solid #555;border-radius:10px;padding:8px 10px}
+@media(max-width:640px){
+  .middle{grid-template-columns:78px 1fr 78px;min-height:220px}
+  .card{width:56px;height:80px;font-size:13px}
+  .slot{width:56px;height:80px}
+  .hand .card{margin-left:-24px}
+  .table{padding:10px;min-height:74vh;border-radius:24px}
+  .seat{font-size:12px}
+  .brand{font-size:clamp(22px,6vw,30px)}
+}
+</style>
+<style>
 html,body{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 button,[role="button"],a{touch-action:manipulation}
 button{min-height:44px;min-width:44px}
-</style><style>
-@media(max-width:700px){body{overscroll-behavior:none}button,[role="button"],a{font-size:max(16px,1em)}canvas{max-width:100%;height:auto}*{box-sizing:border-box}}
-</style></head><body><main class="app"><div class="top"><div><div class="brand">♠ SPADES: THE A</div><div class="meta">Atlanta Night Table • You + Nia vs Zone + Ace</div></div><div class="score"><span>YOU/NIA <b id="usScore">0</b></span><span>ZONE/ACE <b id="themScore">0</b></span><span class="badge" id="careerStats">0W • 0L</span></div></div><section class="table"><div class="seat north" id="north"></div><div class="middle"><div class="seat" id="west"></div><div><div class="trick"><div class="slot n" id="tn"></div><div class="slot w" id="tw"></div><div class="slot e" id="te"></div><div class="slot s" id="ts"></div></div><div class="status" id="status"></div></div><div class="seat" id="east"></div></div><div class="bidbox" id="bidbox"><b>🎯 CALL YOUR BOOKS</b><div class="bids" id="bids"></div></div><div class="seat" id="south"></div><div class="hand" id="hand"></div></section><div class="controls"><label class="badge">AI <select id="difficulty" aria-label="AI difficulty"><option value="easy">Easy</option><option value="street" selected>Street</option><option value="pro">Pro</option></select></label><button class="btn alt" id="newHand">🃏 New Hand</button><button class="btn alt" id="newGame">🏆 New Game</button></div></main><script>
+@media(max-width:700px){body{overscroll-behavior:none}button,[role="button"],a{font-size:max(16px,1em)}}
+</style>
+</head><body>
+<main class="app">
+  <div class="top">
+    <div class="brand-wrap">
+      <div class="brand">♠ SPADES: THE A</div>
+      <div class="sub">Atlanta Night Table · You + Nia vs Zone + Ace</div>
+    </div>
+    <div class="score">
+      <span>YOU/NIA <b id="usScore">0</b></span>
+      <span>ZONE/ACE <b id="themScore">0</b></span>
+      <span class="badge" id="careerStats">0W • 0L</span>
+    </div>
+  </div>
+  <section class="table">
+    <div class="seat north" id="north"></div>
+    <div class="middle">
+      <div class="seat" id="west"></div>
+      <div>
+        <div class="trick">
+          <div class="slot n" id="tn"></div>
+          <div class="slot w" id="tw"></div>
+          <div class="slot e" id="te"></div>
+          <div class="slot s" id="ts"></div>
+        </div>
+        <div class="status" id="status"></div>
+      </div>
+      <div class="seat" id="east"></div>
+    </div>
+    <div class="bidbox" id="bidbox"><b>🎯 CALL YOUR BOOKS</b><div class="bids" id="bids"></div></div>
+    <div class="seat" id="south"></div>
+    <div class="hand" id="hand"></div>
+  </section>
+  <div class="controls">
+    <label class="badge">AI <select id="difficulty" aria-label="AI difficulty"><option value="easy">Easy</option><option value="street" selected>Street</option><option value="pro">Pro</option></select></label>
+    <button class="btn alt" id="newHand">🃏 New Hand</button>
+    <button class="btn alt" id="newGame">🏆 New Game</button>
+  </div>
+</main>
+<script>
 const SUITS=['♣','♦','♥','♠'],RANKS=['2','3','4','5','6','7','8','9','10','J','Q','K','A'],NAMES=['You','Zone','Nia','Ace'];
 let G={scores:[0,0],bags:[0,0],hands:[],bids:[0,0,0,0],tricks:[0,0,0,0],leader:0,turn:0,leadSuit:null,spadesBroken:false,trick:[],phase:'idle',handNo:0};
 const STATS_KEY='ju_spades_stats_v2';
@@ -19,13 +184,13 @@ function renderStats(){let e=$('careerStats');if(e)e.textContent=STATS.wins+'W �
 const $=id=>document.getElementById(id); const team=i=>i%2; const val=c=>RANKS.indexOf(c.r);
 function deck(){let d=[];for(const s of SUITS)for(const r of RANKS)d.push({s,r});for(let i=d.length-1;i;i--){let j=Math.floor(Math.random()*(i+1));[d[i],d[j]]=[d[j],d[i]]}return d}
 function sortHand(h){return h.sort((a,b)=>SUITS.indexOf(a.s)-SUITS.indexOf(b.s)||val(a)-val(b))}
-function cardHTML(c,clickable=false,disabled=false,i=0){return `<button ${clickable&&!disabled?`onclick="playHuman(${i})"`:''} class="card ${c.s==='♦'||c.s==='♥'?'red':''} ${disabled?'disabled':''}" aria-label="${c.r} of ${c.s}"><span>${c.r}${c.s}</span><span style="font-size:28px;text-align:center">${c.s}</span><span style="transform:rotate(180deg)">${c.r}${c.s}</span></button>`}
+function cardHTML(c,clickable=false,disabled=false,i=0){return `<button ${clickable&&!disabled?`onclick=\"playHuman(${i})\"`:''} class=\"card ${c.s==='♦'||c.s==='♥'?'red':''} ${disabled?'disabled':''}\" aria-label=\"${c.r} of ${c.s}\"><span>${c.r}${c.s}</span><span class=\"pip\">${c.s}</span><span style=\"transform:rotate(180deg)\">${c.r}${c.s}</span></button>`}
 function legalCards(pi){let h=G.hands[pi];if(!G.leadSuit){let non=h.filter(c=>c.s!=='♠');return (!G.spadesBroken&&non.length)?non:h}let follow=h.filter(c=>c.s===G.leadSuit);return follow.length?follow:h}
 function isLegal(pi,c){return legalCards(pi).includes(c)}
-function render(){ $('usScore').textContent=G.scores[0];$('themScore').textContent=G.scores[1];renderStats();['north','west','east'].forEach((id,k)=>{let pi=[2,3,1][k],n=G.hands[pi]?.length||0;$(id).innerHTML=`<b>${NAMES[pi]}</b><br><span class="badge">${n} cards</span><span class="badge">Bid ${G.bids[pi]||'-'} • Tricks ${G.tricks[pi]}</span>`});$('south').innerHTML=`<b>You</b> <span class="badge">Bid ${G.bids[0]||'-'} • Tricks ${G.tricks[0]}</span>`;let legal=G.phase==='play'&&G.turn===0?legalCards(0):[];$('hand').innerHTML=(G.hands[0]||[]).map((c,i)=>cardHTML(c,true,!legal.includes(c),i)).join('');['tn','te','ts','tw'].forEach(id=>$(id).innerHTML='');for(const x of G.trick){let ids=['ts','te','tn','tw'];$(ids[x.p]).innerHTML=cardHTML(x.c)} }
+function render(){ $('usScore').textContent=G.scores[0];$('themScore').textContent=G.scores[1];renderStats();['north','west','east'].forEach((id,k)=>{let pi=[2,3,1][k],n=G.hands[pi]?.length||0;$(id).innerHTML=`<b>${NAMES[pi]}</b><br><span class=\"badge\">${n} cards</span><span class=\"badge\">Bid ${G.bids[pi]||'-'} • Tricks ${G.tricks[pi]}</span>`});$('south').innerHTML=`<b>You</b> <span class=\"badge\">Bid ${G.bids[0]||'-'} • Tricks ${G.tricks[0]}</span>`;let legal=G.phase==='play'&&G.turn===0?legalCards(0):[];$('hand').innerHTML=(G.hands[0]||[]).map((c,i)=>cardHTML(c,true,!legal.includes(c),i)).join('');['tn','te','ts','tw'].forEach(id=>$(id).innerHTML='');for(const x of G.trick){let ids=['ts','te','tn','tw'];$(ids[x.p]).innerHTML=cardHTML(x.c)} }
 function msg(t){$('status').textContent=t}
 function estimate(h){let n=0;for(const c of h){if(c.r==='A')n+=1;if(c.r==='K')n+=.65;if(c.r==='Q')n+=.3;if(c.s==='♠')n+=.18}return Math.max(1,Math.min(7,Math.round(n)))}
-function startHand(){let d=deck();G.hands=[[],[],[],[]];for(let i=0;i<52;i++)G.hands[i%4].push(d[i]);G.hands.forEach(sortHand);G.bids=[0,estimate(G.hands[1]),estimate(G.hands[2]),estimate(G.hands[3])];G.tricks=[0,0,0,0];G.trick=[];G.leadSuit=null;G.spadesBroken=false;G.leader=(G.handNo++)%4;G.turn=G.leader;G.phase='bid';$('bidbox').classList.add('show');$('bids').innerHTML='';for(let i=1;i<=7;i++)$('bids').innerHTML+=`<button class="btn" onclick="setBid(${i})">${i}</button>`;msg('Choose your bid.');render()}
+function startHand(){let d=deck();G.hands=[[],[],[],[]];for(let i=0;i<52;i++)G.hands[i%4].push(d[i]);G.hands.forEach(sortHand);G.bids=[0,estimate(G.hands[1]),estimate(G.hands[2]),estimate(G.hands[3])];G.tricks=[0,0,0,0];G.trick=[];G.leadSuit=null;G.spadesBroken=false;G.leader=(G.handNo++)%4;G.turn=G.leader;G.phase='bid';$('bidbox').classList.add('show');$('bids').innerHTML='';for(let i=1;i<=7;i++)$('bids').innerHTML+=`<button class=\"btn\" onclick=\"setBid(${i})\">${i}</button>`;msg('Choose your bid.');render()}
 function setBid(n){G.bids[0]=n;G.phase='play';$('bidbox').classList.remove('show');msg(`Bids locked. ${NAMES[G.leader]} leads.`);render();if(G.turn!==0)setTimeout(aiTurn,250)}
 function playHuman(i){if(G.phase!=='play'||G.turn!==0)return;let c=G.hands[0][i];if(!isLegal(0,c)){msg('You must follow suit.');return}playCard(0,i)}
 function chooseAI(pi){let legal=legalCards(pi),lead=G.leadSuit,sorted=[...legal].sort((a,b)=>val(a)-val(b));
