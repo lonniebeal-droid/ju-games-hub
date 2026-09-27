@@ -1,17 +1,82 @@
-<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>A-TOWN RUNNER</title><style>body{margin:0;background:#09090f;color:white;font:16px system-ui;text-align:center}main{max-width:520px;margin:auto;padding:14px}h1{color:#ff2d95}#road{height:62vh;min-height:430px;background:linear-gradient(#241b3b,#111 45%);position:relative;overflow:hidden;border-radius:18px;border:2px solid #333}.lane{position:absolute;top:0;bottom:0;width:2px;background:#555;opacity:.5}.l1{left:33%}.l2{left:66%}#p,.o{position:absolute;width:56px;height:72px;border-radius:12px;left:calc(50% - 28px);bottom:24px;background:#ff2d95;display:grid;place-items:center;font-size:30px}.o{bottom:auto;background:#d4af37;color:#111}.hud{display:flex;justify-content:space-between}.ctrl{display:flex;gap:12px;justify-content:center;margin:12px}button{font-size:22px;padding:12px 25px;background:#222;color:#fff;border:1px solid #555;border-radius:12px}</style><style>
+<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>A-TOWN RUNNER</title><style>
+/* A-TOWN RUNNER — Atlanta night-highway visual upgrade (graphics only; game logic untouched) */
+*{box-sizing:border-box}
+body{margin:0;color:#fff;font:16px system-ui,-apple-system,sans-serif;text-align:center;min-height:100vh;
+ background:radial-gradient(1000px 500px at 50% -10%,#2b1b4d 0%,#14101f 55%,#08080d 100%)}
+main{max-width:520px;margin:auto;padding:14px;position:relative}
+h1{font-size:1.9rem;letter-spacing:.12em;margin:.4em 0 .2em;
+ background:linear-gradient(180deg,#ffe9a8,#d4af37 60%,#9c7a1e);-webkit-background-clip:text;background-clip:text;color:transparent;
+ text-shadow:0 2px 18px #d4af3733}
+.sub{color:#b9a8d9;margin:0 0 10px;font-size:.9rem}
+.hud{display:flex;justify-content:space-between;align-items:center;margin:12px 0;padding:10px 16px;
+ background:#ffffff10;border:1px solid #ffffff22;border-radius:16px;backdrop-filter:blur(6px);box-shadow:0 4px 24px #0008}
+.hud b{color:#ffe9a8}
+.hud b span{color:#fff}
+#road{height:62vh;min-height:430px;position:relative;overflow:hidden;border-radius:18px;
+ border:1px solid #ffffff2a;box-shadow:0 8px 40px #000c,inset 0 0 80px #0009;
+ background:linear-gradient(#1c1433 0%,#241b3d 30%,#16121f 45%,#0e0e14 46%,#17171f 100%)}
+#road::before{content:"";position:absolute;left:0;right:0;top:0;height:44%;pointer-events:none;opacity:.8;
+ background:
+  radial-gradient(2px 2px at 15% 30%,#fff7,transparent),
+  radial-gradient(1.5px 1.5px at 70% 15%,#fff7,transparent),
+  radial-gradient(2px 2px at 85% 40%,#fff7,transparent),
+  radial-gradient(120px 60px at 20% 100%,#ff2d9533,transparent),
+  radial-gradient(140px 70px at 80% 100%,#d4af3726,transparent)}
+.city{position:absolute;left:0;right:0;top:0;height:44%;pointer-events:none;opacity:.5;
+ background:repeating-linear-gradient(90deg,#241b3d 0 34px,#171226 34px 40px,#1d1730 40px 74px)}
+.lane{position:absolute;top:46%;bottom:0;width:2px;background:#555;opacity:.5;z-index:1}
+.l1{left:33%}.l2{left:66%}
+.dashes{position:absolute;top:46%;bottom:0;left:0;right:0;pointer-events:none;z-index:1;opacity:.7;
+ background:repeating-linear-gradient(180deg,#ffd75e 0 26px,transparent 26px 52px);
+ -webkit-mask:linear-gradient(90deg,transparent 32.5%,#000 33.5%,transparent 34.5%,transparent 65.5%,#000 66.5%,transparent 67.5%);
+ mask:linear-gradient(90deg,transparent 32.5%,#000 33.5%,transparent 34.5%,transparent 65.5%,#000 66.5%,transparent 67.5%);
+ animation:roadmove .5s linear infinite}
+@keyframes roadmove{to{background-position:0 52px}}
+#p,.o{position:absolute;width:56px;height:72px;border-radius:14px;left:calc(50% - 28px);bottom:24px;z-index:2;
+ background:linear-gradient(180deg,#ff5fae,#d61f7d);display:grid;place-items:center;font-size:30px;
+ box-shadow:0 0 18px #ff2d9588,inset 0 2px 0 #ffffff44;transition:left .12s ease}
+.o{bottom:auto;background:linear-gradient(180deg,#ffe9a8,#d4af37);color:#111;box-shadow:0 0 18px #d4af3788,inset 0 2px 0 #ffffff55}
+.ctrl{display:flex;gap:12px;justify-content:center;margin:14px}
+.ctrl button{font-size:22px;padding:12px 25px;color:#fff;cursor:pointer;
+ background:linear-gradient(180deg,#3a2c5c,#241b3d);border:1px solid #d4af3755;border-radius:14px;font-weight:700;
+ box-shadow:0 4px 16px #0008}
+.ctrl button:active{transform:scale(.96)}
+.howto{color:#8f83ad;font-size:.85rem}
+#over{position:absolute;inset:0;display:grid;place-items:center;background:#0b1020d9;z-index:5;border-radius:18px}
+#over[hidden]{display:none}
+.ocard{text-align:center;padding:24px}
+.ocard h2{margin:0 0 6px;letter-spacing:.12em;color:#ffe9a8}
+.ocard p{color:#b9a8d9;margin:6px 0 14px}
+.ocard button{font-size:18px;padding:12px 28px;color:#fff;cursor:pointer;background:linear-gradient(180deg,#3a2c5c,#241b3d);border:1px solid #d4af3755;border-radius:14px;font-weight:700}
+</style><style>
 html,body{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 button,[role="button"],a{touch-action:manipulation}
 button{min-height:44px;min-width:44px}
 </style><style>
 @media(max-width:700px){body{overscroll-behavior:none}button,[role="button"],a{font-size:max(16px,1em)}canvas{max-width:100%;height:auto}*{box-sizing:border-box}}
-</style></head><body><main><h1>A-TOWN RUNNER</h1><div class=hud><b>Score <span id=s>0</span></b><b>Best <span id=b>0</span></b></div><div id=road><i class="lane l1"></i><i class="lane l2"></i><div id=p>🏃🏾</div></div><div class=ctrl><button onclick=move(-1)>◀</button><button onclick=start()>START</button><button onclick=move(1)>▶</button></div><p>Dodge traffic. Arrow keys or buttons.</p></main><script>let lane=1,run=0,score=0,obs=[],timer,last=0;let best=+localStorage.runnerBest||0;b.textContent=best;function pos(){p.style.left=['8%','calc(50% - 28px)','calc(92% - 56px)'][lane]}function move(d){lane=Math.max(0,Math.min(2,lane+d));pos()}onkeydown=e=>{if(e.key=='ArrowLeft')move(-1);if(e.key=='ArrowRight')move(1)};function start(){if(run)return;run=1;score=0;obs.forEach(x=>x.el.remove());obs=[];last=performance.now();requestAnimationFrame(loop)}function spawn(){let l=Math.floor(Math.random()*3),el=document.createElement('div');el.className='o';el.textContent='🚗';el.style.left=['8%','calc(50% - 28px)','calc(92% - 56px)'][l];el.style.top='-80px';road.appendChild(el);obs.push({el,l,y:-80})}function loop(t){if(!run)return;let dt=Math.min(32,t-last);last=t;if(Math.random()<dt/850)spawn();for(let o of obs){o.y+=dt*(.18+score/120000);o.el.style.top=o.y+'px';if(o.y>road.clientHeight-110&&o.y<road.clientHeight-25&&o.l==lane){run=0;best=Math.max(best,Math.floor(score));localStorage.runnerBest=best;b.textContent=best;alert('Run over. Score '+Math.floor(score));return}}obs=obs.filter(o=>{if(o.y>road.clientHeight){o.el.remove();return false}return true});score+=dt/12;s.textContent=Math.floor(score);requestAnimationFrame(loop)}pos()</script><script>
+</style></head><body><main><h1>A-TOWN RUNNER</h1><p class=sub>Night drive through the A. Dodge traffic, chase your best.</p><div class=hud><b>Score <span id=s>0</span></b><b>Best <span id=b>0</span></b></div><div id=road><div class=city></div><div class=dashes></div><i class="lane l1"></i><i class="lane l2"></i><div id=p>🏃🏾</div><div id=over hidden></div></div><div class=ctrl><button onclick=move(-1)>◀</button><button onclick=start()>START</button><button onclick=move(1)>▶</button></div><p class=howto>Dodge traffic. Arrow keys or buttons.</p></main><script>
+/* ===== GAME LOGIC — fix pass 2026-09-26: difficulty ramp, spawn fairness, in-page game over, storage guards. Core rules unchanged. ===== */
+let lane=1,run=0,score=0,obs=[],last=0;let best=0;try{best=+localStorage.runnerBest||0}catch(e){}b.textContent=best;
+function pos(){p.style.left=['8%','calc(50% - 28px)','calc(92% - 56px)'][lane]}
+function move(d){lane=Math.max(0,Math.min(2,lane+d));pos()}
+onkeydown=e=>{if(e.key=='ArrowLeft'){e.preventDefault();move(-1)}if(e.key=='ArrowRight'){e.preventDefault();move(1)}};
+function speed(){return .18*(1+score/12000)}
+function gapMs(){return Math.max(450,850-score/30)}
+function start(){if(run)return;run=1;over.hidden=true;score=0;obs.forEach(x=>x.el.remove());obs=[];last=performance.now();requestAnimationFrame(loop)}
+function spawn(){let l=Math.floor(Math.random()*3);let near=obs.filter(o=>o.y<170).map(o=>o.l);if(near.includes((l+1)%3)&&near.includes((l+2)%3))return;let el=document.createElement('div');el.className='o';el.textContent='\uD83D\uDE97';el.style.left=['8%','calc(50% - 28px)','calc(92% - 56px)'][l];el.style.top='-80px';road.appendChild(el);obs.push({el,l,y:-80})}
+function gameOver(){run=0;best=Math.max(best,Math.floor(score));try{localStorage.runnerBest=best}catch(e){}b.textContent=best;
+ over.innerHTML='<div class=ocard><h2>RUN OVER</h2><p>Score <b>'+Math.floor(score)+'</b> &nbsp;·&nbsp; Best <b>'+best+'</b></p><button onclick=start()>RUN AGAIN</button></div>';over.hidden=false}
+function loop(t){if(!run)return;let dt=Math.min(32,t-last);last=t;if(Math.random()<dt/gapMs())spawn();for(let o of obs){o.y+=dt*speed();o.el.style.top=o.y+'px';if(o.y>road.clientHeight-110&&o.y<road.clientHeight-25&&o.l==lane){gameOver();return}}obs=obs.filter(o=>{if(o.y>road.clientHeight){o.el.remove();return false}return true});score+=dt/12;s.textContent=Math.floor(score);requestAnimationFrame(loop)}pos()</script><script>
 (function(){
  const fire=(key)=>window.dispatchEvent(new KeyboardEvent('keydown',{key,bubbles:true}));
- const map={ArrowLeft:'ArrowLeft',ArrowRight:'ArrowRight',' ':' '};
  document.querySelectorAll('button').forEach(b=>{
    const t=(b.textContent||'').toLowerCase();
-   let k=t.includes('left')?'ArrowLeft':t.includes('right')?'ArrowRight':(t.includes('jump')||t.includes('start'))?' ':null;
-   if(k){ b.addEventListener('pointerdown',e=>{e.preventDefault();fire(k)},{passive:false}); }
+   if(t.includes('left')||t.includes('right')){
+     const k=t.includes('left')?'ArrowLeft':'ArrowRight';
+     b.addEventListener('pointerdown',e=>{e.preventDefault();fire(k)},{passive:false});
+   }else if(t.includes('start')||t.includes('jump')){
+     b.addEventListener('pointerdown',e=>{e.preventDefault();b.click()},{passive:false});
+   }
  });
 })();
 </script><script>
