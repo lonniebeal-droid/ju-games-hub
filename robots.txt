@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /ju-atl/
+
+Sitemap: https://lonniebeal-droid.github.io/ju-games-hub/sitemap.xml
