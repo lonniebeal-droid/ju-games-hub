@@ -1,0 +1,1676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0c">
+<title>A-Town Life — JU Games</title>
+<meta name="description" content="Life sim set in Atlanta. Grind careers from busser to BOSS, cop whips and cribs, become ATL LEGEND. NO CAP.">
+<meta property="og:title" content="A-Town Life — JU Games">
+<meta property="og:description" content="Life sim set in Atlanta. Grind careers from busser to BOSS, cop whips and cribs, become ATL LEGEND. NO CAP.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://lonniebeal-droid.github.io/ju-games-hub/icons/a-town-life.svg">
+<link rel="manifest" href="a-town-life.webmanifest">
+<link rel="icon" href="icons/a-town-life.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/a-town-life.svg">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="A-Town Life">
+<script>
+if (location.protocol.indexOf('http') === 0 && 'serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw-a-town-life.js').catch(function(){});
+}
+</script>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  :root { --gold:#f5b301; --red:#e63946; --bg:#0a0a0c; --concrete:#232327; --money:#2eff7b; --card:rgba(255,255,255,.05); --txt:#f4f1ea; --mut:#9aa0b4; --display:"Arial Black",Impact,"Franklin Gothic Heavy","Helvetica Neue",Arial,sans-serif; }
+  html, body { height:100%; }
+  body {
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background-color:#0a0a0c;
+    background-image:repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0 2px, transparent 2px 46px), repeating-linear-gradient(90deg, rgba(255,255,255,.025) 0 2px, transparent 2px 92px), radial-gradient(120% 90% at 50% 0%, #1c1c20 0%, #0a0a0c 60%);
+    background-attachment:fixed;
+    color:var(--txt); touch-action:manipulation; overflow-x:hidden;
+    min-height:100vh; display:flex; flex-direction:column;
+  }
+  .hidden { display:none !important; }
+  .screen { width:100%; max-width:480px; margin:0 auto; padding:14px 14px 90px; }
+  .panel { background:var(--card); border:2px solid var(--gold); border-radius:16px; padding:12px 14px; margin-bottom:12px; backdrop-filter:blur(8px); box-shadow:inset 0 0 0 1px #0a0a0c, inset 0 0 0 3px rgba(245,179,1,.4), 0 0 18px rgba(245,179,1,.07); }
+  .muted { color:var(--mut); font-size:12px; }
+
+  /* MENU */
+  #screen-menu { text-align:center; padding-top:12vh; }
+  .logo { font-family:var(--display); font-style:italic; font-size:46px; font-weight:900; letter-spacing:2px; color:var(--gold); text-shadow:3px 3px 0 var(--red), 0 0 24px rgba(245,179,1,.45); }
+  .logo small { display:block; font-size:13px; letter-spacing:6px; color:var(--txt); margin-top:4px; }
+  .tagline { color:var(--mut); margin:10px 0 22px; }
+  #newlife-form { text-align:left; }
+  #newlife-form h3 { margin-bottom:10px; color:var(--gold); }
+  #name-input { width:100%; padding:12px; border-radius:12px; border:1px solid rgba(245,179,1,.3); background:rgba(0,0,0,.35); color:var(--txt); font-size:16px; margin-bottom:12px; }
+  #vibe-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+  .vibe-card { border:1px solid rgba(255,255,255,.15); border-radius:12px; padding:10px 6px; text-align:center; cursor:pointer; background:rgba(0,0,0,.25); transition:transform .12s, border-color .12s; }
+  .vibe-card .vi { font-size:26px; }
+  .vibe-card .vn { font-weight:700; font-size:13px; margin:4px 0; }
+  .vibe-card .vd { font-size:10px; color:var(--mut); line-height:1.35; }
+  .vibe-card.sel { border-color:var(--gold); box-shadow:0 0 14px rgba(245,179,1,.35); transform:scale(1.03); }
+
+  /* BUTTONS */
+  .btn { display:block; width:100%; padding:14px; border:none; border-radius:14px; font-size:16px; font-weight:800; cursor:pointer; margin-top:10px; }
+  .btn.primary { background:linear-gradient(135deg,var(--gold),#ff8a00); color:#1a1200; box-shadow:0 4px 18px rgba(245,179,1,.35); font-family:var(--display); font-style:italic; letter-spacing:1px; }
+  .btn.ghost { background:transparent; border:1px solid rgba(255,255,255,.2); color:var(--mut); font-size:13px; padding:10px; }
+  .btn:active { transform:scale(.97); }
+  .btn:disabled { opacity:.45; }
+
+  /* TOPBAR */
+  #topbar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; max-width:100%; margin-bottom:12px; position:sticky; top:8px; z-index:20; }
+  #topbar > div { background:rgba(10,10,12,.9); border:1px solid rgba(245,179,1,.25); border-radius:12px; padding:8px 10px; font-size:13px; font-weight:700; backdrop-filter:blur(10px); }
+  .tb-cash { color:var(--money); flex:1; text-shadow:0 0 10px rgba(46,255,123,.5); }
+  .tb-net { color:var(--gold); flex:1; }
+  .tb-day { color:#fff; white-space:nowrap; background:#0a7a3d !important; border:2px solid #e8e8e8 !important; font-family:var(--display); letter-spacing:1px; }
+
+  /* NEEDS */
+  .need { display:flex; align-items:center; gap:8px; margin:7px 0; }
+  .need-ico { width:26px; text-align:center; font-size:18px; }
+  .need-track { flex:1; height:12px; background:rgba(0,0,0,.45); border-radius:8px; overflow:hidden; }
+  .need-fill { height:100%; width:80%; border-radius:8px; transition:width .5s ease; background:linear-gradient(90deg,#8a5a00,var(--gold),#ffe27a); box-shadow:0 0 8px rgba(245,179,1,.5); }
+  .need-fill.low { background:linear-gradient(90deg,#e63946,#ff8a00); animation:pulse 1s infinite; }
+  .need-fill.health { background:linear-gradient(90deg,#0a7a3d,#2eff7b,#b6ffd0); box-shadow:0 0 8px rgba(46,255,123,.5); }
+  .need-fill.health.low { background:linear-gradient(90deg,#e63946,#ff8a00); }
+  @keyframes pulse { 50% { opacity:.6; } }
+  .need-val { width:34px; text-align:right; font-size:12px; font-weight:700; color:var(--mut); }
+  #struggle-banner { background:rgba(230,57,70,.18); border:1px solid var(--red); color:#ffb3b8; border-radius:10px; padding:8px; font-size:13px; text-align:center; margin-top:8px; }
+
+  /* CHAR CARD */
+  .char-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  #char-name { font-family:var(--display); font-style:italic; font-size:20px; font-weight:900; color:var(--gold); }
+  .rep-pill { background:rgba(245,179,1,.15); border:1px solid var(--gold); color:var(--gold); border-radius:20px; padding:5px 12px; font-size:13px; font-weight:800; }
+  .rep-row { display:flex; gap:8px; margin:-2px 0 8px; }
+  .rep-pill.legit { background:rgba(46,255,123,.1); border-color:var(--money); color:var(--money); }
+  .char-grid { display:grid; grid-template-columns:1fr; gap:6px; font-size:14px; margin-bottom:10px; }
+  .skill-line { display:flex; gap:6px; font-size:12px; color:var(--mut); margin-top:4px; flex-wrap:wrap; }
+  .skill-chip { background:rgba(255,255,255,.06); border:1px solid rgba(245,179,1,.3); border-radius:12px; padding:2px 8px; font-weight:700; color:var(--txt); }
+  #btn-promote { background:linear-gradient(135deg,#7b2ff7,#f107a3); color:#fff; border:none; border-radius:12px; padding:11px; font-weight:800; font-size:14px; width:100%; cursor:pointer; }
+  #btn-promote:disabled { opacity:.45; }
+  #btn-promote small { display:block; font-weight:400; font-size:11px; opacity:.85; }
+
+  /* ACTIONS */
+  #actions-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .act { background:var(--card); border:1px solid rgba(245,179,1,.22); border-radius:16px; padding:14px 10px; text-align:center; cursor:pointer; color:var(--txt); transition:transform .1s; }
+  .act:active { transform:scale(.95); }
+  .act.disabled { opacity:.4; }
+  .act .ai { font-size:28px; }
+  .act .an { font-family:var(--display); font-style:italic; font-weight:900; font-size:14px; margin:6px 0 2px; letter-spacing:.5px; }
+  .act .ad { font-size:11px; color:var(--mut); }
+
+  /* BOTTOM NAV */
+  #bottomnav { position:fixed; bottom:0; left:0; right:0; max-width:480px; margin:0 auto; display:flex; background:rgba(8,11,24,.96); border-top:1px solid rgba(245,179,1,.25); z-index:30; padding-bottom:env(safe-area-inset-bottom); }
+  #bottomnav button { flex:1; background:none; border:none; color:var(--txt); padding:12px 4px 10px; font-size:12px; font-weight:700; cursor:pointer; }
+  #bottomnav button .ni { display:block; font-size:20px; margin-bottom:2px; }
+
+  /* MODALS */
+  .modal { position:fixed; inset:0; background:rgba(0,0,0,.72); display:flex; align-items:flex-end; justify-content:center; z-index:50; }
+  .sheet { width:100%; max-width:480px; max-height:82vh; overflow-y:auto; background:#111114; border-radius:22px 22px 0 0; border-top:8px solid transparent; border-image:repeating-linear-gradient(90deg,var(--gold) 0 14px,#0a0a0c 14px 28px) 1; padding:18px 16px calc(18px + env(safe-area-inset-bottom)); animation:slideup .25s ease; }
+  @keyframes slideup { from { transform:translateY(60px); opacity:.5; } }
+  .sheet h2 { color:var(--gold); margin-bottom:4px; font-family:var(--display); font-style:italic; letter-spacing:1px; }
+  .sheet .close { float:right; background:none; border:none; color:var(--mut); font-size:22px; cursor:pointer; }
+  .tabs { display:flex; gap:8px; margin:12px 0; }
+  .tab { flex:1; padding:10px; border-radius:10px; border:1px solid rgba(255,255,255,.15); background:none; color:var(--txt); font-weight:800; cursor:pointer; }
+  .tab.sel { background:rgba(245,179,1,.15); border-color:var(--gold); color:var(--gold); }
+  .shop-item { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); border-radius:12px; padding:12px; margin-bottom:10px; }
+  .shop-item .sn { font-weight:800; }
+  .shop-item .sd { font-size:12px; color:var(--mut); margin:4px 0 8px; }
+  .shop-item .buyrow { display:flex; gap:8px; }
+  .shop-item .buyrow button { flex:1; padding:10px; border-radius:10px; border:none; font-weight:800; cursor:pointer; background:linear-gradient(135deg,var(--gold),#ff8a00); color:#1a1200; }
+  .shop-item .buyrow button:disabled { opacity:.4; }
+  .shop-item .owned { color:#7CFC00; font-weight:800; font-size:13px; }
+  .cd-tag { font-size:11px; color:var(--red); font-weight:800; }
+  .evt-card { animation:slideup .25s ease; }
+  #event-text { margin:12px 0 16px; line-height:1.5; }
+  .choice-btn { display:block; width:100%; text-align:left; margin-bottom:10px; padding:13px; border-radius:12px; border:1px solid rgba(245,179,1,.35); background:rgba(245,179,1,.08); color:var(--txt); font-size:15px; font-weight:600; cursor:pointer; }
+  .choice-btn:active { transform:scale(.98); }
+  .goal-row { display:flex; gap:10px; align-items:center; padding:11px 4px; border-bottom:1px solid rgba(255,255,255,.07); font-size:14px; }
+  .goal-row .gchk { font-size:20px; width:30px; }
+  .goal-row.done { color:var(--mut); }
+  .goal-row .gbonus { margin-left:auto; color:#7CFC00; font-weight:800; font-size:12px; }
+
+  /* DAY OVERLAY */
+  #day-overlay { position:fixed; inset:0; background:rgba(5,7,16,.94); z-index:60; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  #day-overlay .dnum { font-family:var(--display); font-style:italic; font-size:54px; font-weight:900; color:var(--gold); text-shadow:3px 3px 0 var(--red); }
+  #day-overlay .dwd { font-size:20px; letter-spacing:4px; color:var(--txt); margin-top:6px; }
+
+  /* TOASTS + CONFETTI */
+  #toasts { position:fixed; top:70px; left:0; right:0; max-width:480px; margin:0 auto; z-index:70; pointer-events:none; display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .toast { background:rgba(10,10,12,.96); border:1px solid var(--gold); color:var(--txt); padding:10px 18px; border-radius:24px; font-size:14px; font-weight:800; font-style:italic; animation:toastin .25s ease; box-shadow:0 4px 16px rgba(0,0,0,.5); }
+  .toast.good { border-color:#7CFC00; } .toast.bad { border-color:var(--red); }
+  @keyframes toastin { from { transform:translateY(-14px); opacity:0; } }
+  #confetti-layer { position:fixed; inset:0; pointer-events:none; z-index:80; overflow:hidden; }
+  .cf { position:absolute; width:9px; height:14px; top:-20px; animation:cfall linear forwards; }
+  @keyframes cfall { to { transform:translateY(110vh) rotate(720deg); } }
+  .cashfly { position:fixed; z-index:80; color:var(--money); font-family:var(--display); font-style:italic; font-weight:900; font-size:26px; text-shadow:0 0 14px rgba(46,255,123,.7); pointer-events:none; animation:cashpop 1.1s ease forwards; }
+  @keyframes cashpop { 20% { transform:scale(1.25); } 100% { transform:translateY(-70px) scale(1.1); opacity:0; } }
+
+  footer.gamefoot { text-align:center; color:var(--mut); font-size:11px; letter-spacing:3px; padding:70px 0 90px; position:relative; }
+
+  /* === TRAP NEON / A-TOWN BOLD === */
+  .tape { height:10px; margin:2px -14px 12px; background:repeating-linear-gradient(45deg,var(--gold) 0 14px,#0a0a0c 14px 28px); border-top:1px solid #000; border-bottom:1px solid #000; }
+  .sign { display:inline-block; background:#0a7a3d; color:#fff; font-family:var(--display); font-style:italic; font-size:11px; letter-spacing:2px; padding:4px 10px; border-radius:4px; border:2px solid #e8e8e8; box-shadow:0 2px 8px rgba(0,0,0,.5); }
+  .hood-shout { font-family:var(--display); font-style:italic; color:var(--gold); }
+  footer.gamefoot::before { content:""; position:absolute; left:0; right:0; top:0; height:56px; background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 56' preserveAspectRatio='xMidYMax slice'%3E%3Cpath fill='%23000' d='M0 56 V34 h40 V18 h25 v16 h30 V24 h20 V12 h15 v12 h25 v10 h35 V16 h18 V6 h12 v10 h20 v18 h30 V26 h22 V12 h16 v14 h28 v8 h30 V22 h20 V10 h14 v12 h22 v12 h32 V28 h24 v28 z'/%3E%3Cpath fill='none' stroke='%23f5b301' stroke-width='2' opacity='.55' d='M0 34 h40 V18 h25 v16 h30 V24 h20 V12 h15 v12 h25 v10 h35 V16 h18 V6 h12 v10 h20 v18 h30 V26 h22 V12 h16 v14 h28 v8 h30 V22 h20 V10 h14 v12 h22 v12 h32 V28 h24'/%3E%3C/svg%3E") bottom center repeat-x; background-size:560px 56px; opacity:.65; }
+  #bottomnav { background:rgba(8,8,10,.97); border-top:3px solid transparent; border-image:repeating-linear-gradient(90deg,var(--gold) 0 14px,#0a0a0c 14px 28px) 1; }
+  #bottomnav button { font-family:var(--display); font-style:italic; letter-spacing:1px; }
+  .choice-btn { font-family:var(--display); font-style:italic; font-weight:900; }
+  .tab.sel { font-family:var(--display); font-style:italic; }
+  .shop-item .sn { font-family:var(--display); font-style:italic; letter-spacing:.5px; }
+  .goal-row { font-weight:700; }
+  #struggle-banner { font-family:var(--display); font-style:italic; font-weight:900; }
+</style>
+</head>
+<body>
+
+<!-- ============ MENU ============ -->
+<section id="screen-menu" class="screen">
+  <div class="logo">🌃 A-TOWN LIFE<small>JU GAMES</small></div>
+  <p class="tagline">STRAIGHT OUTTA THE A — come up in the city that runs the culture.<br><span class="hood-shout">Work. Eat. Link up. GET LEGENDARY. NO CAP.</span></p>
+  <button id="btn-continue" class="btn primary hidden">WELCOME BACK — <span id="cont-day"></span></button>
+  <div class="panel" id="newlife-form">
+    <h3>START A NEW LIFE — <span class="hood-shout">NO CAP</span></h3>
+    <input id="name-input" maxlength="16" placeholder="Your name" autocomplete="off">
+    <div id="vibe-cards"></div>
+    <button id="btn-start" class="btn primary">START IN EAST ATLANTA — $500 IN POCKET</button>
+  </div>
+  <div class="panel" style="margin-top:12px">
+    <button id="btn-how-life" class="btn ghost">❓ HOW TO PLAY</button>
+    <div id="how-life" class="hidden" style="text-align:left;font-size:13.5px;line-height:1.65;margin-top:10px;color:#d8d4c8">
+      <b style="color:#f5b301">GOAL:</b> hit <b>$100k net worth</b> and become ATL LEGEND.<br>
+      <b style="color:#f5b301">GRIND:</b> clock in, run side hustles, flip product, eat, sleep, train.<br>
+      <b style="color:#f5b301">FIVE NEEDS:</b> Hunger, Energy, Fun, Social, Health. Any hits zero = struggling.<br>
+      <b style="color:#f5b301">BILLS:</b> rent + utilities + phone hit every 7 days. Miss rent twice = evicted to The Bluff.<br>
+      <b style="color:#f5b301">MOVE SMART:</b> MARTA pass or a whip — walking everywhere drains you.<br>
+      <b style="color:#f5b301">SCHOOL:</b> GED → Community College → Trade Cert unlocks real money jobs.<br>
+      <b style="color:#f5b301">TWO REPS:</b> STREET CRED opens hustles · LEGIT REP opens careers.<br>
+      Your life auto-saves. Birthdays bring a tax bill — stack accordingly.
+    </div>
+  </div>
+  <p class="muted" style="margin-top:14px">JU GAMES — MADE IN THE A</p>
+</section>
+
+<!-- ============ GAME ============ -->
+<section id="screen-game" class="screen hidden">
+  <header id="topbar">
+    <div class="tb-cash">💰 <span id="cash-val">$0</span></div>
+    <div class="tb-net">📊 <span id="networth-val">$0</span></div>
+    <div class="tb-day" id="day-chip">Day 1</div>
+    <button id="btn-mute-life" class="btn ghost" style="width:auto;margin:0;padding:8px 12px" aria-label="Mute">🔊</button>
+  </header>
+
+  <div class="tape"></div>
+
+  <div class="panel" id="needs-panel">
+    <div class="need"><span class="need-ico">🍔</span><div class="need-track"><div id="bar-hunger" class="need-fill"></div></div><span id="val-hunger" class="need-val">0</span></div>
+    <div class="need"><span class="need-ico">⚡</span><div class="need-track"><div id="bar-energy" class="need-fill"></div></div><span id="val-energy" class="need-val">0</span></div>
+    <div class="need"><span class="need-ico">🎉</span><div class="need-track"><div id="bar-fun" class="need-fill"></div></div><span id="val-fun" class="need-val">0</span></div>
+    <div class="need"><span class="need-ico">🫂</span><div class="need-track"><div id="bar-social" class="need-fill"></div></div><span id="val-social" class="need-val">0</span></div>
+    <div class="need"><span class="need-ico">🏥</span><div class="need-track"><div id="bar-health" class="need-fill health"></div></div><span id="val-health" class="need-val">0</span></div>
+    <div id="struggle-banner" class="hidden">😩 STRUGGLING — GET EVERY NEED ABOVE 20, THEN GET BACK TO IT</div>
+  </div>
+
+  <div class="panel" id="char-card">
+    <div class="char-row">
+      <div><div id="char-name">—</div><div id="char-vibe" class="muted">—</div></div>
+      <div id="char-rep" class="rep-pill">🔥 0 street</div>
+    </div>
+    <div class="rep-row">
+      <div id="char-legit" class="rep-pill legit">🎖️ 0 legit</div>
+      <div id="char-age" class="rep-pill">🎂 18</div>
+    </div>
+    <div class="char-grid">
+      <div>💼 <span id="char-job">—</span></div>
+      <div>🏠 <span id="char-crib">—</span> <span id="char-rent" class="muted"></span></div>
+      <div>🚗 <span id="char-whip">—</span></div>
+      <div>🚌 <span id="char-transport">—</span></div>
+      <div>🎓 <span id="char-school">—</span></div>
+      <div>💕 <span id="char-partner">—</span></div>
+    </div>
+    <div class="skill-line" id="skill-line">
+      <span class="skill-chip">💪 Hustle <b id="sk-hustle">0</b></span>
+      <span class="skill-chip">🎵 Music <b id="sk-music">0</b></span>
+      <span class="skill-chip">📚 Books <b id="sk-books">0</b></span>
+    </div>
+    <div style="margin-top:10px"></div>
+    <button id="btn-promote">Apply for Promotion</button>
+    <button id="btn-newlife" class="btn ghost">⟲ New Life</button>
+  </div>
+
+  <div class="tape"></div>
+
+  <div style="text-align:center;margin:2px 0 12px"><span class="sign">⚡ GET TO IT ⚡</span></div>
+
+  <div id="actions-grid"></div>
+
+  <footer class="gamefoot">JU GAMES — MADE IN THE A 🌃</footer>
+</section>
+
+<nav id="bottomnav" class="hidden">
+  <button id="nav-actions"><span class="ni">🏠</span>GRIND</button>
+  <button id="nav-shop"><span class="ni">🛍️</span>THE PLUG</button>
+  <button id="nav-goals"><span class="ni">🎯</span>GOALS</button>
+</nav>
+
+<!-- ============ SHOP MODAL ============ -->
+<div id="modal-shop" class="modal hidden">
+  <div class="sheet">
+    <button class="close" data-close="modal-shop">✕</button>
+    <h2>🛍️ THE PLUG — CERTIFIED</h2>
+    <p class="muted">UPGRADE THE CRIB. UPGRADE THE WHIP. <span class="hood-shout">UPGRADE THE LIFE. NO CAP.</span></p>
+    <div class="tabs">
+      <button class="tab sel" id="tab-crib">🏠 Crib</button>
+      <button class="tab" id="tab-whip">🚗 Whip</button>
+    </div>
+    <div id="shop-list"></div>
+  </div>
+</div>
+
+<!-- ============ EVENT MODAL ============ -->
+<div id="modal-event" class="modal hidden">
+  <div class="sheet evt-card">
+    <h2 id="event-title">Event</h2>
+    <p id="event-text"></p>
+    <div id="event-choices"></div>
+  </div>
+</div>
+
+<!-- ============ EAT MODAL ============ -->
+<div id="modal-eat" class="modal hidden">
+  <div class="sheet">
+    <button class="close" data-close="modal-eat">✕</button>
+    <h2>🍔 EAT GOOD — FUEL UP</h2>
+    <p class="muted">1 hour. Choose like a BOSS.</p>
+    <div id="eat-choices" style="margin-top:12px"></div>
+  </div>
+</div>
+
+<!-- ============ HUSTLE MODAL ============ -->
+<div id="modal-hustle" class="modal hidden">
+  <div class="sheet">
+    <button class="close" data-close="modal-hustle">✕</button>
+    <h2>🧽 SIDE HUSTLES — RUN IT UP</h2>
+    <p class="muted">COOLDOWNS APPLY. <span class="hood-shout">MULTIPLE STREAMS, NO CAP.</span></p>
+    <div id="hustle-list" style="margin-top:12px"></div>
+  </div>
+</div>
+
+<!-- ============ FLIP MARKET MODAL ============ -->
+<div id="modal-flip" class="modal hidden">
+  <div class="sheet">
+    <button class="close" data-close="modal-flip">✕</button>
+    <h2>📦 FLIP MARKET — BUY LOW</h2>
+    <p class="muted" id="flip-demand">DEMAND: —</p>
+    <div id="flip-list" style="margin-top:12px"></div>
+  </div>
+</div>
+
+<!-- ============ SCHOOL MODAL ============ -->
+<div id="modal-school" class="modal hidden">
+  <div class="sheet">
+    <button class="close" data-close="modal-school">✕</button>
+    <h2>🎓 SCHOOL — GET EDUCATED</h2>
+    <p class="muted">KNOWLEDGE PAYS. <span class="hood-shout">BIG BRAIN ENERGY.</span></p>
+    <div id="school-list" style="margin-top:12px"></div>
+  </div>
+</div>
+
+<!-- ============ GOALS DRAWER ============ -->
+<div id="modal-goals" class="modal hidden">
+  <div class="sheet">
+    <button class="close" data-close="modal-goals">✕</button>
+    <h2>🎯 MILESTONES — GET LEGENDARY</h2>
+    <p class="muted">Hit 'em. Get paid. <span class="hood-shout">BECOME ATL LEGEND. ON GOD.</span></p>
+    <div id="goals-list" style="margin-top:10px"></div>
+  </div>
+</div>
+
+<div id="day-overlay" class="hidden"><div class="dnum" id="day-num"></div><div class="dwd" id="day-wd"></div></div>
+<div id="toasts"></div>
+<div id="confetti-layer"></div>
+
+<script>
+
+// <PURE-LOGIC-START>
+/* ============================================================
+   A-TOWN LIFE v2 — pure game logic (no DOM, no storage access).
+   Extracted by node tests via the PURE-LOGIC markers.
+   v2: 5 needs, bills+late fees+eviction, transport, health,
+   street/legit rep, school+skills, hustles+flip market,
+   relationships, age/taxes, emergencies.
+   ============================================================ */
+const SAVE_VERSION = 2;
+const VIBES = {
+  hustler: { label:'Hustler', icon:'💪', startCash:700, rep:0,  desc:'+$200 start · gigs pay 10% more' },
+  artist:  { label:'Artist',  icon:'🎨', startCash:500, rep:15, desc:'+15 rep · studio buzz more likely · fun drains slower' },
+  scholar: { label:'Scholar', icon:'🎓', startCash:500, rep:0,  desc:'Shifts pay 15% more · energy drains slower' }
+};
+const WEEKDAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const NEED_KEYS = ['hunger','energy','fun','social','health'];
+const PARTNER_NAMES = ['Nia','Marcus','Tasha','Dev','Keisha','Jalen','Aaliyah','Chris'];
+const UTIL_PRICE = 30, PHONE_PRICE = 25, PASS_PRICE = 25, LATE_FEE = 25;
+
+const JOBS = [
+  { name:'Dishwasher — Soul Veg',       pay:90,   energy:32, req:()=>({ok:true}) },
+  { name:'Food Truck Crew',             pay:130,  energy:34, req:(s)=> s.day>=3 ? {ok:true} : {ok:false, reason:'Put in 3 days first'} },
+  { name:'Line Cook',                   pay:190,  energy:36, req:(s)=> (s.day>=10 && s.skills.books>=2) ? {ok:true} : {ok:false, reason:'Need 10 days in + 2 Books'} },
+  { name:'Sous Chef',                   pay:290,  energy:38, req:(s)=> (s.skills.books>=4 && s.legit>=10) ? {ok:true} : {ok:false, reason:'Need 4 Books + 10 Legit Rep'} },
+  { name:'Studio Intern',               pay:260,  energy:36, req:(s)=> (s.skills.music>=4 && s.needs.social>=40) ? {ok:true} : {ok:false, reason:'Need 4 Music + 40 Social'} },
+  { name:'Studio Engineer',             pay:420,  energy:40, req:(s)=> (s.skills.music>=7 && s.legit>=18) ? {ok:true} : {ok:false, reason:'Need 7 Music + 18 Legit Rep'} },
+  { name:'Barber',                      pay:380,  energy:38, req:(s)=> (s.skills.hustle>=5 && s.needs.social>=45) ? {ok:true} : {ok:false, reason:'Need 5 Hustle + 45 Social'} },
+  { name:'Security',                    pay:480,  energy:40, req:(s)=> (s.street>=15 && s.day>=21) ? {ok:true} : {ok:false, reason:'Need 15 Street Cred + 21 days in'} },
+  { name:'MARTA Driver',                pay:520,  energy:40, req:(s)=> s.legit>=22 ? {ok:true} : {ok:false, reason:'Need 22 Legit Rep'} },
+  { name:'CNA',                         pay:560,  energy:44, req:(s)=> (s.school>=2 && s.skills.books>=6) ? {ok:true} : {ok:false, reason:'Need Community College + 6 Books'} },
+  { name:'Car Salesman',                pay:750,  energy:42, req:(s)=> (s.needs.social>=65 && s.street>=10) ? {ok:true} : {ok:false, reason:'Need 65 Social + 10 Street Cred'} },
+  { name:'Shop Owner (Barbershop)',     pay:640,  energy:42, req:(s)=> (s.skills.hustle>=9 && netWorth(s)>=12000 && s.street>=20) ? {ok:true} : {ok:false, reason:'Need 9 Hustle + 20 Street Cred + $12k net worth'} },
+  { name:'RN',                          pay:900,  energy:46, req:(s)=> (s.school>=2 && s.skills.books>=10 && s.legit>=30) ? {ok:true} : {ok:false, reason:'Need CC + 10 Books + 30 Legit Rep'} },
+  { name:'Fleet Owner',                 pay:950,  energy:46, req:(s)=> (s.whip>=0 && s.skills.hustle>=9 && netWorth(s)>=25000) ? {ok:true} : {ok:false, reason:'Need a whip + 9 Hustle + $25k net worth'} },
+  { name:'Real Estate Closer',          pay:850,  energy:44, req:(s)=> (s.needs.social>=70 && s.legit>=35 && s.school>=1) ? {ok:true} : {ok:false, reason:'Need 70 Social + 35 Legit Rep + GED'} },
+  { name:'Label Owner / Tech Founder',  pay:1200, energy:48, req:(s)=> (netWorth(s)>=50000 && s.legit>=40) ? {ok:true} : {ok:false, reason:'Need $50k net worth + 40 Legit Rep'} }
+];
+const CRIBS = [
+  { name:'Room in The Bluff',      rent:30,  price:0,      comfort:1.08, value:0,      buyable:false, street:true },
+  { name:'Room in Mechanicsville', rent:40,  price:0,      comfort:1.02, value:0,      buyable:false },
+  { name:'Room in East Atlanta',   rent:50,  price:0,      comfort:1.00, value:0,      buyable:false },
+  { name:'Apartment in Kirkwood',  rent:120, price:90000,  comfort:0.92, value:90000,  buyable:true  },
+  { name:'Apartment in Midtown',   rent:150, price:0,      comfort:0.88, value:0,      buyable:false },
+  { name:'Condo in Buckhead',      rent:350, price:60000,  comfort:0.80, value:60000,  buyable:true, legitBonus:10 },
+  { name:'House in Cascade',       rent:600, price:180000, comfort:0.72, value:180000, buyable:true  }
+];
+const WHIPS = [
+  { name:'Used Honda', price:3000,  gas:20, ins:35,  gigMult:1.25, down:500,  note:60  },
+  { name:'Benz',       price:18000, gas:30, ins:60,  gigMult:1.50, down:2000, note:150 },
+  { name:'Maybach',    price:75000, gas:45, ins:120, gigMult:1.80, down:8000, note:400 }
+];
+const SCHOOL = [
+  { name:'GED',                 cost:150, hours:8,  books:3, hustle:0, req:()=>({ok:true}) },
+  { name:'Community College',   cost:600, hours:20, books:5, hustle:0, req:(s)=> s.school>=1 ? {ok:true} : {ok:false, reason:'Need GED first'} },
+  { name:'Trade Certification', cost:800, hours:16, books:4, hustle:2, req:(s)=> s.school>=1 ? {ok:true} : {ok:false, reason:'Need GED first'} }
+];
+const HUSTLES = [
+  { id:'detail', name:'Detail Cars',      icon:'🧽', hours:4, cost:15, pay:120, energy:10, cd:2,
+    fx:(s)=>{ s.skills.hustle++; s.street+=1; s.needs.social=clampN(s.needs.social+5); } },
+  { id:'cut',    name:'Cut Hair',         icon:'💈', hours:3, cost:0,  pay:80,  energy:8,  cd:2,
+    fx:(s)=>{ s.skills.hustle++; s.needs.social=clampN(s.needs.social+10); s.street+=1; } },
+  { id:'plates', name:'Sell Plates',      icon:'🍽️', hours:3, cost:25, pay:110, energy:8,  cd:3,
+    fx:(s)=>{ s.skills.hustle++; s.needs.hunger=clampN(s.needs.hunger+10); } },
+  { id:'ghost',  name:'Ghostwrite Verses',icon:'✍️', hours:4, cost:0,  pay:150, energy:10, cd:3,
+    req:(s)=> s.skills.music>=3 ? {ok:true} : {ok:false, reason:'Need 3 Music'},
+    fx:(s)=>{ s.skills.music++; s.street+=2; } },
+  { id:'phones', name:'Flip Phones',      icon:'📱', hours:2, cost:60, pay:110, energy:6,  cd:2, risk:0.2, riskText:'One was bricked — ate the cost.',
+    fx:(s)=>{ s.skills.hustle++; } }
+];
+const FLIP_PRODUCTS = [
+  { id:'tees',  name:'Bulk Tees',           icon:'👕', cost:200, units:20, base:14 },
+  { id:'cases', name:'Phone Cases',         icon:'📱', cost:150, units:20, base:11 },
+  { id:'kits',  name:'Sneaker Cleaner Kits',icon:'👟', cost:300, units:15, base:28 }
+];
+const EAT_TIERS = [
+  { name:'Food Truck',  icon:'🌮', cost:8,  hunger:55, fun:0  },
+  { name:'The Varsity', icon:'🍔', cost:15, hunger:70, fun:8  },
+  { name:'Fine Dining', icon:'🥂', cost:40, hunger:95, fun:15 }
+];
+const MILESTONES = [
+  { id:'first1k',   name:'First $1K',                    bonus:100,  check:(s)=> netWorth(s)>=1000   },
+  { id:'whip',      name:'Whipped Up — own a whip',       bonus:150,  check:(s)=> (s.whip>=0 || s.pass) },
+  { id:'homeowner', name:'Homeowner — bought a crib',     bonus:500,  check:(s)=> s.cribOwned         },
+  { id:'degree',    name:'Educated — finished school',    bonus:250,  check:(s)=> s.school>=2         },
+  { id:'buckhead',  name:'Buckhead Bound — moved up',     bonus:300,  check:(s)=> s.crib>=5            },
+  { id:'legend',    name:'ATL LEGEND — $100k net worth',  bonus:2000, check:(s)=> netWorth(s)>=100000 }
+];
+const EVENTS = [
+  { id:'traffic', w:3, title:'🚗 285 Traffic Jam', text:'Brake lights for miles on the Perimeter. What you doing?',
+    cond:()=>true,
+    choices:[
+      { label:'Sit in it (−2h)',      run:(s)=>{ const t=advanceTime(s,2); return { text:'You crawl through. Two hours gone.', milestones:t.milestones, events:t.events }; } },
+      { label:'Express lane (−$30)',  run:(s)=>{ s.cash=Math.max(0,s.cash-30); return { text:'Worth every penny.' }; } }
+    ]},
+  { id:'cookout', w:2, title:'🍗 Family Cookout', text:'Auntie firing up the grill in College Park. Everybody pulling up.',
+    cond:()=>true,
+    choices:[
+      { label:'Pull up (−4h)',        run:(s)=>{ s.needs.social=clampN(s.needs.social+20); s.needs.hunger=clampN(s.needs.hunger+15); settle(s); const t=advanceTime(s,4); return { text:'Plates and stories. Soul refilled.', milestones:t.milestones, events:t.events }; } },
+      { label:'Keep grinding (+$60)', run:(s)=>{ const got=earn(s,60); return { text:'The hustle respects the sacrifice.', pay:got }; } }
+    ]},
+  { id:'viral', w:1, title:'📱 Viral Moment', text:'Your fit check just blew up on the timeline. Brands in the DMs.',
+    cond:()=>true,
+    choices:[ { label:"Let's go", run:(s)=>{ s.needs.fun=clampN(s.needs.fun+15); const got=earn(s,40); settle(s); return { text:'+$40 in brand love.', pay:got }; } } ]},
+  { id:'rentdue', w:2, title:'🏠 Rent Reminder', text:'Landlord texting: rent due tomorrow. Stack accordingly.',
+    cond:(s)=> !s.cribOwned && s.day>=s.rentDueDay-1,
+    choices:[ { label:'Noted', run:()=>({ text:'Bet. Rent first, everything else second.' }) } ]},
+  { id:'scout', w:1, title:'🎧 A&R Scout', text:'A scout caught your demo at the open mic. They asking about you.',
+    cond:(s)=> s.street>=10,
+    choices:[ { label:'Bet', run:(s)=>{ s.street+=10; return { text:'Street +10. They watching.' }; } } ]},
+  { id:'lockin', w:1, title:'🎚️ Studio Lock-In Invite', text:'Producer got the stu till 6AM. Real session, real looks. You in?',
+    cond:(s)=> s.street>=20,
+    choices:[
+      { label:'Pull up (−5h, −$50)', run:(s)=>{ if(s.cash<50) return { text:"Couldn't cover the session fee. Next time." }; s.cash-=50; s.street+=12; s.needs.fun=clampN(s.needs.fun+10); settle(s); const t=advanceTime(s,5); return { text:'Laid down heat. Street +12.', milestones:t.milestones, events:t.events }; } },
+      { label:'Pass',                run:()=>({ text:'Rest is productive too.' }) }
+    ]},
+  { id:'carmeet', w:2, street:true, title:'🚗 285 Car Meet', text:'Sunday night on the Southside — whips lined up, music loud, everybody outside.',
+    cond:()=>true,
+    choices:[
+      { label:'Pull up (−$20, −3h)', run:(s)=>{ if(s.cash<20) return { text:"Couldn't cover the entry. Next time." }; s.cash-=20; s.street+=5; s.needs.fun=clampN(s.needs.fun+30); s.needs.social=clampN(s.needs.social+15); settle(s); const t=advanceTime(s,3); return { text:'Good looks all night. Street +5.', milestones:t.milestones, events:t.events }; } },
+      { label:'Keep it moving',      run:()=>({ text:'Another time.' }) }
+    ]},
+  { id:'flea', w:2, title:'🧺 Flea Market Sunday', text:'Lakewood flea is PACKED. Everybody selling something.',
+    cond:()=>true,
+    choices:[
+      { label:'Run a table (−3h)', run:(s)=>{ const got=earn(s,90); s.skills.hustle++; settle(s); const t=advanceTime(s,3); return { text:'Moved product all day. +$90.', pay:got, milestones:t.milestones, events:t.events }; } },
+      { label:'Just browsing',      run:(s)=>{ s.needs.fun=clampN(s.needs.fun+10); settle(s); return { text:'Window shopping. Vibes free.' }; } }
+    ]},
+  { id:'rentparty', w:1, street:true, title:'🏠 Rent Party', text:'Neighbor throwing a rent party — $25 at the door, DJ in the living room.',
+    cond:(s)=> s.cash>=25,
+    choices:[
+      { label:'Chip in (−$25, −4h)', run:(s)=>{ s.cash-=25; s.needs.social=clampN(s.needs.social+30); s.needs.fun=clampN(s.needs.fun+20); s.street+=2; settle(s); const t=advanceTime(s,4); return { text:'Real ones only. Street +2.', milestones:t.milestones, events:t.events }; } },
+      { label:'Stay home',          run:()=>({ text:'Stacking > partying tonight.' }) }
+    ]},
+  { id:'oldhead', w:2, title:'🧓 Old-Head Wisdom', text:'OG on the block wants to put you on game. Got two hours?',
+    cond:()=>true,
+    choices:[
+      { label:'Sit and listen (−2h)',        run:(s)=>{ s.skills.books+=2; s.skills.hustle++; settle(s); const t=advanceTime(s,2); return { text:'Free game. Books +2, Hustle +1.', milestones:t.milestones, events:t.events }; } },
+      { label:'Run his errand (+$40, −2h)',  run:(s)=>{ const got=earn(s,40); settle(s); const t=advanceTime(s,2); return { text:'Quick $40. Respect earned.', pay:got, milestones:t.milestones, events:t.events }; } }
+    ]},
+  { id:'blockparty', w:1, street:true, title:'🎶 Block Party', text:'The whole street shut down — grills, speakers, everybody outside.',
+    cond:()=>true,
+    choices:[
+      { label:'Be outside (−5h)',     run:(s)=>{ s.needs.fun=clampN(s.needs.fun+35); s.needs.social=clampN(s.needs.social+25); s.street+=3; settle(s); const t=advanceTime(s,5); return { text:'Legendary day. Street +3.', milestones:t.milestones, events:t.events }; } },
+      { label:'Watch from the porch', run:(s)=>{ s.needs.fun=clampN(s.needs.fun+10); settle(s); return { text:'Still a vibe.' }; } }
+    ]},
+  { id:'checkpoint', w:1, title:'🚔 Checkpoint on Peachtree', text:'Blue lights ahead — license checkpoint got the whole street backed up.',
+    cond:()=>true,
+    choices:[
+      { label:'Hop on MARTA (−1h)', run:(s)=>{ if(!s.pass && s.whip<0) return { text:'No whip, no pass — you walked it. Rough.' }; const t=advanceTime(s,1); return { text:'Dodged the jam.', milestones:t.milestones, events:t.events }; } },
+      { label:'Sit in it (−2h)',     run:(s)=>{ const t=advanceTime(s,2); return { text:'Slowest two hours of your life.', milestones:t.milestones, events:t.events }; } }
+    ]},
+  { id:'homecoming', w:1, title:'🏈 Homecoming Weekend', text:'Tailgates, day parties, the whole city outside. You in?',
+    cond:(s)=> s.cash>=60,
+    choices:[
+      { label:"I'm outside (−$60, −6h)", run:(s)=>{ s.cash-=60; s.needs.fun=clampN(s.needs.fun+40); s.needs.social=clampN(s.needs.social+30); settle(s); const t=advanceTime(s,6); return { text:'One for the books.', milestones:t.milestones, events:t.events }; } },
+      { label:'Save the bread',          run:()=>({ text:'Discipline.' }) }
+    ]},
+  { id:'wafflehouse', w:2, title:'🧇 Waffle House 2AM', text:'Nothing hits like Waffle House at 2AM. The crew already there.',
+    cond:()=>true,
+    choices:[
+      { label:'All-star special (−$12, −1h)', run:(s)=>{ if(s.cash<12) return { text:'Broke at the Waffle House is a different pain.' }; s.cash-=12; s.needs.hunger=clampN(s.needs.hunger+40); s.needs.fun=clampN(s.needs.fun+15); s.needs.social=clampN(s.needs.social+10); s.needs.health=clampN(s.needs.health-5); settle(s); const t=advanceTime(s,1); return { text:'Scattered, smothered, covered. Worth it.', milestones:t.milestones, events:t.events }; } },
+      { label:'Pass',                        run:()=>({ text:'Grind first.' }) }
+    ]},
+  { id:'americandeli', w:2, title:'🍗 American Deli Run', text:'Lemon pepper wings calling your name. Ten piece, all flats.',
+    cond:()=>true,
+    choices:[
+      { label:'Ten piece all flats (−$18, −1h)', run:(s)=>{ if(s.cash<18) return { text:'Deli will be here tomorrow.' }; s.cash-=18; s.needs.hunger=clampN(s.needs.hunger+55); s.needs.social=clampN(s.needs.social+10); settle(s); const t=advanceTime(s,1); return { text:'The only right order.', milestones:t.milestones, events:t.events }; } }
+    ]},
+  { id:'medbill', w:2, title:'🏥 Body Talking To You', text:'You been ignoring it — time to see somebody about it.',
+    cond:(s)=> s.needs.health<25,
+    choices:[
+      { label:'Doctor visit (−$150)', run:(s)=>{ if(s.cash<150) return { text:"Couldn't cover it. It'll have to wait." }; s.cash-=150; s.needs.health=clampN(s.needs.health+40); settle(s); return { text:'Handled. Health up.' }; } },
+      { label:'Thug it out',          run:(s)=>{ s.needs.health=clampN(s.needs.health-20); settle(s); return { text:'It got worse. Get to a doctor.' }; } }
+    ]},
+  { id:'breakdown', w:2, title:'🔧 Whip Acting Up', text:'That noise under the hood getting louder. Mechanic quoting numbers.',
+    cond:(s)=> s.whip>=0,
+    choices:[
+      { label:'Fix it now (−$150)',      run:(s)=>{ if(s.cash<150) return { text:"Can't cover it right now." }; s.cash-=150; return { text:'Back running smooth.' }; } },
+      { label:'Risk it (40% → $400)',    run:(s)=>{ s.risk={ kind:'car', dueDay:s.day+7, p:0.4, bad:400 }; return { text:'Praying it holds...' }; } }
+    ]},
+  { id:'crackedphone', w:2, title:'📱 Cracked Screen', text:'Phone hit the concrete. Screen looking like a spiderweb.',
+    cond:()=>true,
+    choices:[
+      { label:'Fix it (−$120)',        run:(s)=>{ if(s.cash<120) return { text:'Spiderweb life for now.' }; s.cash-=120; s.needs.social=clampN(s.needs.social+10); settle(s); return { text:'Fresh screen, fresh start.' }; } },
+      { label:'Rock it cracked',       run:(s)=>{ s.needs.social=clampN(s.needs.social-15); settle(s); return { text:'People judging the cracked screen.' }; } }
+    ]},
+  { id:'toothache', w:1, title:'🦷 Toothache', text:'That molar been screaming for two days.',
+    cond:()=>true,
+    choices:[
+      { label:'Dentist (−$200)',    run:(s)=>{ if(s.cash<200) return { text:'Toothpaste and prayers.' }; s.cash-=200; s.needs.health=clampN(s.needs.health+15); settle(s); return { text:'Fixed up.' }; } },
+      { label:'Deal with it',       run:(s)=>{ s.needs.health=clampN(s.needs.health-20); settle(s); return { text:'It is what it is.' }; } }
+    ]},
+  /* ---- scripted (never random-drawn; triggered by game systems) ---- */
+  { id:'evictwarn', scripted:true, title:'⚠️ EVICTION WARNING', text:'Landlord done playing: miss rent again and you getting EVICTED.',
+    cond:()=>false,
+    choices:[
+      { label:'Pay up now (rent + late fees)', run:(s)=>{ const amt=CRIBS[s.crib].rent+s.lateFees; if(s.cash<amt) return { text:"Not enough to cover it." }; s.cash-=amt; s.rentMissed=0; s.lateFees=0; s.rentDueDay=s.day+7; return { text:'Caught up. Crisis dodged.' }; } },
+      { label:'I hear you',                    run:()=>({ text:'Clock ticking.' }) }
+    ]},
+  { id:'breakup', scripted:true, title:'💔 Rough Patch', text:'Your partner says the spark fading — work been eating all your time.',
+    cond:()=>false,
+    choices:[
+      { label:'Make it right (−$40 date)', run:(s)=>{ if(s.cash<40) return { text:"Couldn't afford to make it right." }; s.cash-=40; s.needs.social=clampN(s.needs.social+15); s.needs.fun=clampN(s.needs.fun+15); settle(s); return { text:'Back solid.' }; } },
+      { label:'Let it go',                 run:(s)=>{ s.partner=null; s.needs.fun=clampN(s.needs.fun-15); s.needs.social=clampN(s.needs.social-10); settle(s); return { text:'Single again. Focus up.' }; } }
+    ]},
+  { id:'birthday', scripted:true, title:'🎂 HAPPY BIRTHDAY', text:'',
+    cond:()=>false,
+    choices:[ { label:'Another year wiser', run:()=>({ text:'Blessed. Another lap around the sun.' }) } ]},
+  { id:'riskdue', scripted:true, title:'💸 IT CAUGHT UP', text:'',
+    cond:()=>false,
+    choices:[ { label:'Damn.', run:()=>({ text:'Lesson learned. Pay it now next time.' }) } ]}
+];
+
+function clampN(n){ return Math.max(0, Math.min(100, n)); }
+function createLife(name, vibe){
+  const v = VIBES[vibe] ? vibe : 'hustler';
+  return {
+    v:2,
+    name:(name||'Player').slice(0,16), vibe:v,
+    day:1, hour:9, cash:VIBES[v].startCash,
+    needs:{ hunger:80, energy:80, fun:70, social:60, health:70 },
+    job:0, crib:2, cribOwned:false, rentDueDay:8,
+    lateFees:0, rentMissed:0,
+    pass:false, passDueDay:8,
+    whip:-1, financed:false, whipDueDay:8, noteMissed:0,
+    street:VIBES[v].rep, legit:0, rep:VIBES[v].rep,
+    age:18, yearIncome:0, taxDebt:0,
+    school:0, skills:{ hustle:0, music:0, books:0 },
+    inv:{ tees:0, cases:0, kits:0 }, demand:1.0,
+    partner:null, cd:{}, risk:null,
+    struggling:false, milestones:{},
+    stats:{ shifts:0, gigs:0, parties:0, studios:0, events:0, hustles:0, sales:0 }
+  };
+}
+function comfortOf(s){ return CRIBS[s.crib].comfort; }
+function whipMult(s){ return s.whip>=0 ? WHIPS[s.whip].gigMult : (s.pass ? 1.10 : 1.0); }
+function transportMode(s){ if (s.whip>=0) return 'whip'; if (s.pass) return 'pass'; return 'none'; }
+function weekday(s){ return WEEKDAYS[(s.day-1)%7]; }
+function invValue(s){ return Math.round(s.inv.tees*7 + s.inv.cases*5.5 + s.inv.kits*14); }
+function netWorth(s){
+  let n = s.cash - (s.taxDebt||0) - (s.lateFees||0);
+  if (s.cribOwned) n += CRIBS[s.crib].value;
+  if (s.whip>=0)   n += s.financed ? Math.round(WHIPS[s.whip].price*0.3) : WHIPS[s.whip].price;
+  n += invValue(s);
+  return n;
+}
+/* earn: route income through tax-debt paydown first */
+function earn(s, amount){
+  amount = Math.round(amount);
+  let got = amount;
+  if (s.taxDebt>0){
+    const cut = Math.min(s.taxDebt, Math.round(amount*0.10));
+    s.taxDebt -= cut; got -= cut;
+  }
+  s.cash += got; s.yearIncome += amount;
+  return got;
+}
+/* settle: clamp needs; struggling ON when any need hits 0,
+   cleared only when ALL needs are above 20. */
+function settle(s){
+  for (const k of NEED_KEYS) s.needs[k]=clampN(s.needs[k]);
+  const vals = NEED_KEYS.map(k=>s.needs[k]);
+  if (vals.some(v=>v===0)) s.struggling=true;
+  else if (vals.every(v=>v>20)) s.struggling=false;
+}
+function decayTick(s, hours, opts){
+  opts = opts || { energy:1, others:1 };
+  const c = comfortOf(s);
+  const coupled = s.partner ? 0.75 : 1.0;
+  for (let i=0;i<hours;i++){
+    let eRate=3.0, hRate=2.5, fRate=2.0, soRate=1.8, heRate=0.8;
+    if (s.vibe==='scholar') eRate*=0.8;
+    if (s.vibe==='artist')  fRate*=0.8;
+    s.needs.energy = clampN(s.needs.energy - eRate*c*opts.energy);
+    s.needs.hunger = clampN(s.needs.hunger - hRate*c*opts.others);
+    s.needs.fun    = clampN(s.needs.fun    - fRate*c*opts.others*coupled);
+    s.needs.social = clampN(s.needs.social - soRate*c*opts.others*coupled);
+    s.needs.health = clampN(s.needs.health - heRate*c*opts.others);
+    settle(s);
+  }
+}
+function onNewDay(s, rng){
+  rng = rng || Math.random;
+  const evs=[];
+  s.day++;
+  if (s.day%7===1) s.demand = Math.round((0.7+rng()*0.9)*100)/100;
+  if (s.partner) s.partner.weeks++;
+  /* risk resolution */
+  if (s.risk && s.day>=s.risk.dueDay){
+    const r=s.risk; s.risk=null;
+    if (rng()<r.p){
+      const amt=r.bad;
+      if (s.cash>=amt) s.cash-=amt; else { s.cash=0; s.lateFees+=amt; }
+      evs.push({ type:'scripted', id:'riskdue', extra:{ amount:amt, kind:r.kind } });
+    }
+  }
+  /* rent + utilities + phone (weekly) */
+  if (!s.cribOwned && s.day>=s.rentDueDay){
+    const crib=CRIBS[s.crib];
+    const total=crib.rent+UTIL_PRICE+PHONE_PRICE+s.lateFees;
+    if (s.cash>=total){
+      s.cash-=total; s.rentDueDay=s.day+7; s.rentMissed=0; s.lateFees=0;
+      evs.push({ type:'rentPaid', amount:total });
+    } else {
+      const up=UTIL_PRICE+PHONE_PRICE;
+      if (s.cash>=up) s.cash-=up; else s.cash=0;
+      s.rentMissed++; s.lateFees+=LATE_FEE;
+      s.rentDueDay=s.day+7;
+      s.needs.energy=clampN(s.needs.energy-15);
+      s.needs.social=clampN(s.needs.social-10);
+      settle(s); s.struggling=true;
+      if (s.rentMissed>=2){
+        s.crib=0; s.cribOwned=false; s.rentMissed=0; s.lateFees=0;
+        s.needs.energy=clampN(s.needs.energy-15);
+        s.needs.social=clampN(s.needs.social-15);
+        settle(s);
+        evs.push({ type:'evicted' });
+      } else {
+        evs.push({ type:'rentMissed' });
+        evs.push({ type:'scripted', id:'evictwarn' });
+      }
+    }
+  }
+  /* whip weekly costs */
+  if (s.whip>=0 && s.day>=s.whipDueDay){
+    const w=WHIPS[s.whip];
+    const cost=w.gas+w.ins+(s.financed?w.note:0);
+    if (s.cash>=cost){ s.cash-=cost; s.whipDueDay=s.day+7; }
+    else {
+      s.lateFees+=50; s.whipDueDay=s.day+7;
+      if (s.financed){
+        s.noteMissed++;
+        if (s.noteMissed>=2){
+          s.whip=-1; s.financed=false; s.noteMissed=0;
+          s.street=Math.max(0,s.street-5);
+          evs.push({ type:'repo' });
+        } else evs.push({ type:'notelate' });
+      } else evs.push({ type:'whiplate' });
+    }
+  }
+  /* MARTA pass renewal */
+  if (s.pass && s.day>=s.passDueDay){
+    if (s.cash>=PASS_PRICE){ s.cash-=PASS_PRICE; s.passDueDay=s.day+7; }
+    else { s.pass=false; evs.push({ type:'passlapse' }); }
+  }
+  /* birthday + yearly tax bill */
+  if (s.day>1 && (s.day-1)%364===0){
+    s.age++;
+    const tax=Math.round(s.yearIncome*0.10);
+    const paid=Math.min(s.cash,tax);
+    s.cash-=paid; s.taxDebt+=(tax-paid); s.yearIncome=0;
+    if (s.age===25 || s.age===30 || s.age===35){ s.cash+=250; evs.push({ type:'bdaybonus', age:s.age }); }
+    evs.push({ type:'scripted', id:'birthday', extra:{ tax:tax, paid:paid, age:s.age } });
+  }
+  /* partner rough patch */
+  if (s.partner && s.needs.fun<30 && rng()<0.15){
+    evs.push({ type:'scripted', id:'breakup' });
+  }
+  return evs;
+}
+function advanceTime(s, hours, rng){
+  hours=Math.max(0, Math.round(hours));
+  const total=s.hour+hours, days=Math.floor(total/24);
+  decayTick(s, hours);
+  s.hour=total%24;
+  const out={ milestones:[], events:[] };
+  for (let d=0; d<days; d++){ out.events.push(...onNewDay(s, rng)); out.milestones.push(...checkMilestones(s)); }
+  out.milestones.push(...checkMilestones(s));
+  return out;
+}
+function doWork(s, rng){
+  if (s.struggling) return { ok:false, reason:'Struggling — raise every need above 20 first' };
+  const job=JOBS[s.job];
+  const tmode=transportMode(s);
+  let pay=job.pay;
+  if (s.vibe==='scholar') pay=Math.round(pay*1.15);
+  if (s.needs.energy<30) pay=Math.round(pay*0.75);
+  let hours=8, eCost=job.energy;
+  if (tmode==='none'){ hours=10; eCost+=10; pay=Math.round(pay*0.85); }
+  else if (tmode==='pass'){ eCost+=3; }
+  const got=earn(s,pay);
+  s.stats.shifts++;
+  if (s.stats.shifts%5===0) s.legit++;
+  s.skills.books++;
+  s.needs.energy=clampN(s.needs.energy-eCost);
+  s.needs.fun   =clampN(s.needs.fun-15);
+  s.needs.hunger=clampN(s.needs.hunger-20);
+  s.needs.social=clampN(s.needs.social-8);
+  s.needs.health=clampN(s.needs.health-3);
+  settle(s);
+  const t=advanceTime(s,hours,rng);
+  return { ok:true, pay:got, milestones:t.milestones, events:t.events };
+}
+function doGig(s, rng){
+  if (s.struggling) return { ok:false, reason:'Struggling — raise every need above 20 first' };
+  const tmode=transportMode(s);
+  let pay=Math.round(40*whipMult(s));
+  if (s.vibe==='hustler') pay=Math.round(pay*1.1);
+  let hours=3, eCost=12;
+  if (tmode==='none'){ hours=5; eCost+=12; pay=Math.round(pay*0.85); }
+  else if (tmode==='pass'){ eCost+=3; }
+  const got=earn(s,pay);
+  s.stats.gigs++; s.skills.hustle++;
+  if (s.stats.gigs%3===0) s.street++;
+  s.needs.energy=clampN(s.needs.energy-eCost);
+  s.needs.fun   =clampN(s.needs.fun-8);
+  s.needs.hunger=clampN(s.needs.hunger-8);
+  s.needs.health=clampN(s.needs.health-2);
+  settle(s);
+  const t=advanceTime(s,hours,rng);
+  return { ok:true, pay:got, milestones:t.milestones, events:t.events };
+}
+function doHustle(s, id, rng){
+  rng=rng||Math.random;
+  if (s.struggling) return { ok:false, reason:'Struggling — raise every need above 20 first' };
+  const h=HUSTLES.find(x=>x.id===id);
+  if (!h) return { ok:false, reason:'No such hustle' };
+  if (h.req){ const c=h.req(s); if(!c.ok) return c; }
+  if ((s.cd[id]||0)>s.day) return { ok:false, reason:'Cooling off — back in '+((s.cd[id]||0)-s.day)+'d' };
+  if (s.cash<h.cost) return { ok:false, reason:'Not enough cash' };
+  s.cash-=h.cost;
+  let pay=h.pay, note='';
+  if (h.risk && rng()<h.risk){ pay=0; note=h.riskText; }
+  const got=earn(s,pay);
+  s.cd[id]=s.day+h.cd; s.stats.hustles++;
+  h.fx(s);
+  const tmode=transportMode(s);
+  s.needs.energy=clampN(s.needs.energy-h.energy-(tmode==='none'?6:0));
+  s.needs.fun   =clampN(s.needs.fun-5);
+  s.needs.hunger=clampN(s.needs.hunger-8);
+  settle(s);
+  const t=advanceTime(s,h.hours,rng);
+  return { ok:true, pay:got, note:note, milestones:t.milestones, events:t.events };
+}
+function buyBulk(s, pid){
+  const p=FLIP_PRODUCTS.find(x=>x.id===pid);
+  if (!p) return { ok:false, reason:'No such product' };
+  if (s.cash<p.cost) return { ok:false, reason:'Not enough cash' };
+  s.cash-=p.cost; s.inv[pid]+=p.units;
+  return { ok:true, units:p.units, milestones:checkMilestones(s) };
+}
+function sellBulk(s, rng){
+  const totalUnits=s.inv.tees+s.inv.cases+s.inv.kits;
+  if (totalUnits<=0) return { ok:false, reason:'No inventory — buy bulk first' };
+  if (s.struggling) return { ok:false, reason:'Struggling — raise every need above 20 first' };
+  let left=5, revenue=0;
+  for (const p of FLIP_PRODUCTS){
+    while (left>0 && s.inv[p.id]>0){
+      s.inv[p.id]--; left--;
+      revenue+=Math.round(p.base*s.demand);
+    }
+  }
+  const got=earn(s,revenue);
+  s.stats.sales++;
+  s.skills.hustle++;
+  s.needs.fun=clampN(s.needs.fun+5);
+  s.needs.social=clampN(s.needs.social+10);
+  s.needs.energy=clampN(s.needs.energy-10);
+  settle(s);
+  const t=advanceTime(s,3,rng);
+  return { ok:true, pay:got, milestones:t.milestones, events:t.events };
+}
+function enroll(s, idx, rng){
+  const sc=SCHOOL[idx];
+  if (!sc) return { ok:false, reason:'No such program' };
+  if (s.school!==idx) return { ok:false, reason: idx<s.school ? 'Already completed' : 'Finish earlier school first' };
+  const c=sc.req(s); if(!c.ok) return c;
+  if (s.cash<sc.cost) return { ok:false, reason:'Not enough cash' };
+  s.cash-=sc.cost;
+  s.school++;
+  s.skills.books+=sc.books; s.skills.hustle+=sc.hustle;
+  s.legit+=4;
+  s.needs.energy=clampN(s.needs.energy-15);
+  s.needs.fun=clampN(s.needs.fun-5);
+  settle(s);
+  const t=advanceTime(s,sc.hours,rng);
+  return { ok:true, milestones:t.milestones, events:t.events };
+}
+function gym(s, rng){
+  if (s.cash<5) return { ok:false, reason:'Not enough cash' };
+  s.cash-=5;
+  s.needs.health=clampN(s.needs.health+30);
+  s.needs.energy=clampN(s.needs.energy-10);
+  s.needs.fun=clampN(s.needs.fun+5);
+  settle(s);
+  const t=advanceTime(s,1,rng);
+  return { ok:true, milestones:t.milestones, events:t.events };
+}
+function doctor(s, rng){
+  if (s.cash<50) return { ok:false, reason:'Not enough cash' };
+  s.cash-=50;
+  s.needs.health=clampN(s.needs.health+50);
+  settle(s);
+  const t=advanceTime(s,1,rng);
+  return { ok:true, milestones:t.milestones, events:t.events };
+}
+function dateNight(s, rng){
+  if (s.cash<20) return { ok:false, reason:'Not enough cash' };
+  s.cash-=20;
+  if (!s.partner){
+    const nm=PARTNER_NAMES[(s.day*7+s.stats.parties)%PARTNER_NAMES.length];
+    s.partner={ name:nm, weeks:0 };
+  }
+  s.needs.social=clampN(s.needs.social+35);
+  s.needs.fun=clampN(s.needs.fun+30);
+  s.needs.energy=clampN(s.needs.energy-5);
+  settle(s);
+  const t=advanceTime(s,3,rng);
+  return { ok:true, partner:!!s.partner, milestones:t.milestones, events:t.events };
+}
+function dayLabor(s, rng){
+  /* recovery path — available even while struggling */
+  const got=earn(s,80);
+  s.skills.hustle++;
+  s.needs.energy=clampN(s.needs.energy-25);
+  s.needs.hunger=clampN(s.needs.hunger-15);
+  s.needs.health=clampN(s.needs.health-5);
+  settle(s);
+  const t=advanceTime(s,6,rng);
+  return { ok:true, pay:got, milestones:t.milestones, events:t.events };
+}
+function eat(s, tierIdx, rng){
+  const t=EAT_TIERS[tierIdx];
+  if (!t) return { ok:false, reason:'Pick a spot' };
+  if (s.cash<t.cost) return { ok:false, reason:'Not enough cash' };
+  s.cash-=t.cost;
+  s.needs.hunger=clampN(s.needs.hunger+t.hunger);
+  s.needs.fun   =clampN(s.needs.fun+t.fun);
+  settle(s);
+  const r=advanceTime(s,1,rng);
+  return { ok:true, milestones:r.milestones, events:r.events };
+}
+function hoursToMorning(s){ return s.hour<7 ? 7-s.hour : 24-s.hour+7; }
+function sleep(s, rng){
+  const h=hoursToMorning(s);
+  decayTick(s, h, { energy:0, others:0.5 });
+  s.needs.energy=clampN(s.needs.energy+80);
+  s.needs.health=clampN(s.needs.health+15);
+  settle(s);
+  const total=s.hour+h, days=Math.floor(total/24);
+  s.hour=total%24;
+  const out={ milestones:[], events:[] };
+  for (let d=0; d<days; d++) out.events.push(...onNewDay(s, rng));
+  out.milestones.push(...checkMilestones(s));
+  return { ok:true, hours:h, milestones:out.milestones, events:out.events };
+}
+function party(s, rng){
+  const monday = weekday(s)==='Monday';
+  const cost = monday?40:25, fun = monday?50:35;
+  if (s.cash<cost) return { ok:false, reason:'Not enough cash' };
+  s.cash-=cost; s.stats.parties++;
+  if (s.partner) s.needs.social=clampN(s.needs.social+10);
+  s.needs.fun   =clampN(s.needs.fun+fun);
+  s.needs.social=clampN(s.needs.social+40);
+  s.needs.energy=clampN(s.needs.energy-15);
+  s.needs.hunger=clampN(s.needs.hunger-10);
+  s.needs.health=clampN(s.needs.health-5);
+  settle(s);
+  const t=advanceTime(s,4,rng);
+  return { ok:true, monday, milestones:t.milestones, events:t.events };
+}
+function studio(s, rng){
+  rng=rng||Math.random;
+  if (s.cash<20) return { ok:false, reason:'Not enough cash' };
+  s.cash-=20; s.stats.studios++;
+  s.skills.music++;
+  s.needs.fun   =clampN(s.needs.fun+25);
+  s.needs.energy=clampN(s.needs.energy-15);
+  settle(s);
+  const p = s.vibe==='artist' ? 0.2 : 0.08;
+  let buzz=false;
+  if (rng()<p){ buzz=true; s.street+=5; s.legit+=2; }
+  const t=advanceTime(s,4,rng);
+  return { ok:true, buzz, milestones:t.milestones, events:t.events };
+}
+function promotionInfo(s){
+  if (s.job>=JOBS.length-1) return { ok:false, reason:'Top of the ladder — ATL LEGEND status' };
+  const next=JOBS[s.job+1];
+  const chk=next.req(s);
+  return chk.ok ? { ok:true, next:next.name, pay:next.pay } : { ok:false, reason:chk.reason };
+}
+function promote(s){
+  const info=promotionInfo(s);
+  if (!info.ok) return info;
+  s.job++; s.legit+=3;
+  return { ok:true, job:JOBS[s.job].name, milestones:checkMilestones(s) };
+}
+function buyCrib(s, idx, mode){
+  if (idx<=s.crib) return { ok:false, reason:'Already there or better' };
+  if (idx>=CRIBS.length) return { ok:false, reason:'No such crib' };
+  const c=CRIBS[idx];
+  if (mode==='buy'){
+    if (!c.buyable) return { ok:false, reason:'Not for sale — rent only' };
+    if (s.cash<c.price) return { ok:false, reason:'Not enough cash' };
+    s.cash-=c.price; s.crib=idx; s.cribOwned=true; s.rentDueDay=Infinity;
+  } else {
+    if (s.cash<c.rent) return { ok:false, reason:'Not enough cash for first rent' };
+    s.cash-=c.rent; s.crib=idx; s.cribOwned=false; s.rentDueDay=s.day+7;
+  }
+  if (c.legitBonus) s.legit+=c.legitBonus;
+  return { ok:true, milestones:checkMilestones(s) };
+}
+function buyPass(s){
+  if (s.pass) return { ok:false, reason:'Pass already active' };
+  if (s.cash<PASS_PRICE) return { ok:false, reason:'Not enough cash' };
+  s.cash-=PASS_PRICE; s.pass=true; s.passDueDay=s.day+7;
+  return { ok:true };
+}
+function buyWhip(s, idx, mode){
+  if (idx<0 || idx>=WHIPS.length) return { ok:false, reason:'No such whip' };
+  if (idx<=s.whip && !s.financed) return { ok:false, reason:'Already own or better' };
+  const w=WHIPS[idx];
+  if (mode==='finance'){
+    if (s.cash<w.down) return { ok:false, reason:'Not enough cash for down payment' };
+    s.cash-=w.down; s.whip=idx; s.financed=true; s.noteMissed=0; s.whipDueDay=s.day+7;
+  } else {
+    if (s.cash<w.price) return { ok:false, reason:'Not enough cash' };
+    s.cash-=w.price; s.whip=idx; s.financed=false; s.whipDueDay=s.day+7;
+  }
+  return { ok:true, milestones:checkMilestones(s) };
+}
+function drawEvent(s, rng){
+  rng=rng||Math.random;
+  const pool=EVENTS.filter(e=>e.cond(s) && !e.scripted);
+  if (!pool.length) return null;
+  const wgt=(e)=> e.w*(e.street && s.crib===0 ? 2 : 1);
+  const total=pool.reduce((a,e)=>a+wgt(e),0);
+  let r=rng()*total;
+  for (const e of pool){ r-=wgt(e); if (r<0) return e; }
+  return pool[pool.length-1];
+}
+function applyEvent(s, id, choiceIdx){
+  const e=EVENTS.find(x=>x.id===id);
+  if (!e) return { ok:false };
+  const c=e.choices[choiceIdx]||e.choices[0];
+  const res=c.run(s)||{};
+  s.stats.events++;
+  const ms=[...(res.milestones||[]), ...checkMilestones(s)];
+  const evs=[...(res.events||[])];
+  return { ok:true, text:res.text, pay:res.pay, note:res.note, milestones:ms, events:evs };
+}
+function checkMilestones(s){
+  const out=[];
+  for (const m of MILESTONES){
+    if (!s.milestones[m.id] && m.check(s)){
+      s.milestones[m.id]=true; s.cash+=m.bonus; out.push(m);
+    }
+  }
+  return out;
+}
+function serialize(s){ return JSON.stringify(s); }
+function migrateV1(s){
+  /* best-effort v1 → v2 migration */
+  const jobMap={0:1,1:2,2:6,3:5,4:13,5:15,6:16};
+  const cribMap={0:2,1:4,2:5,3:6};
+  const n={
+    v:2,
+    name:s.name||'Player', vibe:VIBES[s.vibe]?s.vibe:'hustler',
+    day:s.day||1, hour:typeof s.hour==='number'?s.hour:9, cash:typeof s.cash==='number'?s.cash:500,
+    needs:{ hunger:80, energy:80, fun:70, social:60, health:70 },
+    job:(jobMap[s.job]!=null?jobMap[s.job]:0), crib:(cribMap[s.crib]!=null?cribMap[s.crib]:2),
+    cribOwned:!!s.cribOwned, rentDueDay:(s.rentDueDay==null? (s.day||1)+7 : s.rentDueDay),
+    lateFees:0, rentMissed:0,
+    pass:false, passDueDay:(s.day||1)+7,
+    whip:-1, financed:false, whipDueDay:(s.day||1)+7, noteMissed:0,
+    street:0, legit:0, rep:0,
+    age:18, yearIncome:0, taxDebt:0,
+    school:0, skills:{ hustle:0, music:0, books:0 },
+    inv:{ tees:0, cases:0, kits:0 }, demand:1.0,
+    partner:null, cd:{}, risk:null,
+    struggling:false, milestones:s.milestones||{},
+    stats:{ shifts:0, gigs:0, parties:0, studios:0, events:0, hustles:0, sales:0 }
+  };
+  if (s.needs){ for (const k of ['hunger','energy','fun','social']) if (typeof s.needs[k]==='number') n.needs[k]=clampN(s.needs[k]); }
+  if (typeof s.whip==='number'){
+    if (s.whip===0){ n.pass=true; }
+    else if (s.whip>0){ n.whip=Math.min(2, s.whip-1); }
+  }
+  const oldRep=typeof s.rep==='number'?s.rep:0;
+  n.street=oldRep; n.legit=Math.floor(oldRep/2); n.rep=oldRep;
+  if (s.stats){ for (const k of ['shifts','gigs','parties','studios','events']) if (typeof s.stats[k]==='number') n.stats[k]=s.stats[k]; }
+  settle(n);
+  return n;
+}
+function deserialize(json){
+  try {
+    const s=JSON.parse(json);
+    if (!s || typeof s.day!=='number' || !s.needs || typeof s.cash!=='number') return null;
+    if (s.v!==2) return migrateV1(s);
+    if (s.rentDueDay==null && s.cribOwned) s.rentDueDay=Infinity; /* owned cribs serialize Infinity as null */
+    return s;
+  } catch(e){ return null; }
+}
+if (typeof module!=='undefined' && module.exports){
+  module.exports={ SAVE_VERSION,VIBES,WEEKDAYS,NEED_KEYS,PARTNER_NAMES,
+    UTIL_PRICE,PHONE_PRICE,PASS_PRICE,LATE_FEE,
+    JOBS,CRIBS,WHIPS,SCHOOL,HUSTLES,FLIP_PRODUCTS,EAT_TIERS,MILESTONES,EVENTS,
+    clampN,createLife,comfortOf,whipMult,transportMode,weekday,invValue,netWorth,earn,
+    settle,decayTick,onNewDay,advanceTime,
+    doWork,doGig,doHustle,buyBulk,sellBulk,enroll,gym,doctor,dateNight,dayLabor,
+    eat,hoursToMorning,sleep,party,studio,
+    promotionInfo,promote,buyCrib,buyPass,buyWhip,drawEvent,applyEvent,
+    checkMilestones,serialize,deserialize,migrateV1 };
+}
+// <PURE-LOGIC-END>
+
+/* ==================== UI ==================== */
+
+/* ---------- HOOD VOICE: display-only renames (logic strings untouched) ---------- */
+const HOOD_NAME={
+ 'Hustler':'HUSTLER — NO CAP',
+ 'Artist':'ARTIST — CULTURE DRIVER',
+ 'Scholar':'SCHOLAR — BIG BRAIN',
+ '+$200 start · gigs pay 10% more':'+$200 IN POCKET · GIGS PAY 10% MORE — NO CAP',
+ '+15 rep · studio buzz more likely · fun drains slower':'+15 REP · STUDIO BUZZ MORE LIKELY · FUN DRAINS SLOWER — THE CULTURE',
+ 'Shifts pay 15% more · energy drains slower':'SHIFTS PAY 15% MORE · ENERGY DRAINS SLOWER — BIG BRAIN ENERGY',
+ 'Dishwasher — Soul Veg':'SOUL VEG DISHWASHER — DAY ONE',
+ 'Food Truck Crew':'FOOD TRUCK CREW — A-TOWN FINEST',
+ 'Line Cook':'LINE COOK — CERTIFIED',
+ 'Sous Chef':'SOUS CHEF — KITCHEN BOSS',
+ 'Studio Intern':'STUDIO INTERN — PAYING DUES',
+ 'Studio Engineer':'STUDIO ENGINEER — CERTIFIED',
+ 'Barber':'BARBER — SHARP CERTIFIED',
+ 'Security':'SECURITY — BIG DAWG ENERGY',
+ 'MARTA Driver':'MARTA DRIVER — CITY MOVER',
+ 'CNA':'CNA — HEART OF GOLD',
+ 'Car Salesman':'CAR SALESMAN — DEAL SEALER',
+ 'Shop Owner (Barbershop)':'BARBERSHOP OWNER — BIG DAWG',
+ 'RN':'RN — CERTIFIED HEALER',
+ 'Fleet Owner':'FLEET OWNER — A-TOWN MOGUL',
+ 'Real Estate Closer':'REAL ESTATE CLOSER — DEAL SEALER',
+ 'Label Owner / Tech Founder':'LABEL OWNER / TECH FOUNDER — A-TOWN LEGEND',
+ 'Room in The Bluff':'ROOM IN THE BLUFF — REAL TALK',
+ 'Room in Mechanicsville':'ROOM IN MECHANICSVILLE — HOLDING IT DOWN',
+ 'Room in East Atlanta':'ROOM IN EAST ATLANTA — STRAIGHT OUTTA ZONE 6',
+ 'Apartment in Kirkwood':'KIRKWOOD APARTMENT — MOVING UP',
+ 'Apartment in Midtown':'MIDTOWN APARTMENT — UPTOWN MOVES',
+ 'Condo in Buckhead':'BUCKHEAD CONDO — MADE IT',
+ 'House in Cascade':'CASCADE MANSION — BIG DAWG LIVING',
+ 'Used Honda':'USED HONDA — RELIABLE HUSTLE',
+ 'Benz':'BENZ — A-TOWN FINEST',
+ 'Maybach':'MAYBACH — ON GOD',
+ 'GED':'GED — FIRST STEP',
+ 'Community College':'COMMUNITY COLLEGE — BIG BRAIN',
+ 'Trade Certification':'TRADE CERT — SKILLED & CERTIFIED',
+ 'Detail Cars':'DETAIL CARS — SHOWROOM SHINE',
+ 'Cut Hair':'CUT HAIR — FRESH CERTIFIED',
+ 'Sell Plates':'SELL PLATES — SOUL FOOD CERTIFIED',
+ 'Ghostwrite Verses':'GHOSTWRITE VERSES — PEN GAME CRAZY',
+ 'Flip Phones':'FLIP PHONES — TECH HUSTLE',
+ 'Bulk Tees':'BULK TEES — FRESH STOCK',
+ 'Phone Cases':'PHONE CASES — FRESH STOCK',
+ 'Sneaker Cleaner Kits':'SNEAKER CLEANER KITS — FRESH STOCK',
+ 'Food Truck':'FOOD TRUCK — STREET CERTIFIED',
+ 'The Varsity':'THE VARSITY — A-TOWN INSTITUTION',
+ 'Fine Dining':'FINE DINING — BOSS PLATES',
+ 'First $1K':'FIRST $1K — NO CAP',
+ 'Whipped Up — own a whip':'WHIPPED UP — KEYS IN HAND',
+ 'Homeowner — bought a crib':'HOMEOWNER — DEED IN HAND',
+ 'Educated — finished school':'EDUCATED — BIG BRAIN CERTIFIED',
+ 'Buckhead Bound — moved up':'BUCKHEAD BOUND — LEVEL UP',
+ 'ATL LEGEND — $100k net worth':'ATL LEGEND — $100K NET WORTH',
+ 'Top of the ladder — ATL LEGEND status':'TOP OF THE LADDER — ATL LEGEND STATUS. ON GOD.',
+ 'Put in 3 days first':'PUT IN 3 DAYS FIRST. NO SHORTCUTS.',
+ 'Need 10 days in + 2 Books':'NEED 10 DAYS IN + 2 BOOKS',
+ 'Need 4 Books + 10 Legit Rep':'NEED 4 BOOKS + 10 LEGIT REP',
+ 'Need 4 Music + 40 Social':'NEED 4 MUSIC + 40 SOCIAL',
+ 'Need 7 Music + 18 Legit Rep':'NEED 7 MUSIC + 18 LEGIT REP',
+ 'Need 5 Hustle + 45 Social':'NEED 5 HUSTLE + 45 SOCIAL',
+ 'Need 15 Street Cred + 21 days in':'NEED 15 STREET CRED + 21 DAYS IN',
+ 'Need 22 Legit Rep':'NEED 22 LEGIT REP',
+ 'Need Community College + 6 Books':'NEED COMMUNITY COLLEGE + 6 BOOKS',
+ 'Need 65 Social + 10 Street Cred':'NEED 65 SOCIAL + 10 STREET CRED',
+ 'Need 9 Hustle + 20 Street Cred + $12k net worth':'NEED 9 HUSTLE + 20 STREET CRED + $12K NET WORTH',
+ 'Need CC + 10 Books + 30 Legit Rep':'NEED CC + 10 BOOKS + 30 LEGIT REP',
+ 'Need a whip + 9 Hustle + $25k net worth':'NEED A WHIP + 9 HUSTLE + $25K NET WORTH',
+ 'Need 70 Social + 35 Legit Rep + GED':'NEED 70 SOCIAL + 35 LEGIT REP + GED',
+ 'Need $50k net worth + 40 Legit Rep':'NEED $50K NET WORTH + 40 LEGIT REP',
+ 'Need GED first':'NEED GED FIRST',
+ 'No such hustle':'NO SUCH HUSTLE',
+ 'No such product':'NO SUCH PRODUCT',
+ 'No such program':'NO SUCH PROGRAM',
+ 'No such whip':'NO SUCH WHIP',
+ 'No such crib':'NO SUCH CRIB',
+ 'Already completed':'ALREADY COMPLETED',
+ 'Finish earlier school first':'FINISH EARLIER SCHOOL FIRST',
+ 'Pass already active':'PASS ALREADY ACTIVE',
+ 'Not enough cash for down payment':'NOT ENOUGH CASH FOR DOWN PAYMENT',
+ 'No inventory — buy bulk first':'NO INVENTORY — BUY BULK FIRST',
+ 'Struggling — raise every need above 20 first':'STRUGGLING — GET EVERY NEED ABOVE 20, THEN GET BACK TO IT',
+ 'Not enough cash':'NOT ENOUGH CASH — RUN IT UP FIRST',
+ 'Already there or better':'ALREADY THERE OR BETTER',
+ 'Not for sale — rent only':'NOT FOR SALE — RENT ONLY',
+ 'Not enough cash for first rent':'NOT ENOUGH CASH FOR FIRST RENT',
+ 'Already own or better':'ALREADY OWN OR BETTER',
+ 'Pick a spot':'PICK A SPOT'
+};
+function hood(s){ return HOOD_NAME[s]||s; }
+const HOOD_EVENT={
+ traffic:{title:'🚗 285 — PARKING LOT',text:'The whole Perimeter lit up red and everybody stuck. What’s the move?',choices:['THUG IT OUT (−2h)','HIT THE EXPRESS (−$30)']},
+ cookout:{title:'🍗 THE COOKOUT — EVERYBODY OUTSIDE',text:'Auntie got the grill going in College Park and the whole family outside. You pulling up?',choices:['PULL UP, NO QUESTION (−4h)','KEEP GRINDING (+$60)']},
+ viral:{title:'📱 VIRAL — TIMELINE GOING CRAZY',text:'Your fit check just broke the timeline. Brands all in your DMs.',choices:['RUN IT UP']},
+ rentdue:{title:'🏠 RENT DUE — DON’T PLAY',text:'Landlord just texted: rent due tomorrow. Stack accordingly, NO CAP.',choices:['BET.']},
+ scout:{title:'🎧 A&R IN THE BUILDING',text:'A scout caught your demo at the open mic and they asking about YOU.',choices:['BET — LET’S TALK']},
+ lockin:{title:'🎚️ STUDIO LOCK-IN — REAL LOOKS',text:'Producer got the stu booked till 6AM. Real session, real looks. You in or you out?',choices:['PULL UP (−5h, −$50)','PASS THIS TIME']},
+ carmeet:{title:'🚗 285 CAR MEET — SOUTHSIDE',text:'Sunday night — whips lined up, music loud, everybody outside.',choices:['PULL UP (−$20, −3h)','KEEP IT MOVING']},
+ flea:{title:'🧺 FLEA MARKET SUNDAY — LAKEWOOD',text:'The flea is PACKED. Everybody selling something.',choices:['RUN A TABLE (−3h)','JUST BROWSING']},
+ rentparty:{title:'🏠 RENT PARTY — REAL ONES',text:'Neighbor throwing a rent party — $25 at the door, DJ in the living room.',choices:['CHIP IN (−$25, −4h)','STAY HOME']},
+ oldhead:{title:'🧓 OLD-HEAD WISDOM — FREE GAME',text:'OG on the block wants to put you on game. Got two hours?',choices:['SIT AND LISTEN (−2h)','RUN HIS ERRAND (+$40, −2h)']},
+ blockparty:{title:'🎶 BLOCK PARTY — STREET SHUT DOWN',text:'The whole street shut down — grills, speakers, everybody outside.',choices:['BE OUTSIDE (−5h)','WATCH FROM THE PORCH']},
+ checkpoint:{title:'🚔 CHECKPOINT — PEACHTREE',text:'Blue lights ahead — checkpoint got the whole street backed up.',choices:['HOP ON MARTA (−1h)','SIT IN IT (−2h)']},
+ homecoming:{title:'🏈 HOMECOMING — THE CITY OUTSIDE',text:'Tailgates, day parties, the whole city outside. You in?',choices:["I'M OUTSIDE (−$60, −6h)",'SAVE THE BREAD']},
+ wafflehouse:{title:'🧇 WAFFLE HOUSE — 2AM',text:'Nothing hits like Waffle House at 2AM. The crew already there.',choices:['ALL-STAR SPECIAL (−$12, −1h)','PASS']},
+ americandeli:{title:'🍗 AMERICAN DELI RUN',text:'Lemon pepper wings calling your name. Ten piece, all flats.',choices:['TEN PIECE ALL FLATS (−$18, −1h)']},
+ medbill:{title:'🏥 BODY TALKING — LISTEN',text:'You been ignoring it — time to see somebody about it.',choices:['DOCTOR VISIT (−$150)','THUG IT OUT']},
+ breakdown:{title:'🔧 WHIP ACTING UP',text:'That noise under the hood getting louder. Mechanic quoting numbers.',choices:['FIX IT NOW (−$150)','RISK IT (40% → $400)']},
+ crackedphone:{title:'📱 CRACKED SCREEN',text:'Phone hit the concrete. Screen looking like a spiderweb.',choices:['FIX IT (−$120)','ROCK IT CRACKED']},
+ toothache:{title:'🦷 TOOTHACHE',text:'That molar been screaming for two days.',choices:['DENTIST (−$200)','DEAL WITH IT']},
+ evictwarn:{title:'⚠️ EVICTION WARNING — LAST CHANCE',text:'Landlord DONE playing: miss rent again and you getting EVICTED. NO CAP.',choices:['PAY UP NOW (RENT + LATE FEES)','I HEAR YOU']},
+ breakup:{title:'💔 ROUGH PATCH',text:'Your partner says the spark fading — work been eating all your time.',choices:['MAKE IT RIGHT (−$40 DATE)','LET IT GO']},
+ birthday:{title:'🎂 HAPPY BIRTHDAY — BLESSED',text:'',choices:['ANOTHER YEAR WISER']},
+ riskdue:{title:'💸 IT CAUGHT UP — LESSON LEARNED',text:'',choices:['DAMN.']}
+};
+const HOOD_RESULT_TEXT={
+ 'You crawl through. Two hours gone.':'Two hours gone. The A just tested your patience.',
+ 'Worth every penny.':'Worth every penny. ON GOD.',
+ 'Plates and stories. Soul refilled.':'Plates, laughs, soul refilled. CERTIFIED.',
+ 'The hustle respects the sacrifice.':'The hustle respects the sacrifice. NO CAP.',
+ '+$40 in brand love.':'+$40 in brand love. The whole A watching.',
+ 'Bet. Rent first, everything else second.':'BET. Rent first, everything else second.',
+ 'Street +10. They watching.':'Street +10. They WATCHING.',
+ "Couldn't cover the session fee. Next time.":'Couldn’t cover the session fee. Run it back next time.',
+ 'Laid down heat. Street +12.':'Laid down HEAT. Street +12. CERTIFIED.',
+ 'Rest is productive too.':'Rest is productive too. NO CAP.',
+ 'Good looks all night. Street +5.':'Good looks all night. Street +5. CERTIFIED.',
+ 'Moved product all day. +$90.':'Moved product all day. +$90. MULTIPLE STREAMS.',
+ 'Real ones only. Street +2.':'Real ones only. Street +2. NO CAP.',
+ 'Free game. Books +2, Hustle +1.':'FREE game. Books +2, Hustle +1. CERTIFIED.',
+ 'Quick $40. Respect earned.':'Quick $40. Respect earned. NO CAP.',
+ 'Legendary day. Street +3.':'LEGENDARY day. Street +3. ON GOD.',
+ 'Scattered, smothered, covered. Worth it.':'Scattered, smothered, covered. WORTH IT.',
+ 'The only right order.':'The only right order. NO CAP.',
+ 'Back running smooth.':'Back running smooth. CERTIFIED.',
+ 'Praying it holds...':'Praying it holds... ON GOD.',
+ 'Fresh screen, fresh start.':'Fresh screen, fresh start. CERTIFIED.',
+ 'People judging the cracked screen.':'People judging the cracked screen. It be like that.',
+ 'Fixed up.':'Fixed up. CERTIFIED.',
+ 'Caught up. Crisis dodged.':'CAUGHT UP. Crisis dodged. NO CAP.',
+ 'Clock ticking.':'Clock ticking. DON’T PLAY.',
+ 'Back solid.':'Back solid. CERTIFIED.',
+ 'Single again. Focus up.':'Single again. Focus up. NO CAP.',
+ 'Blessed. Another lap around the sun.':'BLESSED. Another lap around the sun. ON GOD.',
+ 'Lesson learned. Pay it now next time.':'Lesson learned. PAY IT NOW next time. NO CAP.',
+ 'One was bricked — ate the cost.':'One was BRICKED — ate the cost. It happens.'
+};
+function hoodRes(t){ return HOOD_RESULT_TEXT[t]||t; }
+
+const SAVE_KEY='atl-life-v2';
+const OLD_SAVE_KEY='atownLifeSave';
+let S=null, lastDay=1, shopTab='crib', selVibe='hustler';
+let scriptedQueue=[];
+
+/* ---------- audio (all synthesized) ---------- */
+let AC=null;
+function ac(){ if(!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } return AC; }
+function tone(f,d,type,vol,when){
+  if (LIFE_MUTED) return;
+  const a=ac(); if(!a) return;
+  const o=a.createOscillator(), g=a.createGain();
+  o.type=type||'sine'; o.frequency.value=f;
+  const t=a.currentTime+(when||0);
+  g.gain.setValueAtTime(vol||0.12,t); g.gain.exponentialRampToValueAtTime(0.0001,t+d);
+  o.connect(g); g.connect(a.destination); o.start(t); o.stop(t+d+0.02);
+}
+const sfx={
+  click(){ tone(520,0.07,'square',0.05); },
+  cash(){ tone(880,0.12,'sine',0.12); tone(1320,0.18,'sine',0.12,0.09); thump808(); },
+  sleep(){ [392,440,494,587].forEach((f,i)=>tone(f,0.3,'sine',0.08,i*0.16)); },
+  event(){ tone(196,0.25,'sawtooth',0.08); tone(147,0.35,'sawtooth',0.08,0.12); },
+  fanfare(){ [523,659,784,1047].forEach((f,i)=>tone(f,0.25,'triangle',0.12,i*0.11)); thump808(); },
+  bad(){ tone(160,0.3,'sawtooth',0.1); }
+};
+function buzz(ms){ try{ if(navigator.vibrate) navigator.vibrate(ms||40); }catch(e){} }
+/* 808-style low thump, layered under payday + milestone stingers */
+function thump808(){ tone(58,0.45,'sine',0.28); tone(43,0.6,'sine',0.22,0.03); tone(120,0.1,'triangle',0.08,0.01); }
+
+/* ---------- helpers ---------- */
+function fmtMoney(n){ return '$'+Math.round(n).toLocaleString('en-US'); }
+function fmtHour(h){ const ap=h<12?'AM':'PM'; const hh=h%12===0?12:h%12; return hh+' '+ap; }
+function el(id){ return document.getElementById(id); }
+function toast(msg, cls){
+  const t=document.createElement('div'); t.className='toast '+(cls||''); t.textContent=msg;
+  el('toasts').appendChild(t); setTimeout(()=>t.remove(), 2600);
+}
+function confetti(n){
+  const layer=el('confetti-layer');
+  const colors=['#f5b301','#e63946','#ffffff','#7CFC00','#7b2ff7'];
+  for(let i=0;i<(n||30);i++){
+    const d=document.createElement('div'); d.className='cf';
+    d.style.left=Math.random()*100+'vw';
+    d.style.background=colors[i%colors.length];
+    d.style.animationDuration=(1.6+Math.random()*1.6)+'s';
+    layer.appendChild(d); setTimeout(()=>d.remove(), 3400);
+  }
+}
+function cashFly(txt){
+  const d=document.createElement('div'); d.className='cashfly'; d.textContent=txt;
+  d.style.left='30%'; d.style.top='70px';
+  document.body.appendChild(d); setTimeout(()=>d.remove(), 1200);
+}
+function showDayOverlay(){
+  el('day-num').textContent='DAY '+S.day+' 🌃';
+  el('day-wd').textContent=weekday(S).toUpperCase();
+  el('day-overlay').classList.remove('hidden');
+  setTimeout(()=>el('day-overlay').classList.add('hidden'), 1400);
+}
+
+/* ---------- render ---------- */
+function render(){
+  if(!S) return;
+  el('cash-val').textContent=fmtMoney(S.cash);
+  el('networth-val').textContent=fmtMoney(netWorth(S));
+  el('day-chip').textContent='Day '+S.day+' · '+weekday(S)+' · AGE '+S.age+' · '+fmtHour(S.hour)+(S.hour>=20||S.hour<6?' 🌙':' 🌞');
+  const nm={hunger:'hunger',energy:'energy',fun:'fun',social:'social',health:'health'};
+  for(const k of Object.keys(nm)){
+    const v=Math.round(S.needs[k]), bar=el('bar-'+nm[k]);
+    bar.style.width=v+'%'; bar.classList.toggle('low', v<25);
+    el('val-'+nm[k]).textContent=v;
+  }
+  el('struggle-banner').classList.toggle('hidden', !S.struggling);
+  el('char-name').textContent=S.name;
+  el('char-vibe').textContent=VIBES[S.vibe].icon+' '+hood(VIBES[S.vibe].label);
+  el('char-rep').textContent='🔥 '+(S.street||0)+' street';
+  el('char-legit').textContent='🎖️ '+(S.legit||0)+' legit';
+  el('char-age').textContent='🎂 '+S.age;
+  el('char-job').textContent=hood(JOBS[S.job].name)+' ('+fmtMoney(workPayPreview())+'/SHIFT)';
+  el('char-crib').textContent=hood(CRIBS[S.crib].name);
+  el('char-rent').textContent=S.cribOwned ? '(OWNED — NO CAP)' : '(RENT '+fmtMoney(CRIBS[S.crib].rent)+'/WK + '+fmtMoney(UTIL_PRICE+PHONE_PRICE)+' BILLS · DUE DAY '+S.rentDueDay+')';
+  el('char-whip').textContent=S.whip>=0 ? hood(WHIPS[S.whip].name)+(S.financed?' (FINANCED)':'') : 'NO WHIP YET';
+  el('char-transport').textContent=S.whip>=0 ? '🚗 OWN WHIP — MOVING FAST' : (S.pass ? '🚌 MARTA PASS — ACTIVE' : '🚶 ON FOOT — SLOWING YOU DOWN');
+  const schNames=['NO SCHOOL','GED','COMMUNITY COLLEGE','TRADE CERT'];
+  el('char-school').textContent=hood(schNames[S.school]||'NO SCHOOL');
+  el('char-partner').textContent=S.partner ? '💕 '+S.partner.name+' ('+S.partner.weeks+'w)' : 'SINGLE — FOCUS MODE';
+  el('sk-hustle').textContent=S.skills.hustle;
+  el('sk-music').textContent=S.skills.music;
+  el('sk-books').textContent=S.skills.books;
+  // promote button
+  const pi=promotionInfo(S), pb=el('btn-promote');
+  if (pi.ok){ pb.disabled=false; pb.innerHTML='⬆️ PROMOTE: '+hood(pi.next)+' <small>'+fmtMoney(pi.pay)+'/SHIFT — TAP TO APPLY</small>'; }
+  else { pb.disabled=true; pb.innerHTML='⬆️ PROMOTION <small>'+hood(pi.reason)+'</small>'; }
+  renderActions();
+  if(!el('modal-shop').classList.contains('hidden')) renderShop();
+  if(!el('modal-goals').classList.contains('hidden')) renderGoals();
+  if(!el('modal-hustle').classList.contains('hidden')) renderHustle();
+  if(!el('modal-flip').classList.contains('hidden')) renderFlip();
+  if(!el('modal-school').classList.contains('hidden')) renderSchool();
+}
+function workPayPreview(){
+  let p=JOBS[S.job].pay;
+  if(S.vibe==='scholar') p=Math.round(p*1.15);
+  if(S.needs.energy<30) p=Math.round(p*0.75);
+  if(transportMode(S)==='none') p=Math.round(p*0.85);
+  return p;
+}
+function gigPayPreview(){
+  let p=Math.round(40*whipMult(S));
+  if(S.vibe==='hustler') p=Math.round(p*1.1);
+  if(transportMode(S)==='none') p=Math.round(p*0.85);
+  return p;
+}
+function renderActions(){
+  const monday=weekday(S)==='Monday';
+  const acts=[
+    { icon:'💼', name:'CLOCK IN',   det:'8h · +'+fmtMoney(workPayPreview()), fn:()=>doAct(doWork,'work'),   dis:S.struggling },
+    { icon:'🚗', name:'HIT THE 285', det:'3h · +'+fmtMoney(gigPayPreview()), fn:()=>doAct(doGig,'gig'),       dis:S.struggling },
+    { icon:'🧽', name:'SIDE HUSTLE', det:'MULTIPLE STREAMS',                fn:openHustle,                    dis:S.struggling },
+    { icon:'📦', name:'FLIP MARKET', det:'BUY LOW · SELL HIGH',              fn:openFlip,                      dis:false },
+    { icon:'🍔', name:'EAT GOOD',           det:'1h · from $8',                    fn:openEat,                        dis:false },
+    { icon:'😴', name:'KNOCK OUT',         det:'→ 7 AM',                          fn:()=>doAct(sleep,'sleep'),        dis:false },
+    { icon:'🏋️', name:'TRAIN',              det:'1h · $5 · +HEALTH',              fn:()=>doAct(gym,'gym'),            dis:false },
+    { icon:'🎓', name:'SCHOOL',             det:'GET EDUCATED',                    fn:openSchool,                     dis:false },
+    { icon:'🧹', name:'DAY LABOR',          det:'6h · +$80 — ALWAYS THERE',       fn:()=>doAct(dayLabor,'labor'),     dis:false },
+    { icon:'💕', name:'DATE NIGHT',         det:'3h · $20 · LINK UP',             fn:()=>doAct(dateNight,'date'),     dis:false },
+    { icon:'🎉', name:monday?'MAGIC CITY MONDAY':'LINK UP — NO CAP', det:'4h · $'+(monday?40:25), fn:()=>doAct(party,'party'), dis:false },
+    { icon:'🎙️', name:'STUDIO SESSION 🎙️', det:'4h · $20',                      fn:()=>doAct(studio,'studio'),      dis:false }
+  ];
+  const g=el('actions-grid'); g.innerHTML='';
+  acts.forEach(a=>{
+    const b=document.createElement('button');
+    b.className='act'+(a.dis?' disabled':'');
+    b.innerHTML='<div class="ai">'+a.icon+'</div><div class="an">'+a.name+'</div><div class="ad">'+a.det+'</div>';
+    b.onclick=()=>{ if(a.dis){ toast('STRUGGLING — GET EVERY NEED ABOVE 20','bad'); return; } sfx.click(); a.fn(); };
+    g.appendChild(b);
+  });
+}
+
+/* ---------- action pipeline ---------- */
+function handleResult(r, beforeDay){
+  (r.milestones||[]).forEach(m=>{ toast('🎯 '+hood(m.name)+'  +'+fmtMoney(m.bonus)+' — CERTIFIED','good'); confetti(45); sfx.fanfare(); buzz(70); });
+  (r.events||[]).forEach(e=>{
+    if(e.type==='rentPaid') toast('🏠 BILLS PAID '+fmtMoney(e.amount)+' — HANDLED. NO CAP');
+    else if(e.type==='rentMissed'){ toast('🏠 RENT MISSED — LATE FEE STACKED. PAY UP.','bad'); sfx.bad(); buzz(120); }
+    else if(e.type==='evicted'){ toast('🏠 EVICTED — BACK TO THE BLUFF. BOUNCE BACK.','bad'); sfx.bad(); buzz(150); confetti(0); }
+    else if(e.type==='repo'){ toast('🚗 WHIP REPO’D — MISSED THE NOTE. REBUILD.','bad'); sfx.bad(); }
+    else if(e.type==='notelate'){ toast('🚗 MISSED CAR NOTE — LATE FEE. DON’T LOSE THE WHIP.','bad'); }
+    else if(e.type==='whiplate'){ toast('🚗 WHIP BILLS UNPAID — LATE FEE STACKED.','bad'); }
+    else if(e.type==='passlapse'){ toast('🚌 MARTA PASS LAPSED — ON FOOT TILL YOU RENEW.','bad'); }
+    else if(e.type==='bdaybonus'){ toast('🎂 BIG '+e.age+' — +$250 BIRTHDAY BLESSING','good'); confetti(35); sfx.fanfare(); }
+    else if(e.type==='scripted'){ scriptedQueue.push(e); }
+  });
+  if(r.pay){ cashFly('+'+fmtMoney(r.pay)); sfx.cash(); }
+  if(r.note){ toast(r.note,'bad'); }
+  if(r.buzz){ toast('🔥 BUZZ! STREET +5 — THEY HEARING YOU','good'); confetti(25); }
+  if(r.monday) toast('🌃 MAGIC CITY MONDAY — BIGGER VIBES. NO CAP');
+  if(S.day>beforeDay) showDayOverlay();
+  pumpScripted();
+}
+function doAct(fn, kind, noEvent){
+  const beforeDay=S.day;
+  const r=fn(S);
+  if(!r || r.ok===false){ toast((r&&hood(r.reason))||"CAN'T DO THAT RIGHT NOW",'bad'); sfx.bad(); return; }
+  if(kind==='sleep') sfx.sleep();
+  handleResult(r, beforeDay);
+  save(); render();
+  if(!noEvent) maybeEvent();
+}
+function maybeEvent(){
+  if(Math.random()<0.3){
+    const e=drawEvent(S);
+    if(e) showEventModal(e);
+  }
+}
+function pumpScripted(){
+  if(!scriptedQueue.length) return;
+  if(!el('modal-event').classList.contains('hidden')) return;
+  openScripted(scriptedQueue.shift());
+}
+function riskKindName(k){ return k==='car'?'WHIP':'PHONE'; }
+function openScripted(ev){
+  const base=EVENTS.find(x=>x.id===ev.id);
+  if(!base){ pumpScripted(); return; }
+  const e={ id:base.id, title:base.title, text:base.text, choices:base.choices };
+  if(ev.id==='birthday' && ev.extra){
+    const x=ev.extra;
+    e.text='You turned '+x.age+'. Uncle Sam wants his cut: '+fmtMoney(x.tax)+' owed'+
+      (x.paid<x.tax ? ' — you paid '+fmtMoney(x.paid)+', the rest rides on a payment plan (10% of earnings).' : ' — PAID IN FULL. NO CAP.');
+  }
+  if(ev.id==='riskdue' && ev.extra){
+    e.text='That '+riskKindName(ev.extra.kind)+' problem blew up: '+fmtMoney(ev.extra.amount)+' GONE.';
+  }
+  showEventModal(e);
+}
+
+/* ---------- event modal ---------- */
+function showEventModal(e){
+  el('event-title').textContent=(HOOD_EVENT[e.id]&&HOOD_EVENT[e.id].title)||e.title;
+  el('event-text').textContent=(HOOD_EVENT[e.id]&&HOOD_EVENT[e.id].text)||e.text;
+  const box=el('event-choices'); box.innerHTML='';
+  e.choices.forEach((c,i)=>{
+    const b=document.createElement('button');
+    b.className='choice-btn'; b.textContent=((HOOD_EVENT[e.id]&&HOOD_EVENT[e.id].choices[i])||c.label);
+    b.onclick=()=>{
+      el('modal-event').classList.add('hidden');
+      sfx.click();
+      const beforeDay=S.day;
+      const r=applyEvent(S, e.id, i);
+      if(r.text) toast(hoodRes(r.text)||'');
+      handleResult(r, beforeDay);
+      save(); render();
+      pumpScripted();
+    };
+    box.appendChild(b);
+  });
+  el('modal-event').classList.remove('hidden');
+  sfx.event(); buzz(50);
+}
+
+/* ---------- eat modal ---------- */
+function openEat(){
+  const box=el('eat-choices'); box.innerHTML='';
+  EAT_TIERS.forEach((t,i)=>{
+    const b=document.createElement('button');
+    b.className='choice-btn';
+    b.textContent=t.icon+' '+hood(t.name)+' — $'+t.cost+' (+'+t.hunger+' 🍔'+(t.fun?', +'+t.fun+' 🎉':'')+')';
+    b.onclick=()=>{
+      el('modal-eat').classList.add('hidden');
+      doAct(s=>eat(s,i),'eat');
+    };
+    box.appendChild(b);
+  });
+  el('modal-eat').classList.remove('hidden');
+}
+
+/* ---------- hustle modal ---------- */
+function openHustle(){
+  el('modal-hustle').classList.remove('hidden');
+  renderHustle();
+}
+function renderHustle(){
+  const box=el('hustle-list'); box.innerHTML='';
+  HUSTLES.forEach(h=>{
+    const d=document.createElement('div'); d.className='shop-item';
+    const cdLeft=(S.cd[h.id]||0)-S.day;
+    let reqTxt='';
+    if(h.req){ const c=h.req(S); if(!c.ok) reqTxt='<div class="cd-tag">🔒 '+hood(c.reason)+'</div>'; }
+    const det=h.hours+'h · COST $'+h.cost+' · PAY $'+h.pay+' · +'+h.energy+'⚡ DRAIN'+(cdLeft>0?' · <span class="cd-tag">COOLDOWN '+cdLeft+'d</span>':'');
+    d.innerHTML='<div class="sn">'+h.icon+' '+hood(h.name)+'</div><div class="sd">'+det+'</div>'+reqTxt;
+    if(cdLeft<=0 && !reqTxt){
+      const btn=document.createElement('button');
+      btn.className='choice-btn'; btn.textContent='RUN IT — '+hood(h.name);
+      btn.onclick=()=>{ el('modal-hustle').classList.add('hidden'); doAct(s=>doHustle(s,h.id),'hustle'); };
+      d.appendChild(btn);
+    }
+    box.appendChild(d);
+  });
+}
+
+/* ---------- flip market modal ---------- */
+function openFlip(){
+  el('modal-flip').classList.remove('hidden');
+  renderFlip();
+}
+function renderFlip(){
+  el('flip-demand').innerHTML='DEMAND: <b style="color:#f5b301">'+Math.round(S.demand*100)+'%</b> — <span class="hood-shout">BUY LOW, SELL HIGH. NO CAP.</span>';
+  const box=el('flip-list'); box.innerHTML='';
+  FLIP_PRODUCTS.forEach(p=>{
+    const d=document.createElement('div'); d.className='shop-item';
+    d.innerHTML='<div class="sn">'+p.icon+' '+hood(p.name)+'</div><div class="sd">'+fmtMoney(p.cost)+' FOR '+p.units+' UNITS · SELLS ~'+fmtMoney(Math.round(p.base*S.demand))+'/UNIT · YOU HOLD: <b>'+S.inv[p.id]+'</b></div>';
+    const btn=document.createElement('button');
+    btn.className='choice-btn'; btn.textContent='COP '+p.units+' UNITS — '+fmtMoney(p.cost);
+    btn.disabled=S.cash<p.cost;
+    btn.onclick=()=>{
+      const r=buyBulk(S,p.id);
+      if(!r.ok){ toast(hood(r.reason),'bad'); sfx.bad(); return; }
+      sfx.cash(); toast('📦 COPPED '+p.units+' UNITS — CERTIFIED','good');
+      save(); render();
+    };
+    d.appendChild(btn); box.appendChild(d);
+  });
+  const total=S.inv.tees+S.inv.cases+S.inv.kits;
+  const sd=document.createElement('div'); sd.className='shop-item';
+  sd.innerHTML='<div class="sn">🏪 SELL AT THE FLEA</div><div class="sd">3H · MOVES UP TO 5 UNITS AT CURRENT DEMAND · HOLDING: <b>'+total+'</b></div>';
+  const sb=document.createElement('button');
+  sb.className='choice-btn'; sb.textContent='SELL — RUN IT UP';
+  sb.disabled=total<=0;
+  sb.onclick=()=>{ el('modal-flip').classList.add('hidden'); doAct(sellBulk,'flip'); };
+  sd.appendChild(sb); box.appendChild(sd);
+}
+
+/* ---------- school modal ---------- */
+function openSchool(){
+  el('modal-school').classList.remove('hidden');
+  renderSchool();
+}
+function renderSchool(){
+  const box=el('school-list'); box.innerHTML='';
+  SCHOOL.forEach((sc,i)=>{
+    const d=document.createElement('div'); d.className='shop-item';
+    const done=i<S.school, next=i===S.school;
+    let status='';
+    if(done) status='<div class="owned">✓ COMPLETED — CERTIFIED</div>';
+    else if(!next) status='<div class="muted">Finish earlier school first.</div>';
+    d.innerHTML='<div class="sn">🎓 '+hood(sc.name)+'</div><div class="sd">'+fmtMoney(sc.cost)+' · '+sc.hours+'H · +'+sc.books+' 📚 BOOKS'+(sc.hustle?' · +'+sc.hustle+' 💪 HUSTLE':'')+' · +4 🎖️ LEGIT REP</div>'+status;
+    if(next){
+      const c=sc.req(S);
+      const btn=document.createElement('button');
+      btn.className='choice-btn'; btn.textContent=c.ok ? 'ENROLL — '+fmtMoney(sc.cost) : '🔒 '+hood(c.reason);
+      btn.disabled=!c.ok||S.cash<sc.cost;
+      btn.onclick=()=>{
+        const r=enroll(S,i);
+        if(!r.ok){ toast(hood(r.reason),'bad'); sfx.bad(); return; }
+        sfx.fanfare(); confetti(40); toast('🎓 ENROLLED: '+hood(sc.name)+' — BIG BRAIN ENERGY','good');
+        save(); render();
+      };
+      d.appendChild(btn);
+    }
+    box.appendChild(d);
+  });
+}
+
+/* ---------- shop ---------- */
+function renderShop(){
+  el('tab-crib').classList.toggle('sel', shopTab==='crib');
+  el('tab-whip').classList.toggle('sel', shopTab==='whip');
+  const list=el('shop-list'); list.innerHTML='';
+  if(shopTab==='crib'){
+    CRIBS.forEach((c,i)=>{
+      const d=document.createElement('div'); d.className='shop-item';
+      const comfortPct=Math.round((2-c.comfort)*100);
+      let inner='<div class="sn">🏠 '+hood(c.name)+'</div><div class="sd">NEEDS DRAIN '+comfortPct+'% SLOWER'+(c.rent?' · RENT '+fmtMoney(c.rent)+'/WK':'')+(c.buyable?' · BUY '+fmtMoney(c.price):'')+(c.street?' · MORE STREET EVENTS':'')+(c.legitBonus?' · +'+c.legitBonus+' 🎖️ LEGIT ON MOVE-IN':'')+'</div>';
+      if(i===S.crib) inner+='<div class="owned">✓ YOUR CRIB — CERTIFIED</div>';
+      else if(i>S.crib){
+        inner+='<div class="buyrow">';
+        inner+='<button data-crib="'+i+'" data-mode="rent">RENT — '+fmtMoney(c.rent)+' NOW</button>';
+        if(c.buyable) inner+='<button data-crib="'+i+'" data-mode="buy">BUY — '+fmtMoney(c.price)+'</button>';
+        inner+='</div>';
+      } else inner+='<div class="muted">Leveled up past this. NO CAP.</div>';
+      d.innerHTML=inner; list.appendChild(d);
+    });
+    list.querySelectorAll('[data-crib]').forEach(b=>{
+      b.onclick=()=>{
+        const r=buyCrib(S, +b.dataset.crib, b.dataset.mode);
+        if(!r.ok){ toast(hood(r.reason),'bad'); sfx.bad(); return; }
+        sfx.cash(); confetti(30); toast('🏠 MOVED UP: '+hood(CRIBS[S.crib].name)+' — CERTIFIED','good');
+        (r.milestones||[]).forEach(m=>{ toast('🎯 '+hood(m.name)+'  +'+fmtMoney(m.bonus)+' — CERTIFIED','good'); sfx.fanfare(); });
+        save(); render();
+      };
+    });
+  } else {
+    /* MARTA pass card */
+    const pd=document.createElement('div'); pd.className='shop-item';
+    pd.innerHTML='<div class="sn">🚌 MARTA PASS — STILL MOVING</div><div class="sd">'+fmtMoney(PASS_PRICE)+'/WK AUTO-RENEW · NO MORE WALKING PENALTY · SMALL ⚡ COST ON SHIFTS</div>'+
+      (S.pass?'<div class="owned">✓ ACTIVE — RENEWED WEEKLY</div>':'<div class="buyrow"><button id="btn-buypass">COP PASS — '+fmtMoney(PASS_PRICE)+'</button></div>');
+    list.appendChild(pd);
+    const bp=el('btn-buypass');
+    if(bp) bp.onclick=()=>{
+      const r=buyPass(S);
+      if(!r.ok){ toast(hood(r.reason),'bad'); sfx.bad(); return; }
+      sfx.cash(); toast('🚌 MARTA PASS ACTIVE — MOVING SMART','good');
+      save(); render();
+    };
+    WHIPS.forEach((w,i)=>{
+      const d=document.createElement('div'); d.className='shop-item';
+      const weekly=w.gas+w.ins;
+      let inner='<div class="sn">🚗 '+hood(w.name)+'</div><div class="sd">'+fmtMoney(w.price)+' CASH · OR '+fmtMoney(w.down)+' DOWN + '+fmtMoney(w.note)+'/WK NOTE · UPKEEP '+fmtMoney(weekly)+'/WK · GIGS PAY '+Math.round((w.gigMult-1)*100)+'% MORE</div>';
+      if(i===S.whip && !S.financed) inner+='<div class="owned">✓ YOURS — PAID OFF. CERTIFIED</div>';
+      else if(i===S.whip && S.financed) inner+='<div class="owned">✓ YOURS — FINANCED ('+fmtMoney(w.note)+'/WK NOTE)</div>';
+      else {
+        inner+='<div class="buyrow"><button data-whip="'+i+'" data-wmode="cash">BUY CASH — '+fmtMoney(w.price)+'</button><button data-whip="'+i+'" data-wmode="finance">FINANCE — '+fmtMoney(w.down)+' DOWN</button></div>';
+      }
+      d.innerHTML=inner; list.appendChild(d);
+    });
+    list.querySelectorAll('[data-whip]').forEach(b=>{
+      b.onclick=()=>{
+        const r=buyWhip(S, +b.dataset.whip, b.dataset.wmode);
+        if(!r.ok){ toast(hood(r.reason),'bad'); sfx.bad(); return; }
+        sfx.cash(); confetti(30); toast('🚗 WHIPPED: '+hood(WHIPS[S.whip].name)+(S.financed?' — FINANCED':' — PAID OFF')+' — ON GOD','good');
+        (r.milestones||[]).forEach(m=>{ toast('🎯 '+hood(m.name)+'  +'+fmtMoney(m.bonus)+' — CERTIFIED','good'); sfx.fanfare(); });
+        save(); render();
+      };
+    });
+  }
+}
+
+/* ---------- goals ---------- */
+function renderGoals(){
+  const list=el('goals-list'); list.innerHTML='';
+  MILESTONES.forEach(m=>{
+    const done=!!S.milestones[m.id];
+    const d=document.createElement('div');
+    d.className='goal-row'+(done?' done':'');
+    d.innerHTML='<span class="gchk">'+(done?'✅':'○')+'</span><span>'+hood(m.name)+'</span><span class="gbonus">+'+fmtMoney(m.bonus)+'</span>';
+    list.appendChild(d);
+  });
+  const d=document.createElement('div'); d.className='muted'; d.style.marginTop='12px';
+  d.textContent='SHIFTS '+S.stats.shifts+' · GIGS '+S.stats.gigs+' · HUSTLES '+S.stats.hustles+' · SALES '+S.stats.sales+' · AGE '+S.age+' · TAX DEBT '+fmtMoney(S.taxDebt);
+  list.appendChild(d);
+}
+
+/* ---------- save / menu ---------- */
+function save(){ try{ localStorage.setItem(SAVE_KEY, serialize(S)); }catch(e){} }
+function loadSave(){
+  try{
+    const v2=localStorage.getItem(SAVE_KEY);
+    if(v2){ const s=deserialize(v2); if(s) return { s:s, migrated:false }; }
+    const v1=localStorage.getItem(OLD_SAVE_KEY);
+    if(v1){ const s=deserialize(v1); if(s) return { s:s, migrated:true }; }
+  }catch(e){}
+  return null;
+}
+function startGame(migrated){
+  el('screen-menu').classList.add('hidden');
+  el('screen-game').classList.remove('hidden');
+  el('bottomnav').classList.remove('hidden');
+  lastDay=S.day; render();
+  if(migrated) setTimeout(()=>toast('💾 SAVE UPGRADED TO V2 — NEW SYSTEMS ONLINE','good'), 800);
+}
+function refreshMenu(){
+  const sv=loadSave();
+  el('btn-continue').classList.toggle('hidden', !sv);
+  if(sv) el('cont-day').textContent='Day '+sv.s.day+' · '+sv.s.name;
+}
+
+/* ---------- wire up ---------- */
+document.querySelectorAll('[data-close]').forEach(b=>{
+  b.onclick=()=>{ sfx.click(); el(b.dataset.close).classList.add('hidden'); };
+});
+el('tab-crib').onclick=()=>{ shopTab='crib'; sfx.click(); renderShop(); };
+el('tab-whip').onclick=()=>{ shopTab='whip'; sfx.click(); renderShop(); };
+el('nav-actions').onclick=()=>{ sfx.click(); window.scrollTo({top:0,behavior:'smooth'}); };
+el('nav-shop').onclick=()=>{ sfx.click(); el('modal-shop').classList.remove('hidden'); renderShop(); };
+el('nav-goals').onclick=()=>{ sfx.click(); el('modal-goals').classList.remove('hidden'); renderGoals(); };
+el('btn-promote').onclick=()=>{
+  const r=promote(S);
+  if(!r.ok){ toast(hood(r.reason),'bad'); sfx.bad(); return; }
+  sfx.fanfare(); confetti(50); buzz(70);
+  toast('⬆️ PROMOTED: '+hood(r.job)+' — BIG MOVE','good');
+  (r.milestones||[]).forEach(m=>{ toast('🎯 '+hood(m.name)+'  +'+fmtMoney(m.bonus)+' — CERTIFIED','good'); });
+  save(); render();
+};
+el('btn-newlife').onclick=()=>{
+  if(confirm('START A BRAND NEW LIFE? YOUR CURRENT SAVE GETS WIPED. NO CAP.')){
+    try{ localStorage.removeItem(SAVE_KEY); }catch(e){}
+    location.reload();
+  }
+};
+el('btn-continue').onclick=()=>{ const sv=loadSave(); if(sv){ S=sv.s; sfx.click(); startGame(sv.migrated); } };
+el('btn-start').onclick=()=>{
+  const name=el('name-input').value.trim()||'Player';
+  const doStart=()=>{ S=createLife(name, selVibe); save(); sfx.fanfare(); confetti(40); startGame(false); showDayOverlay(); };
+  if(loadSave() && !confirm('THIS WIPES YOUR SAVED LIFE. START FRESH? BET.')) return;
+  sfx.click(); doStart();
+};
+/* how-to toggle + mute */
+let LIFE_MUTED=false;
+try{ LIFE_MUTED=localStorage.getItem('aTownLifeMuted')==='1'; }catch(e){}
+function syncLifeMute(){ const b=el('btn-mute-life'); if(b) b.textContent=LIFE_MUTED?'🔇':'🔊'; }
+el('btn-how-life').onclick=()=>{ sfx.click(); el('how-life').classList.toggle('hidden'); };
+el('btn-mute-life').onclick=()=>{
+  LIFE_MUTED=!LIFE_MUTED;
+  try{ localStorage.setItem('aTownLifeMuted', LIFE_MUTED?'1':'0'); }catch(e){}
+  syncLifeMute(); if(!LIFE_MUTED) sfx.click();
+};
+syncLifeMute();
+/* vibe picker */
+(function(){
+  const vc=el('vibe-cards');
+  Object.keys(VIBES).forEach(k=>{
+    const v=VIBES[k];
+    const d=document.createElement('div');
+    d.className='vibe-card'+(k===selVibe?' sel':'');
+    d.innerHTML='<div class="vi">'+v.icon+'</div><div class="vn">'+hood(v.label)+'</div><div class="vd">'+hood(v.desc)+'</div>';
+    d.onclick=()=>{ selVibe=k; sfx.click(); vc.querySelectorAll('.vibe-card').forEach(x=>x.classList.remove('sel')); d.classList.add('sel'); };
+    vc.appendChild(d);
+  });
+})();
+refreshMenu();
+</script>
+</body>
+</html>

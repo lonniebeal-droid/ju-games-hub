@@ -1,0 +1,19 @@
+{
+  "background_color": "#0a0a0c",
+  "description": "Life sim set in Atlanta. Grind careers from Varsity busser to label owner, upgrade cribs and whips, chase ATL LEGEND.",
+  "display": "standalone",
+  "icons": [
+    {
+      "purpose": "any",
+      "sizes": "any",
+      "src": "icons/a-town-life.svg",
+      "type": "image/svg+xml"
+    }
+  ],
+  "name": "A-Town Life \u2014 JU Games",
+  "orientation": "portrait",
+  "scope": "./",
+  "short_name": "A-Town Life",
+  "start_url": "a-town-life.html",
+  "theme_color": "#0a0a0c"
+}

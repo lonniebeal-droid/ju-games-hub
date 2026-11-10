@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>ATL: THE A - Phase B Businesses + Economy + Hustles</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{overscroll-behavior:none;overflow:hidden;position:fixed;width:100%;height:100%;touch-action:none;background:#07070b;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;user-select:none;-webkit-user-select:none}
+#gameWrap{position:relative;width:100vw;height:100vh;overflow:hidden;background:#0a1020}
+canvas{display:block}
+#gameCanvas{position:absolute;left:0;top:0;width:100%;height:100%;touch-action:none}
+#miniMap{position:absolute;top:calc(12px + env(safe-area-inset-top));left:calc(12px + env(safe-area-inset-left));width:112px;height:112px;border-radius:50%;border:2px solid rgba(255,255,255,0.15);background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);z-index:10}
+.hud{position:absolute;z-index:11;pointer-events:none}
+.hudTopCenter{top:calc(48px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px}
+.hudTopRight{top:calc(12px + env(safe-area-inset-top));right:calc(12px + env(safe-area-inset-right));display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.hudTopLeftBottom{top:calc(136px + env(safe-area-inset-top));left:calc(12px + env(safe-area-inset-left));}
+.badge{background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.1);border-radius:999px;padding:6px 12px;color:#fff;font-size:11px;font-weight:700}
+.cashBadge{background:rgba(0,0,0,0.85);font-size:14px;padding:8px 14px;border:2px solid rgba(250,204,21,0.3)}
+.directionArrow{width:44px;height:44px;border-radius:50%;background:#FFD60A;border:3px solid #000;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 12px rgba(0,0,0,0.5)}
+.toast{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.85);border:1px solid rgba(255,255,255,0.15);border-radius:16px;padding:12px 20px;color:#fff;font-weight:800;font-size:14px;z-index:30;pointer-events:none;opacity:0;transition:opacity 0.2s}
+.toast.show{opacity:1}
+.transactionToast{position:absolute;left:50%;transform:translateX(-50%);padding:10px 18px;border-radius:999px;font-weight:900;font-size:14px;z-index:31;pointer-events:none;opacity:0;transition:all 0.3s}
+.transactionToast.show{opacity:1}
+.transactionToast.pos{background:#00FF88;color:#000;border:2px solid #000;box-shadow:0 6px 0 #000}
+.transactionToast.neg{background:#FF3B30;color:#fff;border:2px solid #000;box-shadow:0 6px 0 #000}
+#transContainer{position:absolute;top:calc(70px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:31;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+#joystickWrap{position:absolute;bottom:calc(20px + env(safe-area-inset-bottom));left:calc(20px + env(safe-area-inset-left));width:120px;height:120px;z-index:12;touch-action:none}
+#joystickBase{width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.08);border:3px solid rgba(255,255,255,0.15);position:relative;backdrop-filter:blur(8px)}
+#joystickStick{width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,0.9);border:3px solid #000;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);box-shadow:0 4px 12px rgba(0,0,0,0.4);transition:transform 0.15s}
+#joystickGrab{position:absolute;left:-30px;top:-30px;width:180px;height:180px;border-radius:50%;pointer-events:auto}
+#controlsRight{position:absolute;bottom:calc(20px + env(safe-area-inset-bottom));right:calc(20px + env(safe-area-inset-right));display:flex;flex-direction:column;gap:14px;align-items:flex-end;z-index:12}
+.btnAction{width:92px;height:92px;border-radius:16px;border:3px solid #000;box-shadow:0 6px 0 #000,0 12px 24px rgba(0,0,0,0.5);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-weight:900;touch-action:none;transition:transform 0.08s}
+.btnAction:active{transform:scale(0.92)}
+.btnJack{background:#FFD60A;color:#000}
+.btnHustle{background:#00FF88;color:#000}
+.btnExit{background:#FF3B30;color:#fff}
+.btnAuto{background:#007AFF;color:#fff}
+.btnInteract{background:#fff;color:#000;width:116px;height:62px;border-radius:32px;font-size:11px;box-shadow:0 4px 0 #000,0 8px 16px rgba(0,0,0,0.4)}
+#controlsTopLeft{position:absolute;top:calc(12px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:12;display:flex;gap:8px;pointer-events:auto}
+.viewBtn{background:rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:999px;padding:6px 14px;font-size:10px;font-weight:800;letter-spacing:0.5px;backdrop-filter:blur(8px)}
+#jobHUD{position:absolute;top:calc(88px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.15);border-radius:16px;padding:12px 16px;z-index:11;min-width:300px;max-width:92vw;display:none;pointer-events:auto}
+#jobHUD.show{display:block}
+#businessModal{position:absolute;inset:0;z-index:40;background:rgba(0,0,0,0.88);backdrop-filter:blur(16px);display:none;align-items:center;justify-content:center;padding:20px}
+#businessModal.show{display:flex}
+.modalBox{background:#111116;border:1px solid rgba(255,255,255,0.15);border-radius:20px;width:90%;max-width:380px;padding:20px;box-shadow:0 0 60px rgba(0,0,0,0.8);position:relative;max-height:85vh;overflow-y:auto}
+.modalTitle{font-weight:900;color:#fff;font-size:18px;letter-spacing:-0.5px}
+.modalActions{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.modalBtn{height:52px;border-radius:999px;border:2px solid #000;font-weight:900;font-size:12px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;box-shadow:0 4px 0 #000;transition:transform 0.08s;cursor:pointer;pointer-events:auto}
+.modalBtn:active{transform:scale(0.98)}
+.modalBtn.primary{background:#fff;color:#000}
+.modalBtn.yellow{background:#FFD60A;color:#000}
+.modalBtn.blue{background:#007AFF;color:#fff}
+.modalBtn.green{background:#00FF88;color:#000}
+.modalBtn.red{background:#FF3B30;color:#fff}
+.modalClose{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;cursor:pointer}
+#hustleBoard{position:absolute;inset:0;z-index:42;background:rgba(0,0,0,0.88);backdrop-filter:blur(16px);display:none;padding:20px;overflow-y:auto}
+#hustleBoard.show{display:block}
+.hustleItem{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:16px;padding:14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;cursor:pointer}
+#introScreen{position:absolute;inset:0;z-index:50;background:#07070b;display:flex;flex-direction:column;overflow-y:auto}
+.introHero{flex:1;min-height:380px;position:relative;overflow:hidden;background:linear-gradient(to bottom,#1a1030,#0f0a1e,#07070b)}
+.introTitle{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-top:40px}
+.titleATL{font-weight:900;font-size:56px;line-height:0.85;letter-spacing:-0.04em;text-align:center}
+.titleATL .white{color:#fff;text-shadow:0 0 24px rgba(255,255,255,0.3)}
+.titleATL .grad{background:linear-gradient(to right,#fef08a,#facc15,#f59e0b);-webkit-background-clip:text;background-clip:text;color:transparent}
+.easyToggleRow{display:flex;align-items:center;justify-content:space-between;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:16px;padding:12px 14px;margin:12px 0}
+.switch{width:60px;height:32px;border-radius:999px;border:2px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);position:relative;transition:all 0.2s;cursor:pointer}
+.switch.on{background:#22c55e;border-color:#4ade80;box-shadow:0 0 12px rgba(34,197,94,0.5)}
+.switchKnob{width:24px;height:24px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:all 0.2s;box-shadow:0 2px 6px rgba(0,0,0,0.3)}
+.switch.on .switchKnob{left:30px}
+.fitGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+.fitBtn{border-radius:18px;border:2px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);padding:12px;text-align:left;transition:all 0.15s;cursor:pointer}
+.fitBtn.sel{background:#fff;color:#000;border-color:#fff;box-shadow:0 0 24px rgba(255,255,255,0.25);transform:scale(1.02)}
+.playBtn{height:56px;border-radius:999px;background:#fff;color:#000;font-weight:900;letter-spacing:0.15em;font-size:15px;display:flex;align-items:center;justify-content:center;gap:12px;box-shadow:0 0 40px rgba(255,255,255,0.3);margin-top:16px;width:100%;cursor:pointer;border:none}
+.tutorialOverlay{position:absolute;inset:0;z-index:45;background:rgba(0,0,0,0.85);backdrop-filter:blur(16px);display:none;align-items:center;justify-content:center;padding:16px}
+.tutorialOverlay.show{display:flex}
+.tutBox{background:#111116;border:1px solid rgba(255,255,255,0.15);border-radius:20px;width:90%;max-width:360px;padding:24px;position:relative}
+</style>
+</head>
+<body>
+<div id="gameWrap">
+<canvas id="gameCanvas"></canvas>
+<canvas id="miniMap" width="112" height="112"></canvas>
+
+<div class="hud hudTopCenter">
+<div id="missionObjective" class="badge">WELCOME TO THE A</div>
+<div id="directionArrow" class="directionArrow">▲</div>
+<div id="distanceText" class="badge" style="font-size:10px">0m</div>
+<div id="autoDriveHint" class="badge" style="background:#007AFF;color:#fff;display:none">AUTO DRIVE AVAILABLE</div>
+<div id="autoDrivingBanner" class="badge" style="background:#fff;color:#000;display:none">AUTO DRIVING... TAP TO CANCEL</div>
+</div>
+
+<div id="controlsTopLeft"><button id="viewBtn" class="viewBtn">VIEW: CLOSE</button></div>
+
+<div class="hud hudTopRight">
+<div id="cashDisplay" class="badge cashBadge">$500</div>
+<div id="wantedDisplay" class="badge" style="font-size:12px">★☆☆☆☆</div>
+<button id="hustleBoardBtn" class="badge" style="pointer-events:auto;background:rgba(0,0,0,0.8);border:2px solid rgba(255,255,255,0.2);margin-top:6px;cursor:pointer">💼 HUSTLES</button>
+</div>
+
+<div class="hud hudTopLeftBottom">
+<div id="zoneDisplay" class="badge" style="font-size:9px;opacity:0.6">DOWNTOWN</div>
+<div id="entityCount" class="badge" style="font-size:9px;opacity:0.5;margin-top:4px">NPC:0 TRAFFIC:0/16 EV:0</div>
+<div id="zoomDisplay" class="badge" style="font-size:9px;opacity:0.6;margin-top:4px">ZOOM: CLOSE 1.65x</div>
+</div>
+
+<div id="jobHUD">
+<div id="jobHUDTitle" style="font-weight:900;color:#fff;font-size:13px;letter-spacing:0.5px">DELIVERY RUN</div>
+<div id="jobHUDObj" style="color:rgba(255,255,255,0.7);font-size:11px;margin-top:2px">Pick up package</div>
+<div style="display:flex;gap:12px;margin-top:6px;font-size:11px;font-weight:800"><span id="jobDist" style="color:#FFD60A">420 ft</span><span id="jobPayout" style="color:#00FF88">$180</span><span id="jobTimer" style="color:#fff"></span></div>
+<button id="cancelJobBtn" style="margin-top:10px;background:#FF3B30;color:#fff;border:2px solid #000;border-radius:999px;padding:8px 16px;font-weight:800;font-size:11px;cursor:pointer;width:100%">CANCEL JOB</button>
+</div>
+
+<div id="transContainer"></div>
+
+<div id="joystickWrap"><div id="joystickBase"><div id="joystickGrab"></div><div id="joystickStick"></div></div></div>
+
+<div id="controlsRight">
+<button id="interactBtn" class="btnAction btnInteract" style="display:none">INTERACT</button>
+<button id="jackBtn" class="btnAction btnJack"><span style="font-size:22px">🚗</span><span style="font-size:13px">JACK</span><span id="jackDistLabel" style="font-size:8px;opacity:0.6">80px</span></button>
+<button id="autoBtn" class="btnAction btnAuto" style="display:none"><span style="font-size:20px">🧭</span><span style="font-size:11px">AUTO</span><span style="font-size:8px">DRIVE</span></button>
+<button id="hustleBtn" class="btnAction btnHustle"><span style="font-size:22px">⚡</span><span style="font-size:13px">HUSTLE</span><span id="hustleSub" style="font-size:8px;opacity:0.7">TALK</span></button>
+<button id="exitBtn" class="btnAction btnExit" style="display:none"><span style="font-size:20px">🚪</span><span>EXIT</span></button>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<div id="businessModal">
+<div class="modalBox">
+<button class="modalClose" id="businessClose">✕</button>
+<div id="businessTitle" class="modalTitle">BUSINESS</div>
+<div id="businessDesc" style="color:rgba(255,255,255,0.5);font-size:11px;margin-top:4px">Description</div>
+<div id="businessActions" class="modalActions"></div>
+</div>
+</div>
+
+<div id="hustleBoard">
+<div style="max-width:420px;margin:0 auto;padding-top:20px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+<div style="font-weight:900;color:#fff;font-size:20px">💼 HUSTLE BOARD</div>
+<button id="hustleBoardClose" style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);color:#fff;cursor:pointer">✕</button>
+</div>
+<div id="hustleList"></div>
+<div style="margin-top:20px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:14px">
+<div style="color:#fff;font-weight:800;font-size:13px;margin-bottom:8px">WORLD EVENTS (max 2 active) - Near Player Only</div>
+<div id="eventList" style="color:rgba(255,255,255,0.6);font-size:11px">No events - drive around Atlanta to find opportunities</div>
+</div>
+<div style="margin-top:16px;background:rgba(250,204,21,0.1);border:1px solid rgba(250,204,21,0.2);border-radius:16px;padding:12px">
+<div style="color:#facc15;font-weight:800;font-size:11px">ECONOMY - Cash Matters</div>
+<div style="color:rgba(255,255,255,0.6);font-size:10px;margin-top:4px">Earn: Delivery $120-300, Rideshare $100-250, Studio $200-400, Car Wash $75-150, Race $300-700, MARTA $250-500<br>Spend: Fits $250-750, Paint $250-600, Wash $40, Snacks $20-25</div>
+</div>
+</div>
+</div>
+
+<div id="introScreen">
+<div class="introHero">
+<div class="introTitle">
+<div class="titleATL"><div class="white">ATL:</div><div class="grad">THE A</div></div>
+<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;padding:0 16px">
+<span style="font-size:9px;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6)">PHASE B</span>
+<span style="font-size:9px;padding:4px 10px;border-radius:999px;background:#facc15;color:#000;font-weight:800">CLOSE CAMERA 1.65x</span>
+<span style="font-size:9px;padding:4px 10px;border-radius:999px;background:rgba(34,197,94,0.2);color:#86efac">💼 HUSTLES</span>
+<span style="font-size:9px;padding:4px 10px;border-radius:999px;background:rgba(168,85,247,0.2);color:#d8b4fe">🏪 BUSINESSES</span>
+<span id="easyBadge" style="font-size:9px;padding:4px 10px;border-radius:999px;background:#22c55e;color:#000;font-weight:800">EASY MODE ON</span>
+</div>
+</div>
+</div>
+<div style="background:#0f0f14;border-top:1px solid rgba(255,255,255,0.1);padding:20px">
+<div style="max-width:720px;margin:0 auto">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+<div style="font-size:11px;letter-spacing:0.3em;color:rgba(255,255,255,0.4)">SELECT YOUR FIT</div>
+<div style="display:flex;align-items:center;gap:8px">
+<span id="easyLabel" style="font-size:10px;color:rgba(255,255,255,0.6);font-weight:700">EASY MODE: ON</span>
+<div id="easySwitch" class="switch on"><div class="switchKnob"></div></div>
+</div>
+</div>
+<div class="fitGrid" id="fitGrid"></div>
+<div style="border-radius:16px;border:1px solid rgba(250,204,21,0.3);background:rgba(250,204,21,0.1);padding:12px;display:flex;gap:12px;margin-bottom:16px">
+<div style="width:40px;height:40px;border-radius:50%;background:#facc15;color:#000;display:flex;align-items:center;justify-content:center;font-weight:900">💼</div>
+<div style="font-size:11px;line-height:1.35;color:rgba(255,255,255,0.7)"><span style="color:#fff;font-weight:700">PHASE B - BUSINESSES + ECONOMY + HUSTLES:</span> Close camera 1.65x 55px character preserved, businesses: Patchwerk, Cascade, Magic ATL, Clothing, Garage, Corner, Safehouse. 6 hustles: Delivery, Rideshare, Studio Runner, Car Wash, Street Race, MARTA Shift. Economy: addCash/spendCash, transaction toasts max 2, active job HUD, markers <800 units, world events max 2 (broken down, race challenge, VIP pickup, studio call). Traffic cap 16 total incl buses.
+<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+<span style="padding:3px 8px;border-radius:999px;background:rgba(255,255,255,0.1);font-size:9px">🏪 7 Businesses</span>
+<span style="padding:3px 8px;border-radius:999px;background:rgba(34,197,94,0.2);color:#86efac;font-size:9px">💼 6 Hustles</span>
+<span style="padding:3px 8px;border-radius:999px;background:rgba(250,204,21,0.2);color:#fde68a;font-size:9px">💰 Economy</span>
+<span style="padding:3px 8px;border-radius:999px;background:rgba(249,115,22,0.2);color:#fed7aa;font-size:9px">⚡ 4+ Events</span>
+</div>
+</div>
+</div>
+<button id="playBtn" class="playBtn">ENTER THE A →</button>
+<div style="text-align:center;font-size:9px;color:rgba(255,255,255,0.25);letter-spacing:0.2em;margin-top:12px">CLOSE CAMERA • 55PX CHARACTER • 7 BUSINESSES • 6 HUSTLES • ECONOMY • 16 TRAFFIC TOTAL</div>
+</div>
+</div>
+</div>
+
+<div id="tutorialOverlay" class="tutorialOverlay">
+<div class="tutBox">
+<button id="tutSkip" style="position:absolute;top:16px;right:16px;color:rgba(255,255,255,0.4);font-size:12px;font-weight:700;background:none;border:none;cursor:pointer">SKIP</button>
+<div style="font-size:10px;letter-spacing:0.2em;color:rgba(255,255,255,0.4);margin-bottom:12px">PHASE B TUTORIAL <span id="tutStepNum">1</span>/3</div>
+<div id="tutContent"></div>
+<button id="tutNext" style="margin-top:24px;width:100%;height:52px;border-radius:999px;background:#007AFF;color:#fff;font-weight:900;font-size:14px;border:none;cursor:pointer">NEXT →</button>
+<div style="margin-top:12px;display:flex;justify-content:center;gap:6px" id="tutDots"></div>
+</div>
+</div>
+
+</div>
+
+<script>
+// ================= CORE CONSTANTS - PHASE B =================
+const WORLD = 3000;
+const MAX_NPCS = 28;
+const MAX_TRAFFIC_TOTAL = 16; // FIX total including MARTA buses
+const MAX_BUS = 2;
+const NPC_ACTIVE_RADIUS = 900;
+const NPC_DESPAWN_RADIUS = 1300;
+const TRAFFIC_ACTIVE_RADIUS = 1000;
+const TRAFFIC_DESPAWN_RADIUS = 1450;
+
+let isEasyMode = localStorage.getItem('atl_easy_mode') !== 'false';
+let cash = parseInt(localStorage.getItem('atl_cash_b') || '500');
+let fit = parseInt(localStorage.getItem('atl_fit_b') || '2');
+let ownedFits = JSON.parse(localStorage.getItem('atl_owned_fits_b') || '[0]');
+if(!ownedFits.includes(0)) ownedFits.push(0);
+let ownedVehicles = JSON.parse(localStorage.getItem('atl_owned_vehicles_b') || '[0]');
+let carPaints = JSON.parse(localStorage.getItem('atl_car_paints_b') || '{}');
+let tutorialDone = localStorage.getItem('atl_tutorial_done') === 'true';
+let viewMode = localStorage.getItem('atl_view_mode') || 'CLOSE';
+
+const VIEW_ZOOMS = {
+  CLOSE: {onFoot:1.65, driving:1.35, fast:1.15, stopped:1.45, auto:1.35},
+  NORMAL: {onFoot:1.25, driving:1.1, fast:0.95, stopped:1.15, auto:1.1},
+  WIDE: {onFoot:0.95, driving:0.85, fast:0.75, stopped:0.9, auto:0.85},
+};
+
+const FITS = [
+  {id:0,name:'STREET',color:'#111',accent:'#ef4444',desc:'Hoodie + Red fitted',price:0},
+  {id:1,name:'DESIGNER',color:'#a855f7',accent:'#111',desc:'Purple drip',price:500},
+  {id:2,name:'HAWKS',color:'#C9082A',accent:'#FDBB30',desc:'Statement Edition',price:750,hawks:true},
+  {id:3,name:'TRAP TEE',color:'#22c55e',accent:'#111',desc:'Trap Museum',price:250},
+  {id:4,name:'LENOX DRIP',color:'#eab308',accent:'#000',desc:'Lenox luxury',price:400},
+  {id:5,name:'VARSITY',color:'#1e3a8a',accent:'#facc15',desc:'A-Town Varsity',price:600},
+];
+
+const PAINTS = [
+  {name:'ATL Original',color:'#1a1a1a',price:0},
+  {name:'Black',color:'#000',price:250},
+  {name:'White',color:'#f5f5f5',price:250},
+  {name:'Red',color:'#dc2626',price:300},
+  {name:'Gold',color:'#facc15',price:400},
+  {name:'ATL Blue',color:'#1e40af',price:350},
+];
+
+const CAR_TYPES = [
+  {name:'Charger',color:'#1a1a1a',speed:6.8,handling:0.095,accent:'#ff2a2a'},
+  {name:'Hellcat',color:'#dc2626',speed:8.5,handling:0.11,accent:'#facc15'},
+  {name:'Donk Impala',color:'#22c55e',speed:6.2,handling:0.085,accent:'#a3e635',big:true},
+  {name:'G-Wagon',color:'#e5e7eb',speed:7.2,handling:0.1,accent:'#000'},
+  {name:'MARTA Bus',color:'#f97316',speed:4.5,handling:0.055,accent:'#fff',bus:true},
+];
+
+const BUILDINGS = [
+  {x:400,y:300,w:180,h:120,color:'#27272a',label:'LENOX',type:'landmark'},
+  {x:1200,y:900,w:200,h:140,color:'#27272a',label:'MERCEDES-BENZ',type:'landmark'},
+  {x:1280,y:1190,w:180,h:120,color:'#dc2626',label:'STATE FARM',type:'landmark'},
+  {x:1100,y:1300,w:220,h:160,color:'#18181b',label:'CENTENNIAL PARK',type:'landmark'},
+  {x:600,y:1820,w:160,h:100,color:'#facc15',label:'CASCADE CAR WASH',type:'shop'},
+  {x:780,y:860,w:140,h:90,color:'#a855f7',label:'PATCHWERK',type:'shop'},
+  {x:1480,y:1420,w:160,h:110,color:'#ec4899',label:'MAGIC ATL',type:'shop'},
+  {x:2100,y:1600,w:140,h:80,color:'#22c55e',label:'CLOTHING STORE',type:'shop'},
+  {x:2000,y:600,w:160,h:100,color:'#6b7280',label:'GARAGE BUCKHEAD',type:'shop'},
+  {x:600,y:1500,w:140,h:80,color:'#6b7280',label:'GARAGE WEST END',type:'shop'},
+  {x:1300,y:1300,w:120,h:70,color:'#f97316',label:'CORNER STORE',type:'shop'},
+  {x:700,y:2300,w:180,h:120,color:'#27272a',label:'SAFEHOUSE',type:'shop'},
+  {x:1900,y:1000,w:160,h:100,color:'#27272a',label:'FOX THEATRE',type:'landmark'},
+  {x:500,y:500,w:100,h:100,color:'#1f1f23',type:'block'},
+  {x:1600,y:400,w:120,h:90,color:'#1f1f23',type:'block'},
+  {x:2200,y:500,w:140,h:110,color:'#1f1f23',type:'block'},
+  {x:800,y:1000,w:100,h:140,color:'#1f1f23',type:'block'},
+];
+
+const ROADS_H = [400,800,1200,1800,2400];
+const ROADS_V = [400,800,1200,1800,2400];
+
+const SKIN_TONES = ['#f5d0b0','#e8b89a','#d4a574','#b88a5a','#8d6a45','#5c4a35'];
+const SHIRT_COLORS = ['#4A90E2','#FFD60A','#FF8C00','#7ED321','#FF69B4','#9013FE','#FF2D55','#00FF88'];
+const PANTS_COLORS = ['#1f2937','#374151','#111827','#4b5563','#1e3a8a'];
+const HAIR_STYLES = ['fade','fro','dreads','cap','bald','waves'];
+
+const DOWNTOWN_TYPES = [{type:'office',shirt:'#4A90E2',pants:'#1f2937',outfit:'business'},{type:'tourist',shirt:'#FFD60A',pants:'#374151',outfit:'tee'}];
+const WESTEND_TYPES = [{type:'resident',shirt:'#7ED321',pants:'#1f2937',outfit:'hoodie'},{type:'barber',shirt:'#50E3C2',pants:'#111',outfit:'streetwear'}];
+const BUCKHEAD_TYPES = [{type:'shopper',shirt:'#FF69B4',pants:'#1e3a8a',outfit:'designer'},{type:'luxury',shirt:'#000',pants:'#111',outfit:'luxury'}];
+const EDGEWOOD_TYPES = [{type:'artist',shirt:'#9013FE',pants:'#1f2937',outfit:'art'},{type:'food',shirt:'#FF9500',pants:'#374151',outfit:'vendor'}];
+const MAGIC_TYPES = [{type:'nightlife',shirt:'#FF2D55',pants:'#111',outfit:'nightlife'},{type:'security',shirt:'#1C1C1E',pants:'#000',outfit:'security'}];
+
+const PHRASES = ["What's good?","You straight?","Traffic crazy.","Where you headed?","Game tonight.","Studio late.","West End moving.","Edgewood packed!","Zone 6!","A-Town!","You good?","Pull up!"];
+
+const TRAFFIC_DEFS = [
+  {type:'sedan',color:'#8E8E93',w:32,h:16},
+  {type:'muscle',color:'#dc2626',w:36,h:18},
+  {type:'suv',color:'#27272a',w:38,h:20},
+  {type:'luxury',color:'#111',w:38,h:18},
+  {type:'donk',color:'#22c55e',w:40,h:20},
+  {type:'sports',color:'#facc15',w:36,h:16},
+];
+
+// ================= BUSINESS DEFINITIONS - PHASE B =================
+const BUSINESSES = [
+  {id:'patchwerk',name:'PATCHWERK STUDIOS',x:780,y:860,radius:140,desc:'Studio jobs & equipment runs',icon:'🎙️'},
+  {id:'cascade',name:'CASCADE CAR WASH',x:600,y:1820,radius:130,desc:'Wash car & car wash hustle',icon:'🧼'},
+  {id:'magic',name:'MAGIC ATL',x:1480,y:1420,radius:130,desc:'VIP & nightlife jobs',icon:'💰'},
+  {id:'clothing',name:'CLOTHING STORE',x:2100,y:1600,radius:120,desc:'Fresh fits $250-750',icon:'👕'},
+  {id:'garage_buckhead',name:'GARAGE BUCKHEAD',x:2000,y:600,radius:130,desc:'Customs & paint',icon:'🔧'},
+  {id:'garage_west',name:'GARAGE WEST END',x:600,y:1500,radius:130,desc:'Customs & paint',icon:'🔧'},
+  {id:'corner',name:'CORNER STORE',x:1300,y:1300,radius:110,desc:'Snacks & energy',icon:'🏪'},
+  {id:'safehouse',name:'SAFEHOUSE',x:700,y:2300,radius:140,desc:'Change outfit & vehicle',icon:'🏠'},
+];
+
+const HUSTLE_TYPES = [
+  {type:'delivery',name:'DELIVERY RUN',icon:'$',rewardMin:120,rewardMax:300},
+  {type:'rideshare',name:'RIDESHARE',icon:'🚕',rewardMin:100,rewardMax:250},
+  {type:'studio_runner',name:'STUDIO RUNNER',icon:'🎙️',rewardMin:200,rewardMax:400},
+  {type:'car_wash',name:'CAR WASH HUSTLE',icon:'🧼',rewardMin:75,rewardMax:150},
+  {type:'street_race',name:'STREET RACE',icon:'🏁',rewardMin:300,rewardMax:700},
+  {type:'marta_shift',name:'MARTA SHIFT',icon:'🚌',rewardMin:250,rewardMax:500},
+];
+
+const EVENT_TYPES = [
+  {type:'broken_down',name:'BROKEN DOWN',icon:'⚠️',desc:'Help driver',reward:150,expire:90},
+  {type:'street_race_challenge',name:'RACE CHALLENGE',icon:'🏁',desc:'Street race nearby!',reward:500,expire:60},
+  {type:'vip_pickup',name:'VIP PICKUP',icon:'⭐',desc:'Nightlife VIP to Magic',reward:300,expire:75},
+  {type:'studio_call',name:'STUDIO CALL',icon:'🎙️',desc:'Quick Patchwerk delivery',reward:250,expire:70},
+];
+
+let player = {x:1500,y:1500,angle:0,inCar:-1,speed:0};
+let cars = [];
+let npcs = [];
+let traffic = [];
+let cops = [];
+let camera = {x:1500,y:1500,targetZoom:1.65,currentZoom:1.65,lookAheadX:0,lookAheadY:0};
+let keys = {};
+let joystick = {x:0,y:0,active:false};
+let missionIdx = parseInt(localStorage.getItem('atl_mission_b') || '0');
+let missionSub = 0;
+let wanted = 0;
+let pulse = 0;
+let closestCar = -1;
+let closestNpc = -1;
+let closestBusiness = -1;
+let autoDriving = false;
+let autoDriveTarget = null;
+let lastCrimeTime = 0;
+let lastPoliceSpawn = 0;
+let stuckFrames = 0;
+let lastPos = {x:1500,y:1500};
+let lastSlideDir = {x:0,y:0};
+let bubbleCount = 0;
+let npcIdCounter = 1000;
+let trafficIdCounter = 2000;
+
+// Phase B state
+let activeHustle = null;
+let hustleIdCounter = 1;
+let hustleMarkers = [];
+let randomEvents = [];
+let eventIdCounter = 1;
+let lastEventSpawn = 0;
+let carWashCleanTimer = 0;
+let carWashProgress = 0;
+let playerSpeedBoost = 0;
+let transactionQueue = [];
+let maxTrafficObserved = 0;
+let maxNpcObserved = 0;
+
+const MISSIONS = [
+  {title:'First Day Out',target:{x:580,y:1820},reward:500},
+  {title:'Studio Run',target:{x:780,y:860},reward:1200},
+  {title:'Magic Monday',target:{x:1480,y:1420},reward:2500},
+];
+
+function getZoneAt(x,y){
+  const dMagic = Math.hypot(x-1480,y-1420);
+  if(dMagic<250) return 'magic';
+  const dMB = Math.hypot(x-1200,y-900);
+  const dSF = Math.hypot(x-1280,y-1190);
+  if(dMB<300||dSF<300) return 'stadium';
+  if(x<300||x>2700||y<300||y>2700) return 'i285';
+  if(x>=1100&&x<=1900&&y>=900&&y<=1600) return 'downtown';
+  if(x>=300&&x<=1100&&y>=1200&&y<=2000) return 'westend';
+  if(x>=1500&&x<=2600&&y>=300&&y<=1100) return 'buckhead';
+  if(x>=1800&&x<=2600&&y>=1200&&y<=2000) return 'edgewood';
+  if(x>=300&&x<=1100&&y>=2000&&y<=2700) return 'zone6';
+  return 'midtown';
+}
+function getDensity(zone){
+  switch(zone){
+    case 'downtown': return {ped:14,traffic:10};
+    case 'westend': return {ped:9,traffic:7};
+    case 'buckhead': return {ped:10,traffic:12};
+    case 'edgewood': return {ped:13,traffic:7};
+    case 'zone6': return {ped:9,traffic:6};
+    case 'magic': return {ped:16,traffic:8};
+    case 'stadium': return {ped:14,traffic:10};
+    case 'i285': return {ped:2,traffic:12};
+    default: return {ped:8,traffic:7};
+  }
+}
+function getNpcTypesForZone(zone){
+  switch(zone){
+    case 'downtown': return DOWNTOWN_TYPES;
+    case 'westend': return WESTEND_TYPES;
+    case 'buckhead': return BUCKHEAD_TYPES;
+    case 'edgewood': return EDGEWOOD_TYPES;
+    case 'magic': return MAGIC_TYPES;
+    default: return DOWNTOWN_TYPES;
+  }
+}
+function isInsideBuilding(x,y,pad=10){
+  for(let b of BUILDINGS){
+    if(x>b.x-pad && x<b.x+b.w+pad && y>b.y-pad && y<b.y+b.h+pad) return true;
+  }
+  return false;
+}
+
+// ================= ECONOMY - CENTRALIZED =================
+function addCash(amount, reason){
+  if(transactionQueue.some(t=>t.reason===reason && Date.now()-t.time<1000)) return; // prevent duplicate payout
+  cash+=amount;
+  localStorage.setItem('atl_cash_b', cash.toString());
+  showTransaction(`+$${amount} ${reason}`, true, reason);
+  updateHUD();
+}
+function spendCash(amount, reason){
+  if(cash<amount){
+    showToast('NOT ENOUGH CASH');
+    showTransaction(`Need $${amount}`, false, reason);
+    return false;
+  }
+  cash-=amount;
+  localStorage.setItem('atl_cash_b', cash.toString());
+  showTransaction(`-$${amount} ${reason}`, false, reason);
+  updateHUD();
+  return true;
+}
+function showToast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2200);
+}
+function showTransaction(msg,isPos,reason){
+  const container=document.getElementById('transContainer');
+  // max 2 visible
+  if(container.children.length>=2){
+    container.removeChild(container.firstChild);
+  }
+  const el=document.createElement('div');
+  el.className='transactionToast '+(isPos?'pos':'neg')+' show';
+  el.textContent=msg;
+  container.appendChild(el);
+  transactionQueue.push({reason,time:Date.now()});
+  if(transactionQueue.length>10) transactionQueue.shift();
+  setTimeout(()=>{
+    el.classList.remove('show');
+    setTimeout(()=>{ if(el.parentNode) el.parentNode.removeChild(el); },300);
+  },2500);
+}
+
+// ================= NPC / TRAFFIC SPAWN - FIXED CAP 16 TOTAL =================
+function spawnNPCNearPlayer(force=false){
+  if(npcs.length>=MAX_NPCS) return;
+  let attempts=0;
+  while(attempts<10){
+    attempts++;
+    let ang=Math.random()*Math.PI*2;
+    let dist=force?200+Math.random()*400:350+Math.random()*400;
+    let x=player.x+Math.cos(ang)*dist;
+    let y=player.y+Math.sin(ang)*dist;
+    if(x<120||x>WORLD-120||y<120||y>WORLD-120) continue;
+    if(isInsideBuilding(x,y,18)) continue;
+    let zone=getZoneAt(x,y);
+    let types=getNpcTypesForZone(zone);
+    let def=types[Math.floor(Math.random()*types.length)];
+    let tx=x+(Math.random()-0.5)*200;
+    let ty=y+(Math.random()-0.5)*200;
+    let skin=SKIN_TONES[Math.floor(Math.random()*SKIN_TONES.length)];
+    let hair=HAIR_STYLES[Math.floor(Math.random()*HAIR_STYLES.length)];
+    let shirt=def.shirt||SHIRT_COLORS[Math.floor(Math.random()*SHIRT_COLORS.length)];
+    let pants=PANTS_COLORS[Math.floor(Math.random()*PANTS_COLORS.length)];
+    npcs.push({id:npcIdCounter++,x,y,angle:Math.random()*Math.PI*2,type:def.type,color:def.shirt||shirt,skin,hair,shirt,pants,outfit:def.outfit,zone,state:'walk',stateTimer:120+Math.random()*180,targetX:tx,targetY:ty,speed:0.6+Math.random()*0.5,baseSpeed:0.6+Math.random()*0.5,speechCooldown:200+Math.random()*400,bubbleText:null,bubbleTimer:0,fleeTimer:0,bob:Math.random()*Math.PI*2});
+    break;
+  }
+}
+function spawnTrafficNearPlayer(force=false){
+  if(traffic.length>=MAX_TRAFFIC_TOTAL) return; // FIX: total cap includes buses
+  let busCount=traffic.filter(t=>t.isBus).length;
+  let attempts=0;
+  while(attempts<12){
+    attempts++;
+    let useH=Math.random()<0.5;
+    let roadY=ROADS_H[Math.floor(Math.random()*ROADS_H.length)];
+    let roadX=ROADS_V[Math.floor(Math.random()*ROADS_V.length)];
+    let x,y,angle;
+    if(useH){ x=player.x+(Math.random()-0.5)*800; y=roadY+(Math.random()-0.5)*14; angle=Math.random()<0.5?0:Math.PI; }
+    else{ y=player.y+(Math.random()-0.5)*800; x=roadX+(Math.random()-0.5)*14; angle=Math.random()<0.5?Math.PI/2:-Math.PI/2; }
+    let dist=Math.hypot(x-player.x,y-player.y);
+    if(!force && (dist<500||dist>900)) continue;
+    if(x<120||x>WORLD-120||y<120||y>WORLD-120) continue;
+    if(isInsideBuilding(x,y,20)) continue;
+    let zone=getZoneAt(x,y);
+    let isBusRoll=Math.random()<0.15 && busCount<MAX_BUS && traffic.length<MAX_TRAFFIC_TOTAL && (zone==='downtown'||zone==='westend'||zone==='stadium');
+    if(isBusRoll){
+      traffic.push({id:trafficIdCounter++,x,y,angle,speed:1.8+Math.random()*0.6,maxSpeed:2.2+Math.random()*0.5,type:'bus',color:'#3b82f6',stuckFrames:0,slowTimer:0,isBus:true,lastX:x,lastY:y});
+      break;
+    }else{
+      if(traffic.length>=MAX_TRAFFIC_TOTAL) continue;
+      let def=TRAFFIC_DEFS[Math.floor(Math.random()*TRAFFIC_DEFS.length)];
+      traffic.push({id:trafficIdCounter++,x,y,angle,speed:2+Math.random()*1.5,maxSpeed:2.5+Math.random()*1.2,type:def.type,color:def.color,stuckFrames:0,slowTimer:0,isBus:false,lastX:x,lastY:y});
+      break;
+    }
+  }
+}
+function initWorld(){
+  cars=[];
+  for(let i=0;i<5;i++){
+    let ang=Math.random()*Math.PI*2, dist=200+Math.random()*800;
+    let x=1500+Math.cos(ang)*dist, y=1500+Math.sin(ang)*dist;
+    if(isInsideBuilding(x,y,30)){i--; continue;}
+    cars.push({id:i,x,y,angle:Math.random()*Math.PI*2,speed:0,type:i});
+  }
+  npcs=[]; traffic=[];
+  for(let i=0;i<8;i++) spawnNPCNearPlayer(true);
+  for(let i=0;i<10;i++) spawnTrafficNearPlayer(true);
+  spawnHustleMarkers();
+}
+function spawnHustleMarkers(){
+  hustleMarkers=[];
+  for(let i=0;i<6;i++){
+    let ang=Math.random()*Math.PI*2, dist=400+Math.random()*600;
+    let x=player.x+Math.cos(ang)*dist, y=player.y+Math.sin(ang)*dist;
+    if(isInsideBuilding(x,y,20)) continue;
+    let ht=HUSTLE_TYPES[Math.floor(Math.random()*HUSTLE_TYPES.length)];
+    hustleMarkers.push({id:i,x,y,type:ht.type,name:ht.name,icon:ht.icon,rewardMin:ht.rewardMin,rewardMax:ht.rewardMax});
+  }
+}
+
+// ================= HUSTLE SYSTEM - 6 TYPES =================
+function startHustle(type, marker){
+  if(activeHustle){ showToast('Already on a job! Cancel first'); return; }
+  let def=HUSTLE_TYPES.find(h=>h.type===type) || HUSTLE_TYPES[0];
+  let reward=def.rewardMin+Math.floor(Math.random()*(def.rewardMax-def.rewardMin));
+  
+  if(type==='delivery' || type==='studio_runner'){
+    let px=marker?marker.x:player.x+(Math.random()-0.5)*200;
+    let py=marker?marker.y:player.y+(Math.random()-0.5)*200;
+    let ang=Math.random()*Math.PI*2, dist=500+Math.random()*800;
+    let dx=px+Math.cos(ang)*dist, dy=py+Math.sin(ang)*dist;
+    dx=Math.max(200,Math.min(WORLD-200,dx)); dy=Math.max(200,Math.min(WORLD-200,dy));
+    activeHustle={id:hustleIdCounter++,type,status:'pickup',pickupX:px,pickupY:py,dropoffX:dx,dropoffY:dy,reward,timer:90,checkpoints:[],currentCheckpoint:0};
+    showToast(`${def.name} - Go to pickup`);
+  }else if(type==='rideshare'){
+    let px=marker?marker.x:player.x+(Math.random()-0.5)*300;
+    let py=marker?marker.y:player.y+(Math.random()-0.5)*300;
+    let ang=Math.random()*Math.PI*2, dist=600+Math.random()*900;
+    let dx=px+Math.cos(ang)*dist, dy=py+Math.sin(ang)*dist;
+    dx=Math.max(200,Math.min(WORLD-200,dx)); dy=Math.max(200,Math.min(WORLD-200,dy));
+    let passengerId=null;
+    if(npcs.length<MAX_NPCS){
+      let skin=SKIN_TONES[Math.floor(Math.random()*SKIN_TONES.length)];
+      npcs.push({id:npcIdCounter++,x:px,y:py,angle:0,type:'passenger',color:'#FFD60A',skin,hair:'cap',shirt:'#FFD60A',pants:'#1f2937',outfit:'tee',zone:getZoneAt(px,py),state:'idle',stateTimer:9999,targetX:px,targetY:py,speed:0,baseSpeed:0,speechCooldown:9999,bubbleText:'Need ride!',bubbleTimer:300,fleeTimer:0,bob:0});
+      passengerId=npcs[npcs.length-1].id;
+    }
+    activeHustle={id:hustleIdCounter++,type,status:'pickup',pickupX:px,pickupY:py,dropoffX:dx,dropoffY:dy,reward,timer:120,checkpoints:[],currentCheckpoint:0,passengerId};
+    showToast(`${def.name} - Pick up customer`);
+  }else if(type==='car_wash'){
+    activeHustle={id:hustleIdCounter++,type,status:'washing',pickupX:600,y:1820,dropoffX:600,dropoffY:1820,reward,timer:0,progress:0,checkpoints:[],currentCheckpoint:0};
+    showToast('Car Wash Hustle - Park at Cascade');
+  }else if(type==='street_race'){
+    let checkpoints=[];
+    let cx=player.x, cy=player.y;
+    for(let i=0;i<5;i++){
+      let ang=(i===0?Math.random()*Math.PI*2:Math.atan2(cy-player.y,cx-player.x))+(Math.random()-0.5)*0.8;
+      let dist=250+Math.random()*350;
+      cx+=Math.cos(ang)*dist; cy+=Math.sin(ang)*dist;
+      cx=Math.max(300,Math.min(WORLD-300,cx)); cy=Math.max(300,Math.min(WORLD-300,cy));
+      checkpoints.push({x:cx,y:cy});
+    }
+    activeHustle={id:hustleIdCounter++,type,status:'racing',pickupX:checkpoints[0].x,pickupY:checkpoints[0].y,dropoffX:checkpoints[checkpoints.length-1].x,dropoffY:checkpoints[checkpoints.length-1].y,reward,timer:70,checkpoints,currentCheckpoint:0};
+    showToast('Street Race 3-2-1 GO!');
+    setTimeout(()=>{ if(activeHustle && activeHustle.type==='street_race') showToast('GO GO GO!'); },1000);
+  }else if(type==='marta_shift'){
+    if(player.inCar===-1 || CAR_TYPES[cars[player.inCar].type].name!=='MARTA Bus'){
+      showToast('Need MARTA Bus for MARTA Shift');
+      return;
+    }
+    let route=[{x:1200,y:900},{x:800,y:1200},{x:1500,y:1500},{x:2100,y:600},{x:1200,y:900}];
+    activeHustle={id:hustleIdCounter++,type,status:'racing',pickupX:route[0].x,pickupY:route[0].y,dropoffX:route[route.length-1].x,dropoffY:route[route.length-1].y,reward,timer:120,checkpoints:route,currentCheckpoint:0};
+    showToast('MARTA Shift - Follow stops');
+  }
+  document.getElementById('jobHUD').classList.add('show');
+  updateJobHUD();
+}
+function completeHustle(){
+  if(!activeHustle) return;
+  addCash(activeHustle.reward, activeHustle.type.toUpperCase()+' COMPLETE');
+  hustleMarkers=hustleMarkers.filter(h=> Math.hypot(h.x-activeHustle.pickupX,h.y-activeHustle.pickupY)>100);
+  activeHustle=null;
+  document.getElementById('jobHUD').classList.remove('show');
+  setTimeout(spawnHustleMarkers,8000);
+  showToast('Hustle complete! Find another $');
+}
+function cancelHustle(){
+  if(!activeHustle) return;
+  if(activeHustle.passengerId) npcs=npcs.filter(n=>n.id!==activeHustle.passengerId);
+  activeHustle=null;
+  document.getElementById('jobHUD').classList.remove('show');
+  showToast('Job cancelled');
+}
+function updateJobHUD(){
+  if(!activeHustle){ document.getElementById('jobHUD').classList.remove('show'); return; }
+  let target=getMissionTarget();
+  let dist=target?Math.hypot(player.x-target.x,player.y-target.y):0;
+  let distText=dist<300?`${Math.round(dist*3.28)} ft`:`${(dist/1000).toFixed(1)} mi`;
+  document.getElementById('jobHUDTitle').textContent=activeHustle.type.toUpperCase().replace('_',' ');
+  let obj='';
+  if(activeHustle.status==='pickup') obj='Go to pickup';
+  else if(activeHustle.status==='dropoff') obj='Deliver to destination';
+  else if(activeHustle.status==='racing') obj=`Checkpoint ${activeHustle.currentCheckpoint+1}/${activeHustle.checkpoints.length}`;
+  else if(activeHustle.status==='washing') obj=`Washing ${Math.round(activeHustle.progress||0)}% - Hold at Cascade`;
+  else obj=activeHustle.status;
+  document.getElementById('jobHUDObj').textContent=obj;
+  document.getElementById('jobDist').textContent=distText;
+  document.getElementById('jobPayout').textContent=`$${activeHustle.reward}`;
+  document.getElementById('jobTimer').textContent=activeHustle.timer>0?`${Math.ceil(activeHustle.timer)}s`:'';
+}
+
+// ================= WORLD EVENTS - MAX 2 =================
+function spawnRandomEvent(){
+  if(randomEvents.length>=2) return;
+  if(Date.now()-lastEventSpawn < (60+Math.random()*90)*1000) return;
+  let ang=Math.random()*Math.PI*2, dist=500+Math.random()*400;
+  let x=player.x+Math.cos(ang)*dist, y=player.y+Math.sin(ang)*dist;
+  if(x<200||x>WORLD-200||y<200||y>WORLD-200) return;
+  if(isInsideBuilding(x,y,30)) return;
+  if(npcs.length>=MAX_NPCS && traffic.length>=MAX_TRAFFIC_TOTAL) return;
+  let evDef=EVENT_TYPES[Math.floor(Math.random()*EVENT_TYPES.length)];
+  let ev={id:eventIdCounter++,x,y,type:evDef.type,name:evDef.name,icon:evDef.icon,desc:evDef.desc,reward:evDef.reward,expire:evDef.expire,spawnTime:Date.now()};
+  randomEvents.push(ev);
+  lastEventSpawn=Date.now();
+  showToast(`NEW EVENT: ${evDef.name} ${evDef.icon}`);
+  if(evDef.type==='broken_down' && traffic.length<MAX_TRAFFIC_TOTAL){
+    traffic.push({id:trafficIdCounter++,x:x+(Math.random()-0.5)*20,y:y+(Math.random()-0.5)*20,angle:0,speed:0,maxSpeed:0,type:'sedan',color:'#ef4444',stuckFrames:0,slowTimer:0,isBus:false,lastX:x,lastY:y});
+  }
+}
+function completeEvent(ev){
+  addCash(ev.reward, ev.name);
+  randomEvents=randomEvents.filter(e=>e.id!==ev.id);
+  showToast(`${ev.name} complete! +$${ev.reward}`);
+  updateHustleBoard();
+}
+
+// ================= BUSINESS INTERACTION =================
+function checkClosestBusiness(){
+  let closest=-1, minDist=140;
+  for(let i=0;i<BUSINESSES.length;i++){
+    let b=BUSINESSES[i];
+    let d=Math.hypot(player.x-b.x, player.y-b.y);
+    if(d<b.radius && d<minDist){ minDist=d; closest=i; }
+  }
+  closestBusiness=closest;
+  let btn=document.getElementById('interactBtn');
+  if(closest!==-1 && player.inCar===-1){
+    btn.style.display='flex';
+    btn.innerHTML=`${BUSINESSES[closest].icon}<br>${BUSINESSES[closest].name.split(' ')[0]}<br><span style="font-size:8px">INTERACT</span>`;
+  }else btn.style.display='none';
+}
+function openBusinessModal(businessId){
+  let b=BUSINESSES.find(bb=>bb.id===businessId);
+  if(!b) return;
+  document.getElementById('businessTitle').textContent=b.name;
+  document.getElementById('businessDesc').textContent=b.desc;
+  let actionsDiv=document.getElementById('businessActions');
+  actionsDiv.innerHTML='';
+  if(b.id==='patchwerk'){
+    actionsDiv.innerHTML=`
+      <button class="modalBtn yellow" onclick="startHustle('studio_runner',null);closeBusinessModal();">🎙️ STUDIO RUNNER $200-400</button>
+      <button class="modalBtn primary" onclick="closeBusinessModal();document.getElementById('hustleBoard').classList.add('show');updateHustleBoard();">💼 CHECK JOBS</button>
+    `;
+  }else if(b.id==='cascade'){
+    actionsDiv.innerHTML=`
+      <button class="modalBtn blue" onclick="if(spendCash(40,'CAR WASH')){carWashCleanTimer=600;showToast('Car washed - shiny 60s!');closeBusinessModal();}">🧼 BUY CAR WASH $40</button>
+      <button class="modalBtn green" onclick="startHustle('car_wash',null);closeBusinessModal();">⚡ CAR WASH HUSTLE $75-150</button>
+    `;
+  }else if(b.id==='magic'){
+    actionsDiv.innerHTML=`
+      <button class="modalBtn yellow" onclick="startHustle('rideshare',null);closeBusinessModal();">⭐ VIP DRIVER $200-450</button>
+      <button class="modalBtn primary" onclick="startHustle('delivery',null);closeBusinessModal();">🚕 NIGHTLIFE RIDE $100-250</button>
+    `;
+  }else if(b.id==='clothing'){
+    let html='';
+    FITS.forEach(f=>{
+      let owned=ownedFits.includes(f.id);
+      html+=`<button class="modalBtn ${owned?'green':'primary'}" onclick="buyFit(${f.id})">${f.name} - ${owned?'OWNED':f.price===0?'FREE':'$'+f.price} - ${f.desc}</button>`;
+    });
+    actionsDiv.innerHTML=html;
+  }else if(b.id.startsWith('garage')){
+    let html='<div style="color:rgba(255,255,255,0.6);font-size:11px;margin-bottom:8px">Select owned vehicle & paint (visible change)</div>';
+    ownedVehicles.forEach((vid,i)=>{
+      let carType=CAR_TYPES[vid];
+      html+=`<button class="modalBtn primary" onclick="selectVehicle(${vid})">🚗 ${carType.name} ${i===0?'(current)':''}</button>`;
+    });
+    if(ownedVehicles.length<5) html+=`<button class="modalBtn yellow" onclick="buyRandomVehicle()">🔓 UNLOCK RANDOM VEHICLE $2000</button>`;
+    html+='<div style="margin-top:12px;color:rgba(255,255,255,0.6);font-size:11px">Paint presets $250-400</div>';
+    PAINTS.forEach((p,idx)=>{
+      html+=`<button class="modalBtn primary" style="border-left:6px solid ${p.color}" onclick="buyPaint(${idx})">${p.name} ${p.price===0?'FREE':'$'+p.price}</button>`;
+    });
+    actionsDiv.innerHTML=html;
+  }else if(b.id==='corner'){
+    actionsDiv.innerHTML=`
+      <button class="modalBtn green" onclick="if(spendCash(25,'ENERGY DRINK')){playerSpeedBoost=600;showToast('Energy boost! Run faster 30s');closeBusinessModal();}">⚡ ENERGY DRINK $25 - Sprint 30s</button>
+      <button class="modalBtn primary" onclick="if(spendCash(20,'SNACK')){showToast('Snack - tasty!');closeBusinessModal();}">🍫 SNACK $20</button>
+    `;
+  }else if(b.id==='safehouse'){
+    actionsDiv.innerHTML=`
+      <div style="color:#fff;font-size:12px;margin-bottom:8px">Cash: $${cash} | Fits: ${ownedFits.length}/6 | Vehicles: ${ownedVehicles.length}/5 | Missions: ${missionIdx}/3</div>
+      <button class="modalBtn primary" onclick="closeBusinessModal();document.getElementById('hustleBoard').classList.add('show');updateHustleBoard();">💼 HUSTLE BOARD</button>
+      <button class="modalBtn yellow" onclick="document.getElementById('businessModal').classList.remove('show');document.getElementById('introScreen').style.display='flex';">👕 CHANGE FIT</button>
+      <button class="modalBtn blue" onclick="player.x=700;player.y=2300;closeBusinessModal();showToast('Returned to Safehouse');">🏠 REST / RETURN</button>
+    `;
+  }
+  document.getElementById('businessModal').classList.add('show');
+}
+function closeBusinessModal(){ document.getElementById('businessModal').classList.remove('show'); }
+function buyFit(id){
+  let f=FITS.find(ff=>ff.id===id);
+  if(!f) return;
+  if(ownedFits.includes(id)){ fit=id; localStorage.setItem('atl_fit_b',fit.toString()); showToast(`Equipped ${f.name}`); closeBusinessModal(); renderFits(); return; }
+  if(spendCash(f.price, f.name)){
+    ownedFits.push(id);
+    localStorage.setItem('atl_owned_fits_b',JSON.stringify(ownedFits));
+    fit=id;
+    localStorage.setItem('atl_fit_b',fit.toString());
+    showToast(`Bought ${f.name}!`);
+    closeBusinessModal();
+    renderFits();
+  }
+}
+function buyPaint(idx){
+  let p=PAINTS[idx];
+  if(!p) return;
+  let currentCarIdx=player.inCar!==-1?player.inCar:0;
+  let car=cars[currentCarIdx];
+  if(!car){ showToast('Need vehicle'); return; }
+  if(p.price===0 || spendCash(p.price,'PAINT '+p.name)){
+    carPaints[car.id]=p.color;
+    localStorage.setItem('atl_car_paints_b',JSON.stringify(carPaints));
+    showToast(`Painted ${p.name} - visible!`);
+    closeBusinessModal();
+  }
+}
+function selectVehicle(typeId){
+  let existing=cars.find(c=>c.type===typeId);
+  if(!existing){
+    let ang=Math.random()*Math.PI*2;
+    let x=player.x+Math.cos(ang)*80, y=player.y+Math.sin(ang)*80;
+    cars.push({id:cars.length,x,y,angle:0,speed:0,type:typeId});
+  }
+  showToast(`Selected ${CAR_TYPES[typeId].name}`);
+  closeBusinessModal();
+}
+function buyRandomVehicle(){
+  if(!spendCash(2000,'VEHICLE UNLOCK')) return;
+  let locked=[0,1,2,3,4].filter(t=>!ownedVehicles.includes(t));
+  if(locked.length===0){ showToast('All vehicles owned'); return; }
+  let pick=locked[Math.floor(Math.random()*locked.length)];
+  ownedVehicles.push(pick);
+  localStorage.setItem('atl_owned_vehicles_b',JSON.stringify(ownedVehicles));
+  let ang=Math.random()*Math.PI*2;
+  let x=player.x+Math.cos(ang)*100, y=player.y+Math.sin(ang)*100;
+  cars.push({id:cars.length,x,y,angle:0,speed:0,type:pick});
+  showToast(`Unlocked ${CAR_TYPES[pick].name}!`);
+  closeBusinessModal();
+}
+function updateHustleBoard(){
+  let list=document.getElementById('hustleList');
+  list.innerHTML='';
+  hustleMarkers.slice(0,6).forEach(hm=>{
+    let d=Math.hypot(player.x-hm.x,player.y-hm.y);
+    if(d>800) return;
+    let div=document.createElement('div');
+    div.className='hustleItem';
+    div.innerHTML=`<div><div style="font-weight:800;color:#fff;font-size:13px">${hm.icon} ${hm.name}</div><div style="font-size:11px;color:rgba(255,255,255,0.5)">$${hm.rewardMin}-${hm.rewardMax} • ${Math.round(d/10)}m away</div></div><div style="font-size:10px;background:#FFD60A;color:#000;padding:6px 12px;border-radius:999px;font-weight:800">GO</div>`;
+    div.onclick=()=>{ document.getElementById('hustleBoard').classList.remove('show'); startHustle(hm.type,hm); };
+    list.appendChild(div);
+  });
+  let evList=document.getElementById('eventList');
+  if(randomEvents.length===0) evList.textContent='No events - drive around Atlanta to find opportunities (max 2 active)';
+  else evList.innerHTML=randomEvents.map(ev=> `<div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:10px;margin-bottom:8px"><span style="font-weight:800;color:#fff">${ev.icon} ${ev.name}</span> - ${ev.desc} - $${ev.reward} - ${Math.round((ev.expire*1000 - (Date.now()-ev.spawnTime))/1000)}s left</div>`).join('');
+}
+
+function getMissionTarget(){
+  if(activeHustle){
+    if(activeHustle.status==='pickup') return {x:activeHustle.pickupX,y:activeHustle.pickupY};
+    if(activeHustle.status==='dropoff' || activeHustle.status==='racing'){
+      if(activeHustle.checkpoints && activeHustle.checkpoints.length>0){
+        let cp=activeHustle.checkpoints[activeHustle.currentCheckpoint];
+        if(cp) return {x:cp.x,y:cp.y};
+      }
+      return {x:activeHustle.dropoffX,y:activeHustle.dropoffY};
+    }
+  }
+  if(randomEvents.length>0 && !activeHustle) return {x:randomEvents[0].x,y:randomEvents[0].y};
+  if(missionIdx>=MISSIONS.length) return null;
+  if(missionIdx===1 && missionSub===0) return {x:650,y:1250};
+  if(missionIdx===1 && missionSub===1) return {x:780,y:860};
+  return MISSIONS[missionIdx].target;
+}
+function tryEnterExitCar(){
+  let radius=isEasyMode?80:50;
+  if(player.inCar===-1){
+    if(closestCar!==-1){
+      let car=cars[closestCar];
+      let d=Math.hypot(player.x-car.x, player.y-car.y);
+      if(d<=radius){
+        player.inCar=closestCar;
+        player.x=car.x; player.y=car.y;
+        document.getElementById('exitBtn').style.display='flex';
+        document.getElementById('jackBtn').style.display='none';
+        document.getElementById('hustleBtn').style.display='none';
+        document.getElementById('autoBtn').style.display='flex';
+        if(getMissionTarget()){ document.getElementById('autoDriveHint').style.display='block'; setTimeout(()=>document.getElementById('autoDriveHint').style.display='none',3000); }
+        showToast(`Entered ${CAR_TYPES[car.type].name}`);
+        return;
+      }
+    }
+  }else{
+    let car=cars[player.inCar];
+    if(car){
+      player.x=car.x+Math.cos(car.angle+Math.PI/2)*40;
+      player.y=car.y+Math.sin(car.angle+Math.PI/2)*40;
+      if(isInsideBuilding(player.x,player.y,10)){
+        player.x=car.x+Math.cos(car.angle-Math.PI/2)*40;
+        player.y=car.y+Math.sin(car.angle-Math.PI/2)*40;
+      }
+    }
+    player.inCar=-1;
+    autoDriving=false;
+    document.getElementById('exitBtn').style.display='none';
+    document.getElementById('autoBtn').style.display='none';
+    document.getElementById('jackBtn').style.display='flex';
+    document.getElementById('hustleBtn').style.display='flex';
+    document.getElementById('autoDrivingBanner').style.display='none';
+    showToast('Exited vehicle');
+  }
+}
+function handleAutoDriveToggle(){
+  if(player.inCar===-1) return;
+  if(autoDriving){
+    autoDriving=false;
+    document.getElementById('autoDrivingBanner').style.display='none';
+    showToast('Auto Drive cancelled');
+  }else{
+    let target=getMissionTarget();
+    if(!target){ showToast('No destination'); return; }
+    autoDriveTarget=target;
+    autoDriving=true;
+    document.getElementById('autoDrivingBanner').style.display='block';
+    showToast('Auto Driving to destination');
+  }
+}
+function handleAction(){
+  if(player.inCar!==-1) return;
+  if(closestNpc!==-1){
+    let n=npcs[closestNpc];
+    if(n && Math.hypot(player.x-n.x,player.y-n.y)<90){
+      n.bubbleText=PHRASES[Math.floor(Math.random()*PHRASES.length)];
+      n.bubbleTimer=180;
+      showToast(n.bubbleText);
+      return;
+    }
+  }
+  for(let hm of hustleMarkers){
+    let d=Math.hypot(player.x-hm.x,player.y-hm.y);
+    if(d<90){ startHustle(hm.type,hm); return; }
+  }
+  for(let ev of randomEvents){
+    let d=Math.hypot(player.x-ev.x,player.y-ev.y);
+    if(d<100){ completeEvent(ev); return; }
+  }
+  showToast('Find $ marker for hustles - Check businesses');
+}
+
+// Canvas
+let canvas=document.getElementById('gameCanvas');
+let ctx=canvas.getContext('2d');
+let miniCanvas=document.getElementById('miniMap');
+let miniCtx=miniCanvas.getContext('2d');
+function resize(){
+  canvas.width=window.innerWidth*window.devicePixelRatio;
+  canvas.height=window.innerHeight*window.devicePixelRatio;
+  canvas.style.width=window.innerWidth+'px';
+  canvas.style.height=window.innerHeight+'px';
+  ctx.setTransform(window.devicePixelRatio,0,0,window.devicePixelRatio,0,0);
+}
+window.addEventListener('resize',resize);
+resize();
+
+function drawPerson(x,y,angle,fitId,skin,hair,shirt,pants,outfit,isPlayer,bob){
+  ctx.save();
+  ctx.translate(x,y);
+  ctx.rotate(angle);
+  let scale=isPlayer?1.2:1.0;
+  let bobOffset=Math.sin(bob||0)*2*scale;
+  ctx.fillStyle='rgba(0,0,0,0.25)'; ctx.beginPath(); ctx.ellipse(0,18*scale,10*scale,5*scale,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=pants||'#1f2937';
+  ctx.fillRect(-5*scale,6*scale+bobOffset,4*scale,14*scale);
+  ctx.fillRect(1*scale,6*scale+bobOffset,4*scale,14*scale);
+  ctx.fillStyle='#111';
+  ctx.fillRect(-6*scale,18*scale+bobOffset,6*scale,3*scale);
+  ctx.fillRect(1*scale,18*scale+bobOffset,6*scale,3*scale);
+  ctx.fillStyle=shirt||'#4A90E2';
+  if(outfit==='hoodie'){ ctx.fillRect(-8*scale,-4*scale+bobOffset,16*scale,12*scale); ctx.fillStyle='rgba(0,0,0,0.15)'; ctx.fillRect(-4*scale,2*scale+bobOffset,8*scale,4*scale); }
+  else if(outfit==='business'){ ctx.fillStyle=shirt; ctx.fillRect(-7*scale,-6*scale+bobOffset,14*scale,14*scale); ctx.fillStyle='#111'; ctx.fillRect(-1*scale,-4*scale+bobOffset,2*scale,10*scale); }
+  else if(outfit==='security'){ ctx.fillStyle='#1C1C1E'; ctx.fillRect(-9*scale,-6*scale+bobOffset,18*scale,14*scale); ctx.fillStyle='#FFD60A'; ctx.font=`${6*scale}px system-ui`; ctx.textAlign='center'; ctx.fillText('SEC',0,2*scale+bobOffset); }
+  else{ ctx.fillRect(-8*scale,-4*scale+bobOffset,16*scale,12*scale); }
+  ctx.fillStyle=skin||'#e8b89a';
+  ctx.fillRect(-12*scale,-2*scale+bobOffset,4*scale,10*scale);
+  ctx.fillRect(8*scale,-2*scale+bobOffset,4*scale,10*scale);
+  ctx.fillStyle=skin||'#e8b89a'; ctx.beginPath(); ctx.arc(0,-10*scale+bobOffset,8*scale,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle='rgba(0,0,0,0.2)'; ctx.lineWidth=1; ctx.stroke();
+  if(hair==='cap'){ ctx.fillStyle=fitId!==undefined && FITS[fitId]?FITS[fitId].accent||'#ef4444':'#ef4444'; ctx.beginPath(); ctx.arc(0,-14*scale+bobOffset,9*scale,Math.PI,Math.PI*2); ctx.fill(); ctx.fillRect(-2*scale,-14*scale+bobOffset,12*scale,2*scale); }
+  else if(hair==='fro'){ ctx.fillStyle='#111'; ctx.beginPath(); ctx.arc(0,-12*scale+bobOffset,11*scale,0,Math.PI*2); ctx.fill(); }
+  else if(hair==='dreads'){ ctx.fillStyle='#111'; ctx.fillRect(-8*scale,-18*scale+bobOffset,16*scale,6*scale); }
+  else if(hair==='fade'){ ctx.fillStyle='#111'; ctx.beginPath(); ctx.arc(0,-14*scale+bobOffset,8*scale,Math.PI,Math.PI*2); ctx.fill(); }
+  else{ ctx.fillStyle='#111'; ctx.beginPath(); ctx.arc(0,-13*scale+bobOffset,8*scale,Math.PI,Math.PI*2); ctx.fill(); }
+  if(isPlayer){
+    let f=FITS[fit]||FITS[0];
+    if(f.hawks){ ctx.fillStyle='#FDBB30'; ctx.fillRect(-8*scale,-4*scale+bobOffset,16*scale,2*scale); ctx.fillStyle='#000'; ctx.font=`bold ${6*scale}px system-ui`; ctx.textAlign='center'; ctx.fillText('ATL',0,2*scale+bobOffset); }
+    ctx.strokeStyle='#FFD60A'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(0,0,20*scale,0,Math.PI*2); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawWorld(){
+  ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
+  let targetZoom;
+  let zooms=VIEW_ZOOMS[viewMode];
+  if(player.inCar!==-1){
+    let car=cars[player.inCar];
+    let speed=car?Math.abs(car.speed):0;
+    if(autoDriving) targetZoom=zooms.auto;
+    else if(speed>5) targetZoom=zooms.fast;
+    else if(speed>0.5) targetZoom=zooms.driving;
+    else targetZoom=zooms.stopped;
+  }else targetZoom=zooms.onFoot;
+  camera.targetZoom=targetZoom;
+  camera.currentZoom+=(camera.targetZoom-camera.currentZoom)*0.06;
+  let lookAheadFactor=player.inCar!==-1?80:40;
+  let desiredLookX=0, desiredLookY=0;
+  if(player.speed>0.5 || (joystick.active && (Math.abs(joystick.x)>0.1||Math.abs(joystick.y)>0.1))){
+    let ang=player.angle;
+    if(player.inCar===-1 && joystick.active) ang=Math.atan2(joystick.y,joystick.x);
+    desiredLookX=Math.cos(ang)*lookAheadFactor*(player.inCar!==-1?Math.min(1,Math.abs(player.speed)/4):1);
+    desiredLookY=Math.sin(ang)*lookAheadFactor*(player.inCar!==-1?Math.min(1,Math.abs(player.speed)/4):1);
+  }
+  camera.lookAheadX+=(desiredLookX-camera.lookAheadX)*0.05;
+  camera.lookAheadY+=(desiredLookY-camera.lookAheadY)*0.05;
+  let baseX=player.x+camera.lookAheadX, baseY=player.y+camera.lookAheadY;
+  camera.x+=(baseX-camera.x)*0.08;
+  camera.y+=(baseY-camera.y)*0.08;
+  let halfW=(window.innerWidth/2)/camera.currentZoom;
+  let halfH=(window.innerHeight/2)/camera.currentZoom;
+  camera.x=Math.max(halfW,Math.min(WORLD-halfW,camera.x));
+  camera.y=Math.max(halfH,Math.min(WORLD-halfH,camera.y));
+  ctx.save();
+  ctx.translate(window.innerWidth/2,window.innerHeight/2);
+  ctx.scale(camera.currentZoom,camera.currentZoom);
+  ctx.translate(-camera.x,-camera.y);
+  ctx.fillStyle='#0a1020'; ctx.fillRect(0,0,WORLD,WORLD);
+  ctx.strokeStyle='rgba(255,255,255,0.08)'; ctx.lineWidth=32;
+  ROADS_H.forEach(y=>{ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(WORLD,y); ctx.stroke(); });
+  ROADS_V.forEach(x=>{ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,WORLD); ctx.stroke(); });
+  ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.setLineDash([20,20]);
+  ROADS_H.forEach(y=>{ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(WORLD,y); ctx.stroke(); });
+  ROADS_V.forEach(x=>{ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,WORLD); ctx.stroke(); });
+  ctx.setLineDash([]);
+  ctx.strokeStyle='rgba(249,115,22,0.3)'; ctx.lineWidth=10; ctx.strokeRect(80,80,WORLD-160,WORLD-160);
+  BUILDINGS.forEach(b=>{
+    ctx.fillStyle=b.color; ctx.fillRect(b.x,b.y,b.w,b.h);
+    ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.lineWidth=1; ctx.strokeRect(b.x,b.y,b.w,b.h);
+    if(b.label){ ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.font='bold 11px system-ui'; ctx.fillText(b.label,b.x+6,b.y+16); }
+  });
+  // business zones
+  BUSINESSES.forEach(b=>{
+    let d=Math.hypot(player.x-b.x,player.y-b.y);
+    if(d>800) return;
+    ctx.save();
+    ctx.translate(b.x,b.y);
+    ctx.strokeStyle=d<b.radius?'#FFD60A':'rgba(255,255,255,0.15)';
+    ctx.lineWidth=d<b.radius?3:1;
+    ctx.setLineDash(d<b.radius?[]:[8,8]);
+    ctx.beginPath(); ctx.arc(0,0,b.radius,0,Math.PI*2); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle=d<b.radius?'#FFD60A':'rgba(255,255,255,0.7)';
+    ctx.font='bold 10px system-ui'; ctx.textAlign='center';
+    ctx.fillText(b.icon,0,-6);
+    ctx.font='bold 8px system-ui';
+    ctx.fillText(b.name.split(' ')[0],0,10);
+    ctx.restore();
+  });
+  // hustle markers - only within 800 units
+  hustleMarkers.forEach(hm=>{
+    let d=Math.hypot(player.x-hm.x,player.y-hm.y);
+    if(d>800) return;
+    ctx.save();
+    ctx.translate(hm.x,hm.y);
+    let pulseScale=1+Math.sin(pulse*0.1)*0.15;
+    ctx.scale(pulseScale,pulseScale);
+    ctx.fillStyle='#FFD60A'; ctx.beginPath(); ctx.arc(0,0,18,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='#000'; ctx.lineWidth=2; ctx.stroke();
+    ctx.fillStyle='#000'; ctx.font='bold 14px system-ui'; ctx.textAlign='center'; ctx.fillText(hm.icon,0,5);
+    ctx.fillStyle='#000'; ctx.font='bold 9px system-ui'; ctx.fillText('$',0,-24);
+    ctx.restore();
+  });
+  // events
+  randomEvents.forEach(ev=>{
+    ctx.save();
+    ctx.translate(ev.x,ev.y);
+    let pulseScale=1+Math.sin(pulse*0.12)*0.2;
+    ctx.scale(pulseScale,pulseScale);
+    ctx.fillStyle=ev.type==='police_activity'?'#3b82f6':'#f97316';
+    ctx.beginPath(); ctx.arc(0,0,22,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='#000'; ctx.lineWidth=2; ctx.stroke();
+    ctx.fillStyle='#fff'; ctx.font='16px system-ui'; ctx.textAlign='center'; ctx.fillText(ev.icon,0,5);
+    ctx.fillStyle='#fff'; ctx.font='bold 9px system-ui'; ctx.fillText(ev.name,0,-30);
+    ctx.restore();
+  });
+  // traffic
+  traffic.forEach(tr=>{
+    let d=Math.hypot(player.x-tr.x,player.y-tr.y);
+    if(d>1100) return;
+    ctx.save();
+    ctx.translate(tr.x,tr.y);
+    ctx.rotate(tr.angle);
+    ctx.fillStyle=tr.color;
+    let w=tr.isBus?50:36, h=tr.isBus?22:18;
+    ctx.fillRect(-w/2,-h/2,w,h);
+    if(carWashCleanTimer>0 && tr.isBus===false){ ctx.fillStyle='rgba(255,255,255,0.2)'; ctx.fillRect(-w/2,-h/2,w,h); }
+    ctx.fillStyle='rgba(150,200,255,0.5)'; ctx.fillRect(-w/2+6,-h/2+3,w-12,h-6);
+    ctx.restore();
+  });
+  // NPCs
+  npcs.forEach(n=>{
+    let d=Math.hypot(player.x-n.x,player.y-n.y);
+    if(d>1000) return;
+    drawPerson(n.x,n.y,n.angle,null,n.skin,n.hair,n.shirt,n.pants,n.outfit,false,n.bob);
+    if(d<120 && player.inCar===-1){
+      ctx.save();
+      ctx.translate(n.x,n.y-36);
+      ctx.fillStyle='rgba(0,0,0,0.7)'; ctx.fillRect(-30,-12,60,16);
+      ctx.fillStyle='#fff'; ctx.font='bold 9px system-ui'; ctx.textAlign='center'; ctx.fillText(n.type.toUpperCase(),0,0);
+      ctx.restore();
+    }
+    if(n.bubbleTimer>0 && n.bubbleText){
+      ctx.save();
+      ctx.translate(n.x,n.y-42);
+      ctx.fillStyle='#fff'; ctx.strokeStyle='#000'; ctx.lineWidth=2;
+      let textW=ctx.measureText(n.bubbleText).width;
+      let bw=Math.min(140,textW+20), bh=20;
+      ctx.beginPath(); ctx.roundRect(-bw/2,-bh,bw,bh,8); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-4,0); ctx.lineTo(0,8); ctx.lineTo(4,0); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.fillStyle='#000'; ctx.font='bold 11px system-ui'; ctx.textAlign='center'; ctx.fillText(n.bubbleText,0,-6);
+      ctx.restore();
+    }
+  });
+  // cars
+  cars.forEach((car,i)=>{
+    let d=Math.hypot(player.x-car.x,player.y-car.y);
+    if(d>1300 && i!==player.inCar) return;
+    ctx.save();
+    ctx.translate(car.x,car.y);
+    ctx.rotate(car.angle);
+    let cfg=CAR_TYPES[car.type];
+    let paint=carPaints[car.id]||cfg.color;
+    let w=cfg.big?44:36, h=cfg.big?22:18;
+    if(cfg.bus){ w=56; h=26; }
+    ctx.fillStyle=paint; ctx.fillRect(-w/2,-h/2,w,h);
+    if(carWashCleanTimer>0 && player.inCar===i){ ctx.fillStyle='rgba(255,255,255,0.35)'; ctx.fillRect(-w/2,-h/2,w,h); }
+    ctx.fillStyle=cfg.accent; ctx.fillRect(w/2-8,-h/2+3,6,5); ctx.fillRect(w/2-8,h/2-8,6,5);
+    ctx.fillStyle='rgba(150,200,255,0.6)'; ctx.fillRect(-w/2+6,-h/2+3,w-16,h-6);
+    if(player.inCar===i){ ctx.strokeStyle='#FFD60A'; ctx.lineWidth=3; ctx.strokeRect(-w/2-4,-h/2-4,w+8,h+8); }
+    if(d<200){ ctx.fillStyle='rgba(0,0,0,0.7)'; ctx.fillRect(-30,-h/2-18,60,12); ctx.fillStyle='#fff'; ctx.font='bold 8px system-ui'; ctx.textAlign='center'; ctx.fillText(cfg.name.toUpperCase(),0,-h/2-10); }
+    ctx.restore();
+  });
+  if(player.inCar===-1){
+    drawPerson(player.x,player.y,player.angle,fit,SKIN_TONES[1],'cap',FITS[fit]?.color||'#111','#1f2937','hoodie',true,pulse*0.1);
+  }
+  let target=getMissionTarget();
+  if(target){
+    ctx.save();
+    ctx.translate(target.x,target.y);
+    let s=1+Math.sin(pulse*0.08)*0.25;
+    ctx.scale(s,s);
+    ctx.fillStyle='#FFD60A'; ctx.beginPath(); ctx.arc(0,0,22,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='#000'; ctx.lineWidth=3; ctx.stroke();
+    ctx.fillStyle='#000'; ctx.font='bold 16px system-ui'; ctx.textAlign='center'; ctx.fillText('★',0,6);
+    ctx.strokeStyle='rgba(250,204,21,0.3)'; ctx.lineWidth=2; ctx.setLineDash([8,8]); ctx.beginPath(); ctx.arc(0,0,40,0,Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
+    ctx.restore();
+  }
+  if(closestCar!==-1 && player.inCar===-1){
+    let car=cars[closestCar];
+    if(car){
+      ctx.save();
+      ctx.translate(car.x,car.y-44);
+      ctx.fillStyle='#FFD60A'; ctx.font='bold 12px system-ui'; ctx.textAlign='center'; ctx.fillText('TAP JACK ▼',0,0);
+      ctx.restore();
+      ctx.save();
+      ctx.translate(car.x,car.y);
+      ctx.strokeStyle='#FFD60A'; ctx.lineWidth=3; ctx.setLineDash([8,5]); ctx.beginPath(); ctx.arc(0,0,36,0,Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
+      ctx.restore();
+    }
+  }
+  ctx.restore();
+}
+function drawMiniMap(){
+  miniCtx.clearRect(0,0,112,112);
+  miniCtx.fillStyle='rgba(0,0,0,0.7)'; miniCtx.fillRect(0,0,112,112);
+  miniCtx.save();
+  miniCtx.translate(56,56);
+  let scale=112/2000;
+  BUILDINGS.forEach(b=>{
+    if(b.type==='block') return;
+    let x=(b.x-camera.x)*scale, y=(b.y-camera.y)*scale;
+    if(Math.abs(x)>60||Math.abs(y)>60) return;
+    miniCtx.fillStyle=b.color; miniCtx.fillRect(x+56-2,y+56-2,4,4);
+  });
+  traffic.forEach(tr=>{
+    let x=(tr.x-camera.x)*scale, y=(tr.y-camera.y)*scale;
+    if(Math.abs(x)>56||Math.abs(y)>56) return;
+    miniCtx.fillStyle=tr.isBus?'#3b82f6':'#fff'; miniCtx.fillRect(x+56-1,y+56-1,2,2);
+  });
+  npcs.forEach(n=>{
+    let x=(n.x-camera.x)*scale, y=(n.y-camera.y)*scale;
+    if(Math.abs(x)>56||Math.abs(y)>56) return;
+    miniCtx.fillStyle=n.shirt||n.color; miniCtx.fillRect(x+56-1.2,y+56-1.2,2.4,2.4);
+  });
+  hustleMarkers.forEach(hm=>{
+    let x=(hm.x-camera.x)*scale, y=(hm.y-camera.y)*scale;
+    if(Math.abs(x)>56||Math.abs(y)>56) return;
+    miniCtx.fillStyle='#FFD60A'; miniCtx.beginPath(); miniCtx.arc(x+56,y+56,3,0,Math.PI*2); miniCtx.fill();
+  });
+  randomEvents.forEach(ev=>{
+    let x=(ev.x-camera.x)*scale, y=(ev.y-camera.y)*scale;
+    miniCtx.fillStyle='#f97316'; miniCtx.beginPath(); miniCtx.arc(x+56,y+56,4,0,Math.PI*2); miniCtx.fill();
+  });
+  cars.forEach(c=>{
+    let x=(c.x-camera.x)*scale, y=(c.y-camera.y)*scale;
+    if(Math.abs(x)>56||Math.abs(y)>56) return;
+    miniCtx.fillStyle='#22c55e'; miniCtx.fillRect(x+56-1.5,y+56-1.5,3,3);
+  });
+  miniCtx.fillStyle='#fff'; miniCtx.beginPath(); miniCtx.arc(56,56,4,0,Math.PI*2); miniCtx.fill();
+  let target=getMissionTarget();
+  if(target){
+    let x=(target.x-camera.x)*scale, y=(target.y-camera.y)*scale;
+    miniCtx.fillStyle='#FFD60A'; miniCtx.beginPath(); miniCtx.arc(x+56,y+56,6,0,Math.PI*2); miniCtx.fill();
+    miniCtx.strokeStyle='#000'; miniCtx.lineWidth=1; miniCtx.stroke();
+  }
+  miniCtx.restore();
+}
+function gameLoop(){
+  pulse++;
+  let radius=isEasyMode?80:50;
+  closestCar=-1; let minD=radius;
+  for(let i=0;i<cars.length;i++){
+    if(i===player.inCar) continue;
+    let d=Math.hypot(player.x-cars[i].x, player.y-cars[i].y);
+    if(d<minD){ minD=d; closestCar=i; }
+  }
+  closestNpc=-1; let minNpcD=90;
+  for(let i=0;i<npcs.length;i++){
+    let d=Math.hypot(player.x-npcs[i].x, player.y-npcs[i].y);
+    if(d<minNpcD && npcs[i].type!=='passenger'){ minNpcD=d; closestNpc=i; }
+  }
+  checkClosestBusiness();
+  let normX=joystick.x, normY=joystick.y;
+  if(keys['w']||keys['ArrowUp']) normY=-1;
+  if(keys['s']||keys['ArrowDown']) normY=1;
+  if(keys['a']||keys['ArrowLeft']) normX=-1;
+  if(keys['d']||keys['ArrowRight']) normX=1;
+  let inputMag=Math.hypot(normX,normY);
+  if(inputMag>1){ normX/=inputMag; normY/=inputMag; inputMag=1; }
+  
+  if(player.inCar!==-1){
+    let car=cars[player.inCar];
+    if(car){
+      if(autoDriving && autoDriveTarget){
+        let dx=autoDriveTarget.x-car.x, dy=autoDriveTarget.y-car.y;
+        let dist=Math.hypot(dx,dy);
+        document.getElementById('distanceText').textContent=`${Math.round(dist/10)}m`;
+        if(dist<120){
+          autoDriving=false;
+          document.getElementById('autoDrivingBanner').style.display='none';
+          showToast('Arrived!');
+          if(activeHustle){
+            if(activeHustle.status==='pickup'){
+              if(activeHustle.passengerId){ npcs=npcs.filter(n=>n.id!==activeHustle.passengerId); }
+              activeHustle.status='dropoff';
+              showToast('Picked up - Go to dropoff');
+              updateJobHUD();
+            }else if(activeHustle.status==='dropoff'){
+              completeHustle();
+            }
+          }else if(missionIdx<MISSIONS.length){
+            let mt=getMissionTarget();
+            if(mt && Math.hypot(player.x-mt.x, player.y-mt.y)<190){
+              if(missionIdx===1 && missionSub===0){ missionSub=1; addCash(200,'MISSION'); }
+              else{
+                addCash(MISSIONS[missionIdx].reward,'MISSION '+MISSIONS[missionIdx].title);
+                if(missionIdx===2){ showToast('KING OF THE A - TRUE TO ATLANTA'); }
+                else{ missionIdx++; missionSub=0; localStorage.setItem('atl_mission_b',missionIdx.toString()); }
+              }
+              setWanted(0);
+            }
+          }
+        }else{
+          let angleToTarget=Math.atan2(dy,dx);
+          let diff=angleToTarget-car.angle;
+          while(diff>Math.PI) diff-=Math.PI*2;
+          while(diff<-Math.PI) diff+=Math.PI*2;
+          car.angle+=diff*0.08;
+          let lookX=car.x+Math.cos(car.angle)*110, lookY=car.y+Math.sin(car.angle)*110;
+          let blocked=false;
+          for(let b of BUILDINGS){ if(b.type==='shop') continue; if(lookX>b.x-10&&lookX<b.x+b.w+10&&lookY>b.y-10&&lookY<b.y+b.h+10){ blocked=true; break; } }
+          if(blocked) car.angle+=0.35;
+          let speedFactor=Math.abs(diff)>0.5?0.3:0.6;
+          let targetSpeed=CAR_TYPES[car.type].speed*speedFactor;
+          car.speed+=(targetSpeed-car.speed)*0.08;
+          car.speed=Math.max(0.8,car.speed);
+        }
+      }else{
+        if(Math.abs(normX)>0.06){ car.angle+=normX*CAR_TYPES[car.type].handling*(Math.abs(car.speed)>0.4?Math.sign(car.speed):1); }
+        let accel=-normY*0.36;
+        car.speed+=accel; car.speed*=0.987;
+        if(Math.abs(car.speed)<0.04) car.speed=0;
+        car.speed=Math.max(-CAR_TYPES[car.type].speed*0.7,Math.min(CAR_TYPES[car.type].speed,car.speed));
+      }
+      let nx=car.x+Math.cos(car.angle)*car.speed, ny=car.y+Math.sin(car.angle)*car.speed;
+      let hit=false;
+      for(let b of BUILDINGS){ if(b.type==='shop') continue; if(nx>b.x-14&&nx<b.x+b.w+14&&ny>b.y-14&&ny<b.y+b.h+14){ hit=true; break; } }
+      if(hit){ car.speed*=-0.18; if(Math.abs(car.speed)>4.2){ setWanted(wanted+0.3); lastCrimeTime=performance.now(); } }
+      else{ car.x=nx; car.y=ny; }
+      car.x=Math.max(80,Math.min(WORLD-80,car.x)); car.y=Math.max(80,Math.min(WORLD-80,car.y));
+      player.x=car.x; player.y=car.y; player.angle=car.angle; player.speed=car.speed;
+      for(let tr of traffic){
+        let d=Math.hypot(car.x-tr.x,car.y-tr.y);
+        if(d<42){ car.speed*=0.5; tr.speed*=0.5; tr.x+=Math.cos(Math.atan2(tr.y-car.y,tr.x-car.x))*18; tr.y+=Math.sin(Math.atan2(tr.y-car.y,tr.x-car.x))*18; }
+      }
+    }
+  }else{
+    if(inputMag>0.05){
+      let baseSpd=inputMag>0.7?4.4:2.8;
+      let spd= fit===2?baseSpd*1.1:baseSpd;
+      if(playerSpeedBoost>0){ spd*=1.6; playerSpeedBoost--; }
+      player.angle=Math.atan2(normY,normX);
+      let tryX=player.x+normX*spd, tryY=player.y+normY*spd;
+      let canX=true,canY=true;
+      for(let b of BUILDINGS){ if(tryX>b.x-6&&tryX<b.x+b.w+6&&player.y>b.y-6&&player.y<b.y+b.h+6) canX=false; if(player.x>b.x-6&&player.x<b.x+b.w+6&&tryY>b.y-6&&tryY<b.y+b.h+6) canY=false; }
+      if(canX){ player.x=Math.max(100,Math.min(WORLD-100,tryX)); }
+      if(canY){ player.y=Math.max(100,Math.min(WORLD-100,tryY)); }
+      let movedDist=Math.hypot(player.x-lastPos.x, player.y-lastPos.y);
+      if(movedDist<1 && inputMag>0.2) stuckFrames++; else stuckFrames=0;
+      if(stuckFrames>=4){
+        player.x=Math.max(100,Math.min(WORLD-100,player.x+Math.sign(lastSlideDir.x||1)*10));
+        player.y=Math.max(100,Math.min(WORLD-100,player.y+Math.sign(lastSlideDir.y||1)*10));
+        stuckFrames=0;
+      }
+      player.speed=spd;
+      if(autoDriving){ autoDriving=false; document.getElementById('autoDrivingBanner').style.display='none'; }
+    }else{ player.speed=0; stuckFrames=0; }
+    lastPos={x:player.x,y:player.y};
+    if(activeHustle && activeHustle.status==='pickup' && player.inCar===-1){
+      let d=Math.hypot(player.x-activeHustle.pickupX,player.y-activeHustle.pickupY);
+      if(d<90){
+        if(activeHustle.passengerId) npcs=npcs.filter(n=>n.id!==activeHustle.passengerId);
+        activeHustle.status='dropoff';
+        showToast('Picked up - Go to dropoff');
+        updateJobHUD();
+      }
+    }
+    if(activeHustle && activeHustle.status==='dropoff' && player.inCar===-1){
+      let d=Math.hypot(player.x-activeHustle.dropoffX,player.y-activeHustle.dropoffY);
+      if(d<90) completeHustle();
+    }
+  }
+  
+  // NPC update
+  bubbleCount=0;
+  for(let i=npcs.length-1;i>=0;i--){
+    let n=npcs[i];
+    let distToPlayer=Math.hypot(n.x-player.x,n.y-player.y);
+    if(n.bubbleTimer>0) bubbleCount++;
+    if(distToPlayer>NPC_DESPAWN_RADIUS){ npcs.splice(i,1); continue; }
+    if(distToPlayer>NPC_ACTIVE_RADIUS) continue;
+    if(n.bubbleTimer>0) n.bubbleTimer--; else n.bubbleText=null;
+    if(n.speechCooldown>0) n.speechCooldown--;
+    n.bob+=0.15;
+    if(n.state!=='flee'){
+      if(player.inCar!==-1){
+        let car=cars[player.inCar];
+        if(car){ let dVeh=Math.hypot(n.x-car.x,n.y-car.y); if(dVeh<70&&Math.abs(car.speed)>2.5){ n.state='flee'; n.fleeTimer=120; n.angle=Math.atan2(n.y-car.y,n.x-car.x); } }
+      }
+      for(let tr of traffic){ let d=Math.hypot(n.x-tr.x,n.y-tr.y); if(d<60&&Math.abs(tr.speed)>2){ n.state='flee'; n.fleeTimer=100; n.angle=Math.atan2(n.y-tr.y,n.x-tr.x); break; } }
+    }
+    if(n.state==='flee'){
+      n.fleeTimer--;
+      let moveSpeed=n.baseSpeed*2.2;
+      let nx=n.x+Math.cos(n.angle)*moveSpeed, ny=n.y+Math.sin(n.angle)*moveSpeed;
+      if(!isInsideBuilding(nx,ny,8)){ n.x=nx; n.y=ny; } else n.angle+=Math.PI/2;
+      if(n.fleeTimer<=0){ n.state='walk'; n.stateTimer=120+Math.random()*120; n.targetX=n.x+(Math.random()-0.5)*200; n.targetY=n.y+(Math.random()-0.5)*200; n.speed=n.baseSpeed; }
+    }else if(n.state==='walk'){
+      let dx=n.targetX-n.x, dy=n.targetY-n.y, dist=Math.hypot(dx,dy);
+      if(dist<12||n.stateTimer<=0){ n.state='idle'; n.stateTimer=60+Math.random()*90; if(Math.random()<0.3&&bubbleCount<3&&n.speechCooldown<=0&&distToPlayer<220){ n.state='talk'; n.stateTimer=80; n.bubbleText=PHRASES[Math.floor(Math.random()*PHRASES.length)]; n.bubbleTimer=120; n.speechCooldown=480+Math.random()*240; bubbleCount++; } }
+      else{ n.angle=Math.atan2(dy,dx); n.stateTimer--; let nx=n.x+Math.cos(n.angle)*n.speed, ny=n.y+Math.sin(n.angle)*n.speed; if(!isInsideBuilding(nx,ny,8)){ n.x=nx; n.y=ny; } else{ n.angle+=Math.PI/2; n.targetX=n.x+Math.cos(n.angle)*100; n.targetY=n.y+Math.sin(n.angle)*100; } }
+    }else if(n.state==='idle'){
+      n.stateTimer--;
+      if(n.stateTimer<=0){
+        if(Math.random()<0.35&&bubbleCount<3&&n.speechCooldown<=0&&distToPlayer<220&&Math.random()<0.08){ n.state='talk'; n.stateTimer=90; n.bubbleText=PHRASES[Math.floor(Math.random()*PHRASES.length)]; n.bubbleTimer=120; n.speechCooldown=480+Math.random()*240; bubbleCount++; }
+        else{ n.state='walk'; let ang=Math.random()*Math.PI*2, d=80+Math.random()*140; let tx=n.x+Math.cos(ang)*d, ty=n.y+Math.sin(ang)*d; tx=Math.max(120,Math.min(WORLD-120,tx)); ty=Math.max(120,Math.min(WORLD-120,ty)); if(isInsideBuilding(tx,ty,12)){ tx=n.x+(Math.random()-0.5)*60; ty=n.y+(Math.random()-0.5)*60; } n.targetX=tx; n.targetY=ty; n.stateTimer=150+Math.random()*150; }
+      }
+    }else if(n.state==='talk'){ n.stateTimer--; if(n.stateTimer<=0){ n.state='idle'; n.stateTimer=50+Math.random()*80; } }
+    if(n.speechCooldown<=0&&n.bubbleTimer<=0&&distToPlayer<220&&bubbleCount<3&&Math.random()<0.008){ n.bubbleText=PHRASES[Math.floor(Math.random()*PHRASES.length)]; n.bubbleTimer=120; n.speechCooldown=480+Math.random()*240; bubbleCount++; }
+  }
+  
+  // traffic
+  for(let i=traffic.length-1;i>=0;i--){
+    let tr=traffic[i];
+    let distToPlayer=Math.hypot(tr.x-player.x,tr.y-player.y);
+    if(distToPlayer>TRAFFIC_DESPAWN_RADIUS){ traffic.splice(i,1); continue; }
+    if(distToPlayer>TRAFFIC_ACTIVE_RADIUS) continue;
+    let slow=false;
+    for(let j=0;j<traffic.length;j++){ if(i===j) continue; let other=traffic[j]; let d=Math.hypot(tr.x-other.x,tr.y-other.y); if(d<50){ let angDiff=Math.abs(tr.angle-other.angle); if(angDiff<0.6||angDiff>5.6){ slow=true; break; } } }
+    if(slow){ tr.slowTimer=30; tr.speed*=0.3; }
+    if(tr.slowTimer>0){ tr.slowTimer--; tr.speed=Math.max(0.5,tr.speed*0.92); } else tr.speed=Math.min(tr.maxSpeed,tr.speed+0.05);
+    let nx=tr.x+Math.cos(tr.angle)*tr.speed, ny=tr.y+Math.sin(tr.angle)*tr.speed;
+    let lookX=tr.x+Math.cos(tr.angle)*90, lookY=tr.y+Math.sin(tr.angle)*90;
+    let blocked=false;
+    for(let b of BUILDINGS){ if(b.type==='shop') continue; if(lookX>b.x-10&&lookX<b.x+b.w+10&&lookY>b.y-10&&lookY<b.y+b.h+10){ blocked=true; break; } }
+    if(blocked) tr.angle+=0.5;
+    if(!isInsideBuilding(nx,ny,12)){ tr.x=nx; tr.y=ny; } else{ tr.angle+=Math.PI/2; tr.stuckFrames++; }
+    let moved=Math.hypot(tr.x-tr.lastX,tr.y-tr.lastY);
+    if(moved<0.3) tr.stuckFrames++; else tr.stuckFrames=0;
+    tr.lastX=tr.x; tr.lastY=tr.y;
+    if(tr.stuckFrames>60){ tr.angle+=Math.PI; tr.x+=Math.cos(tr.angle)*10; tr.y+=Math.sin(tr.angle)*10; tr.stuckFrames=0; }
+  }
+  if(traffic.length>MAX_TRAFFIC_TOTAL){
+    traffic.sort((a,b)=> Math.hypot(b.x-player.x,b.y-player.y) - Math.hypot(a.x-player.x,a.y-player.y));
+    traffic.splice(MAX_TRAFFIC_TOTAL);
+  }
+  maxTrafficObserved=Math.max(maxTrafficObserved,traffic.length);
+  maxNpcObserved=Math.max(maxNpcObserved,npcs.length);
+  
+  if(Math.random()<0.04){
+    let zone=getZoneAt(player.x,player.y);
+    let dens=getDensity(zone);
+    if(npcs.length<Math.min(MAX_NPCS,dens.ped+4)) spawnNPCNearPlayer();
+    if(traffic.length<MAX_TRAFFIC_TOTAL && traffic.length<dens.traffic+3) spawnTrafficNearPlayer();
+  }
+  if(Math.random()<0.003) spawnRandomEvent();
+  let now=Date.now();
+  randomEvents=randomEvents.filter(ev=> now-ev.spawnTime <= ev.expire*1000);
+  
+  if(activeHustle){
+    if(activeHustle.timer>0){ activeHustle.timer-=1/60; if(activeHustle.timer<=0){ showToast('Job failed - time expired'); cancelHustle(); } }
+    if(activeHustle.type==='car_wash' && activeHustle.status==='washing'){
+      if(player.inCar===-1){
+        let d=Math.hypot(player.x-600,player.y-1820);
+        if(d<100){
+          activeHustle.progress=(activeHustle.progress||0)+1.2;
+          if(activeHustle.progress>=100) completeHustle();
+        }
+      }else{
+        // in car wash
+        let d=Math.hypot(player.x-600,player.y-1820);
+        if(d<80){
+          activeHustle.progress=(activeHustle.progress||0)+0.8;
+          if(activeHustle.progress>=100){ carWashCleanTimer=800; completeHustle(); }
+        }
+      }
+    }
+    if(activeHustle.type==='street_race' || activeHustle.type==='marta_shift'){
+      let cp=activeHustle.checkpoints[activeHustle.currentCheckpoint];
+      if(cp){
+        let d=Math.hypot(player.x-cp.x,player.y-cp.y);
+        if(d<90){
+          activeHustle.currentCheckpoint++;
+          showToast(`Checkpoint ${activeHustle.currentCheckpoint}/${activeHustle.checkpoints.length}`);
+          if(activeHustle.currentCheckpoint>=activeHustle.checkpoints.length) completeHustle();
+        }
+      }
+    }
+    updateJobHUD();
+  }
+  if(carWashCleanTimer>0) carWashCleanTimer--;
+  
+  let t=performance.now();
+  if(wanted>0 && t-lastCrimeTime>(isEasyMode?5000:12000)){ wanted=Math.max(0,wanted-0.01); if(wanted<0.1) wanted=0; }
+  let policeInterval=isEasyMode?4000:2000;
+  if(wanted>0.5 && t-lastPoliceSpawn>policeInterval){
+    if(cops.length < (isEasyMode? Math.floor(wanted*0.6+1) : Math.floor(wanted*1.2+1))){
+      let ang=Math.random()*Math.PI*2, dist=600+Math.random()*300;
+      let x=player.x+Math.cos(ang)*dist, y=player.y+Math.sin(ang)*dist;
+      cops.push({x,y,angle:Math.atan2(player.y-y,player.x-x),speed:isEasyMode?2.5:5});
+      lastPoliceSpawn=t;
+    }
+  }
+  for(let cop of cops){
+    let ang=Math.atan2(player.y-cop.y, player.x-cop.x);
+    let diff=ang-cop.angle; while(diff>Math.PI) diff-=Math.PI*2; while(diff<-Math.PI) diff+=Math.PI*2;
+    cop.angle+=diff*0.05; cop.x+=Math.cos(cop.angle)*cop.speed; cop.y+=Math.sin(cop.angle)*cop.speed;
+  }
+  cops=cops.filter(c=> Math.hypot(c.x-player.x,c.y-player.y)<2000);
+  
+  let target=getMissionTarget();
+  if(target){
+    let d=Math.hypot(player.x-target.x, player.y-target.y);
+    document.getElementById('distanceText').textContent=`${Math.round(d/10)}m`;
+    document.getElementById('missionObjective').textContent=activeHustle?`${activeHustle.type.toUpperCase().replace('_',' ')} - ${activeHustle.status}`:(MISSIONS[missionIdx]?MISSIONS[missionIdx].title:'FREE ROAM');
+    let ang=Math.atan2(target.y-player.y, target.x-player.x);
+    document.getElementById('directionArrow').style.transform=`rotate(${ang*180/Math.PI}deg)`;
+  }
+  document.getElementById('zoneDisplay').textContent=getZoneAt(player.x,player.y).toUpperCase();
+  document.getElementById('entityCount').textContent=`NPC:${npcs.length} TRAFFIC:${traffic.length}/16 EV:${randomEvents.length}`;
+  document.getElementById('zoomDisplay').textContent=`ZOOM: ${viewMode} ${camera.currentZoom.toFixed(2)}x`;
+  
+  drawWorld();
+  drawMiniMap();
+  requestAnimationFrame(gameLoop);
+}
+function setWanted(v){ wanted=Math.max(0,Math.min(5,v)); document.getElementById('wantedDisplay').textContent='★'.repeat(Math.floor(wanted))+'☆'.repeat(5-Math.floor(wanted)); }
+
+// joystick
+let joyBase=document.getElementById('joystickBase');
+let joyStick=document.getElementById('joystickStick');
+let joyGrab=document.getElementById('joystickGrab');
+let joyActive=false;
+function getTouchPos(e){
+  let rect=joyBase.getBoundingClientRect();
+  let t=e.touches?e.touches[0]:e;
+  return {x:t.clientX-rect.left, y:t.clientY-rect.top};
+}
+function onJoyStart(e){
+  e.preventDefault();
+  let pos=getTouchPos(e);
+  let dist=Math.hypot(pos.x-60,pos.y-60);
+  if(dist>90) return;
+  joyActive=true; joystick.active=true;
+  if(autoDriving){ autoDriving=false; document.getElementById('autoDrivingBanner').style.display='none'; }
+}
+function onJoyMove(e){
+  if(!joyActive) return;
+  e.preventDefault();
+  let pos=getTouchPos(e);
+  let dx=pos.x-60, dy=pos.y-60;
+  let dist=Math.hypot(dx,dy);
+  let maxDist=48;
+  if(dist>maxDist){ dx=dx/dist*maxDist; dy=dy/dist*maxDist; }
+  joyStick.style.transform=`translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+  joystick.x=dx/maxDist; joystick.y=dy/maxDist;
+}
+function onJoyEnd(e){
+  if(!joyActive) return;
+  joyActive=false; joystick.active=false; joystick.x=0; joystick.y=0;
+  joyStick.style.transform='translate(-50%,-50%)';
+}
+joyBase.addEventListener('touchstart', onJoyStart, {passive:false});
+joyBase.addEventListener('touchmove', onJoyMove, {passive:false});
+joyBase.addEventListener('touchend', onJoyEnd);
+joyGrab.addEventListener('touchstart', onJoyStart, {passive:false});
+joyGrab.addEventListener('touchmove', onJoyMove, {passive:false});
+joyGrab.addEventListener('touchend', onJoyEnd);
+joyBase.addEventListener('mousedown', onJoyStart);
+window.addEventListener('mousemove', onJoyMove);
+window.addEventListener('mouseup', onJoyEnd);
+
+// buttons
+document.getElementById('jackBtn').addEventListener('touchstart', (e)=>{e.preventDefault(); tryEnterExitCar();});
+document.getElementById('jackBtn').addEventListener('mousedown', tryEnterExitCar);
+document.getElementById('exitBtn').addEventListener('touchstart', (e)=>{e.preventDefault(); tryEnterExitCar();});
+document.getElementById('exitBtn').addEventListener('mousedown', tryEnterExitCar);
+document.getElementById('autoBtn').addEventListener('touchstart', (e)=>{e.preventDefault(); handleAutoDriveToggle();});
+document.getElementById('autoBtn').addEventListener('mousedown', handleAutoDriveToggle);
+document.getElementById('hustleBtn').addEventListener('touchstart', (e)=>{e.preventDefault(); handleAction();});
+document.getElementById('hustleBtn').addEventListener('mousedown', handleAction);
+document.getElementById('interactBtn').addEventListener('touchstart', (e)=>{e.preventDefault(); if(closestBusiness!==-1) openBusinessModal(BUSINESSES[closestBusiness].id);});
+document.getElementById('interactBtn').addEventListener('mousedown', ()=>{ if(closestBusiness!==-1) openBusinessModal(BUSINESSES[closestBusiness].id); });
+document.getElementById('cancelJobBtn').addEventListener('click', cancelHustle);
+document.getElementById('businessClose').addEventListener('click', closeBusinessModal);
+document.getElementById('hustleBoardBtn').addEventListener('click', ()=>{ document.getElementById('hustleBoard').classList.add('show'); updateHustleBoard(); });
+document.getElementById('hustleBoardClose').addEventListener('click', ()=>{ document.getElementById('hustleBoard').classList.remove('show'); });
+document.getElementById('viewBtn').addEventListener('click', ()=>{
+  const modes=['CLOSE','NORMAL','WIDE'];
+  let idx=modes.indexOf(viewMode);
+  idx=(idx+1)%modes.length;
+  viewMode=modes[idx];
+  localStorage.setItem('atl_view_mode', viewMode);
+  document.getElementById('viewBtn').textContent=`VIEW: ${viewMode}`;
+  showToast(`View: ${viewMode} - ${VIEW_ZOOMS[viewMode].onFoot}x on foot`);
+});
+
+// fit grid
+function renderFits(){
+  let grid=document.getElementById('fitGrid');
+  grid.innerHTML='';
+  FITS.forEach(f=>{
+    let owned=ownedFits.includes(f.id);
+    let btn=document.createElement('button');
+    btn.className='fitBtn'+(fit===f.id?' sel':'');
+    btn.innerHTML=`<div style="font-weight:800;font-size:13px">${f.name}</div><div style="font-size:9px;opacity:0.6;margin-top:4px">${f.desc} ${owned?'• OWNED':f.price===0?'• FREE':'• $'+f.price}</div>`;
+    btn.onclick=()=>{ if(!owned && f.price>0){ if(!spendCash(f.price,f.name)) return; ownedFits.push(f.id); localStorage.setItem('atl_owned_fits_b',JSON.stringify(ownedFits)); } fit=f.id; localStorage.setItem('atl_fit_b',fit.toString()); renderFits(); updateHUD(); };
+    grid.appendChild(btn);
+  });
+}
+renderFits();
+function updateHUD(){
+  document.getElementById('cashDisplay').textContent=`$${cash}`;
+}
+
+document.getElementById('easySwitch').addEventListener('click', ()=>{
+  isEasyMode=!isEasyMode;
+  localStorage.setItem('atl_easy_mode', isEasyMode.toString());
+  document.getElementById('easySwitch').className='switch'+(isEasyMode?' on':'');
+  document.getElementById('easyLabel').textContent='EASY MODE: '+(isEasyMode?'ON':'OFF');
+  document.getElementById('easyBadge').textContent='EASY MODE '+(isEasyMode?'ON':'OFF');
+  document.getElementById('jackDistLabel').textContent=isEasyMode?'80px':'50px';
+});
+
+document.getElementById('playBtn').addEventListener('click', ()=>{
+  document.getElementById('introScreen').style.display='none';
+  initWorld();
+  updateHUD();
+  if(isEasyMode && !tutorialDone){
+    document.getElementById('tutorialOverlay').classList.add('show');
+    showTutStep(0);
+  }
+  gameLoop();
+  setInterval(()=>{ if(npcs.length<MAX_NPCS) spawnNPCNearPlayer(); if(traffic.length<MAX_TRAFFIC_TOTAL) spawnTrafficNearPlayer(); },1200);
+  setInterval(spawnRandomEvent, 15000);
+});
+
+let tutStep=0;
+function showTutStep(s){
+  tutStep=s;
+  document.getElementById('tutStepNum').textContent=s+1;
+  let content=document.getElementById('tutContent');
+  if(s===0) content.innerHTML=`<div style="width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:16px">📷</div><div style="font-weight:900;font-size:22px;color:#fff">CLOSE CAMERA + HUSTLES</div><div style="font-size:13px;color:rgba(255,255,255,0.6);margin-top:8px">Phase B: Close camera 1.65x 55px character preserved, 7 businesses, 6 hustles, economy matters. Find $ markers within 800 units.</div>`;
+  else if(s===1) content.innerHTML=`<div style="width:64px;height:64px;border-radius:50%;background:rgba(250,204,21,0.2);display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:16px">🏪</div><div style="font-weight:900;font-size:22px;color:#fff">BUSINESSES + ECONOMY</div><div style="font-size:13px;color:rgba(255,255,255,0.6);margin-top:8px">Patchwerk studio runner, Cascade car wash $40 + hustle, Magic VIP driver, Clothing fits $250-750, Garage paint $250-600, Corner snacks, Safehouse. Cash: addCash/spendCash, NOT ENOUGH CASH blocks.</div>`;
+  else content.innerHTML=`<div style="width:64px;height:64px;border-radius:50%;background:rgba(34,197,94,0.2);display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:16px">💼</div><div style="font-weight:900;font-size:22px;color:#fff">HUSTLES + EVENTS + AUTO DRIVE</div><div style="font-size:13px;color:rgba(255,255,255,0.6);margin-top:8px">Delivery $120-300, Rideshare $100-250, Studio $200-400, Car Wash $75-150, Race $300-700, MARTA $250-500. Job HUD shows distance/payout/time, CANCEL clears. Events max 2, expire, use caps. Auto Drive follows hustle waypoint.</div>`;
+  document.getElementById('tutDots').innerHTML=[0,1,2].map(i=>`<div style="width:8px;height:8px;border-radius:50%;background:${i===s?'#fff':'rgba(255,255,255,0.2)'}"></div>`).join('');
+}
+document.getElementById('tutNext').addEventListener('click', ()=>{
+  if(tutStep<2){ tutStep++; showTutStep(tutStep); }
+  else{ document.getElementById('tutorialOverlay').classList.remove('show'); localStorage.setItem('atl_tutorial_done','true'); }
+});
+document.getElementById('tutSkip').addEventListener('click', ()=>{
+  document.getElementById('tutorialOverlay').classList.remove('show'); localStorage.setItem('atl_tutorial_done','true');
+});
+
+document.getElementById('viewBtn').textContent=`VIEW: ${viewMode}`;
+document.getElementById('easySwitch').className='switch'+(isEasyMode?' on':'');
+updateHUD();
+</script>
+</body>
+</html>
